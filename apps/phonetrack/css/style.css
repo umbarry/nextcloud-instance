@@ -1,0 +1,20 @@
+#app {
+	width: 100%;
+}
+#map *{
+	box-sizing: content-box;
+}
+/* jquery dialog */
+.ui-dialog{
+	z-index: 2001 !important ;
+}
+.ui-button-icon-only {
+	text-indent: unset !important;
+}
+.ui-button-icon-only .far,
+.ui-button-icon-only .fa {
+	padding-left: 1px;
+}
+#body-public #content {
+	min-height: 100% !important;
+}

@@ -13,7 +13,7 @@ services:
       - db
     volumes:
       - ./app:/var/www/html
-    restart: always
+    restart: no
     environment:
       MYSQL_HOST: db
       MYSQL_DATABASE: nextcloud
@@ -29,7 +29,7 @@ services:
   db:
     image: mariadb:10.6.18
     container_name: nextcloud_db
-    restart: always
+    restart: no
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: nextcloud

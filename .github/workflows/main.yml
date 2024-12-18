@@ -6,11 +6,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Check out our code
-      - name: Checkout
+      - name: Checkout                    # Check out code
         uses: actions/checkout@v4
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Rename file                 # rename prod config file
+        run: mv app/config/config-prod.php app/config/config.php  
+      - name: Delete file                 # delete dev config file
+        run: rm app/config/config-dev.php
+      - name: Upload artifact             # upload
+        uses: actions/upload-artifact@v4  
         with:
           name: app
           path: |

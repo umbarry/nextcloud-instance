@@ -1,23 +1,14 @@
 <?php
 $CONFIG = array (
-    'instanceid' => getenv('NEXTCLOUD_INSTANCE_ID'),
-    'passwordsalt' => getenv('NEXTCLOUD_PASSWORD_SALT'),
-    'secret' => getenv('NEXTCLOUD_SECRET'),
-    'trusted_domains' => 
-    array (
-        0 => getenv('NEXTCLOUD_TRUSTED_DOMAIN'),
+    'trusted_domains' => array(
+        0 => getenv('NC_TRUSTED_DOMAIN'),
     ),
-    'datadirectory' => getenv('NEXTCLOUD_DATADIRECTORY'),
     'dbtype' => 'mysql',
     'version' => '29.0.5.1',
-    'overwrite.cli.url' => 'https://' . getenv('NEXTCLOUD_TRUSTED_DOMAIN'),
-    'dbname' => getenv('MYSQL_DATABASE'),
-    'dbhost' => getenv('MYSQL_HOST'),
+    'overwrite.cli.url' => 'https://' . getenv('NC_TRUSTED_DOMAIN'),
     'dbport' => '',
     'dbtableprefix' => 'oc_',
     'mysql.utf8mb4' => true,
-    'dbuser' => getenv('MYSQL_USER'),
-    'dbpassword' => getenv('MYSQL_PASSWORD'),
     'installed' => true,
     'htaccess.RewriteBase' => '/',
     'memories.db.triggers.fcu' => true,

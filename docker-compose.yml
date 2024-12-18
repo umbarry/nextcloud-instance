@@ -15,15 +15,17 @@ services:
       - ./app:/var/www/html
     restart: no
     environment:
-      MYSQL_HOST: db
-      MYSQL_DATABASE: nextcloud
-      MYSQL_USER: nextcloud
-      MYSQL_PASSWORD: password
-      NEXTCLOUD_TRUSTED_DOMAIN: localhost
-      NEXTCLOUD_INSTANCE_ID: OucjtW2QNxJ3MCVs
-      NEXTCLOUD_PASSWORD_SALT: zgg+DTZA26HEA8qL7a+b7wNx9WHzVaPl4VAnbzhx24o=
-      NEXTCLOUD_SECRET: +KyDr+VYxumAIfRmnMW47LUEL9K3XZ9XGe1xHmINCMhMmU5gv/Yqjwu4r2Gu2xnvyTPAW2Lkm8WwXPQZi3hqg==
-      NEXTCLOUD_DATADIRECTORY: '/var/www/nextcloud/data'
+      NC_TRUSTED_DOMAIN: localhost
+      #NC_dbhost: db
+      #NC_dbname: nextcloud
+      #NC_dbuser: nextcloud
+      #NC_dbpassword: password
+      #NC_instanceid: OucjtW2QNxJ3MCVs
+      #NC_passwordsalt: zgg+DTZA26HEA8qL7a+b7wNx9WHzVaPl4VAnbzhx24o=
+      #NC_secret: +KyDr+VYxumAIfRmnMW47LUEL9K3XZ9XGe1xHmINCMhMmU5gv/Yqjwu4r2Gu2xnvyTPAW2Lkm8WwXPQZi3hqg==
+      #NC_datadirectory: '/var/www/html/data'
+      NC_loglevel: 0
+      NC_debug: true
     depends_on:
       - db
   db:

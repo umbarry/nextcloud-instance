@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install gd \
     && docker-php-ext-install mysqli pdo pdo_mysql \
     && docker-php-ext-install pcntl zip \
+    && docker-php-ext-install opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Increase memory limit
@@ -25,6 +26,3 @@ RUN a2enmod rewrite
 ARG UID=1000
 ARG GID=1000
 RUN groupmod -g ${GID} www-data && usermod -u ${UID} -g ${GID} www-data
-
-# Cambiare l'utente di default
-USER www-data

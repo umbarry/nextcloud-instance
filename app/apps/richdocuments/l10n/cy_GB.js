@@ -12,14 +12,15 @@ OC.L10N.register(
     "Description" : "Disgrifiad",
     "No results" : "Dim canlyniadau",
     "Close" : "Cau",
+    "Edit" : "Golygu",
     "Error" : "Gwall",
     "An error occurred" : "Digwyddodd gwall",
-    "Nickname" : "Llysenw",
     "Remove from favorites" : "Remove from favorites",
     "Add to favorites" : "Add to favorites",
     "Details" : "Manylion",
     "Download" : "Llwytho i lawr",
     "New file" : "Ffeil newydd",
-    "Create" : "Creu"
+    "Create" : "Creu",
+    "Nickname" : "Llysenw"
 },
 "nplurals=4; plural=(n==1) ? 0 : (n==2) ? 1 : (n != 8 && n != 11) ? 2 : 3;");

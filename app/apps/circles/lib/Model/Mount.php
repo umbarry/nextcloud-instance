@@ -4,28 +4,8 @@ declare(strict_types=1);
 
 
 /**
- * Circles - Bring cloud-users closer together.
- *
- * This file is licensed under the Affero General Public License version 3 or
- * later. See the COPYING file.
- *
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2021
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 
@@ -48,51 +28,21 @@ use OCP\Http\Client\IClientService;
 class Mount extends ManagedModel implements IDeserializable, IQueryRow, JsonSerializable {
 	use TArrayTools;
 
-
-	/** @var int */
-	private $id = 0;
-
-	/** @var string */
-	private $mountId = '';
-
-	/** @var string */
-	private $circleId = '';
-	//
-	//	/** @var string */
-	//	private $singleId = '';
-
-	/** @var Member */
-	private $owner;
-
-	/** @var Member */
-	private $initiator;
-
-	/** @var int */
-	private $parent = -1;
-
-	/** @var string */
-	private $token = '';
-
-	/** @var string */
-	private $password = '';
-
-	/** @var string */
-	private $mountPoint = '';
-
-	/** @var string */
-	private $mountPointHash = '';
-
-	/** @var string */
-	private $storage;
-
-	/** @var ICloudIdManager */
-	private $cloudIdManager;
-
-	/** @var IClientService */
-	private $httpClientService;
-
-	/** @var CircleMountManager */
-	private $mountManager;
+	private int $id = 0;
+	private string $mountId = '';
+	private string $circleId = '';
+	private Member $owner;
+	private Member $initiator;
+	private int $parent = -1;
+	private string $token = '';
+	private string $password = '';
+	private string $originalMountPoint = '';
+	private string $originalMountPointHash = '';
+	private ?Mountpoint $alternateMountPoint = null;
+	private string $storage;
+	private ICloudIdManager $cloudIdManager;
+	private IClientService $httpClientService;
+	private CircleMountManager $mountManager;
 
 
 	/**
@@ -155,70 +105,65 @@ class Mount extends ManagedModel implements IDeserializable, IQueryRow, JsonSeri
 		return $this;
 	}
 
-	//
-	//	/**
-	//	 *
-	//	 * @return string
-	//	 */
-	//	public function getSingleId(): string {
-	//		return $this->singleId;
-	//	}
-	//
-	//	/**
-	//	 * @param string $singleId
-	//	 *
-	//	 * @return Mount
-	//	 */
-	//	public function setSingleId(string $singleId): self {
-	//		$this->singleId = $singleId;
-	//
-	//		return $this;
-	//	}
-
-
 	/**
 	 * @param bool $raw
 	 *
 	 * @return string
 	 */
 	public function getMountPoint(bool $raw = true): string {
+		$mountPoint = $this->getAlternateMountPoint()?->getMountPoint() ?? $this->getOriginalMountPoint();
 		if ($raw) {
-			return $this->mountPoint;
+			return $mountPoint;
 		}
 
-		return '/' . $this->getInitiator()->getUserId() . '/files/' . ltrim($this->mountPoint, '/');
+		return '/' . $this->getInitiator()->getUserId() . '/files/' . ltrim($mountPoint, '/');
 	}
-
-	/**
-	 * @param string $mountPoint
-	 *
-	 * @return Mount
-	 */
-	public function setMountPoint(string $mountPoint): self {
-		$this->mountPoint = $mountPoint;
-
-		return $this;
-	}
-
 
 	/**
 	 * @return string
 	 */
-	public function getMountPointHash(): string {
-		return $this->mountPointHash;
+	public function getOriginalMountPoint(): string {
+		return $this->originalMountPoint;
 	}
 
 	/**
-	 * @param string $mountPointHash
+	 * @param string $originalMountPoint
 	 *
 	 * @return Mount
 	 */
-	public function setMountPointHash(string $mountPointHash): self {
-		$this->mountPointHash = $mountPointHash;
+	public function setOriginalMountPoint(string $originalMountPoint): self {
+		$this->originalMountPoint = $originalMountPoint;
 
 		return $this;
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getOriginalMountPointHash(): string {
+		return $this->originalMountPointHash;
+	}
+
+	/**
+	 * @param string $originalMountPointHash
+	 *
+	 * @return Mount
+	 */
+	public function setOriginalMountPointHash(string $originalMountPointHash): self {
+		$this->originalMountPointHash = $originalMountPointHash;
+
+		return $this;
+	}
+
+	public function setAlternateMountPoint(Mountpoint $mountPoint): self {
+		$this->alternateMountPoint = $mountPoint;
+
+		return $this;
+	}
+
+	public function getAlternateMountPoint(): ?Mountpoint {
+		return $this->alternateMountPoint;
+	}
 
 	/**
 	 * @return int
@@ -437,8 +382,8 @@ class Mount extends ManagedModel implements IDeserializable, IQueryRow, JsonSeri
 		$this->setOwner($wrappedShare->getOwner());
 		$this->setToken($wrappedShare->getToken());
 		$this->setParent(-1);
-		$this->setMountPoint($wrappedShare->getFileTarget());
-		$this->setMountPointHash(md5($wrappedShare->getFileTarget()));
+		$this->setOriginalMountPoint($wrappedShare->getFileTarget());
+		$this->setOriginalMountPointHash(md5($wrappedShare->getFileTarget()));
 	}
 
 
@@ -463,10 +408,9 @@ class Mount extends ManagedModel implements IDeserializable, IQueryRow, JsonSeri
 		$this->setCircleId($this->get('circle_id', $data));
 		$this->setToken($this->get('token', $data));
 		$this->setParent($this->getInt('parent', $data));
-		$this->setMountPoint($this->get('mountpoint', $data));
-		$this->setMountPointHash($this->get('mountpoint_hash', $data));
-
-		//		$this->setDefaultMountPoint($this->get('mountpoint', $data));
+		$this->setOriginalMountPoint($this->get('mountpoint', $data));
+		$this->setOriginalMountPointHash($this->get('mountpoint_hash', $data));
+		$this->setMountId($this->get('mount_id', $data));
 
 		$this->getManager()->manageImportFromDatabase($this, $data, $prefix);
 
@@ -486,8 +430,9 @@ class Mount extends ManagedModel implements IDeserializable, IQueryRow, JsonSeri
 			'owner' => $this->getOwner(),
 			'token' => $this->getToken(),
 			'password' => $this->getPassword(),
-			'mountPoint' => $this->getMountPoint(),
-			'mountPointHash' => $this->getMountPointHash(),
+			'originalMountPoint' => $this->getOriginalMountPoint(),
+			'originalMountPointHash' => $this->getOriginalMountPointHash(),
+			'alternateMountPoint' => $this->getAlternateMountPoint()
 		];
 
 		if ($this->hasInitiator()) {

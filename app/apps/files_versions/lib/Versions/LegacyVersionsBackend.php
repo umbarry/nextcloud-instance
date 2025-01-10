@@ -3,26 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @copyright Copyright (c) 2018 Robin Appelman <robin@icewind.nl>
- *
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Files_Versions\Versions;
@@ -30,8 +12,6 @@ namespace OCA\Files_Versions\Versions;
 use Exception;
 use OC\Files\View;
 use OCA\DAV\Connector\Sabre\Exception\Forbidden;
-use OCA\Files_Sharing\ISharedStorage;
-use OCA\Files_Sharing\SharedStorage;
 use OCA\Files_Versions\Db\VersionEntity;
 use OCA\Files_Versions\Db\VersionsMapper;
 use OCA\Files_Versions\Storage;
@@ -42,6 +22,7 @@ use OCP\Files\IMimeTypeLoader;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
+use OCP\Files\Storage\ISharedStorage;
 use OCP\Files\Storage\IStorage;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -66,7 +47,7 @@ class LegacyVersionsBackend implements IVersionBackend, IDeletableVersionBackend
 	public function getVersionsForFile(IUser $user, FileInfo $file): array {
 		$storage = $file->getStorage();
 
-		if ($storage->instanceOfStorage(SharedStorage::class)) {
+		if ($storage->instanceOfStorage(ISharedStorage::class)) {
 			$owner = $storage->getOwner('');
 			$user = $this->userManager->get($owner);
 
@@ -210,7 +191,7 @@ class LegacyVersionsBackend implements IVersionBackend, IDeletableVersionBackend
 
 		// Shared files have their versions in the owners root folder so we need to obtain them from there
 		if ($storage->instanceOfStorage(ISharedStorage::class) && $owner) {
-			/** @var SharedStorage $storage */
+			/** @var ISharedStorage $storage */
 			$userFolder = $this->rootFolder->getUserFolder($owner->getUID());
 			$user = $owner;
 			$ownerPathInStorage = $sourceFile->getInternalPath();
@@ -246,7 +227,27 @@ class LegacyVersionsBackend implements IVersionBackend, IDeletableVersionBackend
 		$versionEntity->setSize($file->getSize());
 		$versionEntity->setMimetype($this->mimeTypeLoader->getId($file->getMimetype()));
 		$versionEntity->setMetadata([]);
-		$this->versionsMapper->insert($versionEntity);
+
+		$tries = 1;
+		while ($tries < 5) {
+			try {
+				$this->versionsMapper->insert($versionEntity);
+				/* No errors, get out of the method */
+				return;
+			} catch (\OCP\DB\Exception $e) {
+				if (!in_array($e->getReason(), [
+					\OCP\DB\Exception::REASON_CONSTRAINT_VIOLATION,
+					\OCP\DB\Exception::REASON_UNIQUE_CONSTRAINT_VIOLATION,
+				])
+				) {
+					throw $e;
+				}
+				/* Conflict with another version, increase mtime and try again */
+				$versionEntity->setTimestamp($versionEntity->getTimestamp() + 1);
+				$tries++;
+				$this->logger->warning('Constraint violation while inserting version, retrying with increased timestamp', ['exception' => $e]);
+			}
+		}
 	}
 
 	public function updateVersionEntity(File $sourceFile, int $revision, array $properties): void {

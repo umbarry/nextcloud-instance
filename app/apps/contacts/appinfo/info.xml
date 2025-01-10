@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
+<!--
+  - SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-FileCopyrightText: 2015-2016 ownCloud, Inc.
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>contacts</id>
 	<name>Contacts</name>
@@ -11,7 +16,7 @@
 * 🙈 **We’re not reinventing the wheel!** Based on the great and open SabreDAV library.
 	</description>
 
-	<version>6.0.0</version>
+	<version>6.1.3</version>
 	<licence>agpl</licence>
 
 	<author mail="hamza221@users.noreply.github.com">Hamza Mahjoubi</author>
@@ -38,8 +43,8 @@
 	<screenshot>https://raw.githubusercontent.com/nextcloud/screenshots/master/apps/Contacts/contacts.png</screenshot>
 
 	<dependencies>
-		<php min-version="7.4" max-version="8.3" />
-		<nextcloud min-version="29" max-version="29" />
+		<php min-version="8.1" max-version="8.3" />
+		<nextcloud min-version="30" max-version="30" />
 	</dependencies>
 
 	<background-jobs>

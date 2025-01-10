@@ -1,38 +1,8 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Jesús Macias <jmacias@solidgear.es>
- * @author Jörn Friedrich Dreyer <jfd@butonic.de>
- * @author Juan Pablo Villafañez <jvillafanez@solidgear.es>
- * @author Juan Pablo Villafáñez <jvillafanez@solidgear.es>
- * @author Julius Härtl <jus@bitgrid.net>
- * @author Michael Gapczynski <GapczynskiM@gmail.com>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Philipp Kapfer <philipp.kapfer@gmx.at>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Robin McCorkell <robin@mccorkell.me.uk>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Roland Tapken <roland@bitarbeiter.net>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Vincent Petry <vincent@nextcloud.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OCA\Files_External\Lib\Storage;
 
@@ -190,6 +160,8 @@ class SMB extends Common implements INotifyStorage {
 	 * @param string $path
 	 * @return IFileInfo
 	 * @throws StorageAuthException
+	 * @throws \OCP\Files\NotFoundException
+	 * @throws \OCP\Files\ForbiddenException
 	 */
 	protected function getFileInfo($path) {
 		try {
@@ -366,7 +338,7 @@ class SMB extends Common implements INotifyStorage {
 	public function stat($path, $retry = true) {
 		try {
 			$result = $this->formatInfo($this->getFileInfo($path));
-		} catch (ForbiddenException $e) {
+		} catch (\OCP\Files\ForbiddenException $e) {
 			return false;
 		} catch (\OCP\Files\NotFoundException $e) {
 			return false;
@@ -587,7 +559,7 @@ class SMB extends Common implements INotifyStorage {
 			$fileInfo = $this->getFileInfo($path);
 		} catch (\OCP\Files\NotFoundException $e) {
 			return null;
-		} catch (ForbiddenException $e) {
+		} catch (\OCP\Files\ForbiddenException $e) {
 			return null;
 		}
 		if (!$fileInfo) {
@@ -663,7 +635,7 @@ class SMB extends Common implements INotifyStorage {
 			return $this->getFileInfo($path)->isDirectory() ? 'dir' : 'file';
 		} catch (\OCP\Files\NotFoundException $e) {
 			return false;
-		} catch (ForbiddenException $e) {
+		} catch (\OCP\Files\ForbiddenException $e) {
 			return false;
 		}
 	}
@@ -698,7 +670,7 @@ class SMB extends Common implements INotifyStorage {
 			return true;
 		} catch (\OCP\Files\NotFoundException $e) {
 			return false;
-		} catch (ForbiddenException $e) {
+		} catch (\OCP\Files\ForbiddenException $e) {
 			return false;
 		} catch (ConnectException $e) {
 			throw new StorageNotAvailableException($e->getMessage(), (int)$e->getCode(), $e);
@@ -711,7 +683,7 @@ class SMB extends Common implements INotifyStorage {
 			return $this->showHidden || !$info->isHidden();
 		} catch (\OCP\Files\NotFoundException $e) {
 			return false;
-		} catch (ForbiddenException $e) {
+		} catch (\OCP\Files\ForbiddenException $e) {
 			return false;
 		}
 	}
@@ -724,7 +696,7 @@ class SMB extends Common implements INotifyStorage {
 			return ($this->showHidden || !$info->isHidden()) && (!$info->isReadOnly() || $info->isDirectory());
 		} catch (\OCP\Files\NotFoundException $e) {
 			return false;
-		} catch (ForbiddenException $e) {
+		} catch (\OCP\Files\ForbiddenException $e) {
 			return false;
 		}
 	}
@@ -735,7 +707,7 @@ class SMB extends Common implements INotifyStorage {
 			return ($this->showHidden || !$info->isHidden()) && !$info->isReadOnly();
 		} catch (\OCP\Files\NotFoundException $e) {
 			return false;
-		} catch (ForbiddenException $e) {
+		} catch (\OCP\Files\ForbiddenException $e) {
 			return false;
 		}
 	}

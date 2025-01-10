@@ -2,28 +2,9 @@
 
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2020 Julius Härtl <jus@bitgrid.net>
- *
- * @author Julius Härtl <jus@bitgrid.net>
- * @author Richard Steinmetz <richard@steinmetz.cloud>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2020 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 namespace OCA\Calendar\Dashboard;
 
 use DateInterval;
@@ -35,18 +16,20 @@ use OCP\AppFramework\Services\IInitialState;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Calendar\IManager;
 use OCP\Dashboard\IAPIWidget;
+use OCP\Dashboard\IAPIWidgetV2;
 use OCP\Dashboard\IButtonWidget;
 use OCP\Dashboard\IIconWidget;
 use OCP\Dashboard\IOptionWidget;
+use OCP\Dashboard\IReloadableWidget;
 use OCP\Dashboard\Model\WidgetButton;
 use OCP\Dashboard\Model\WidgetItem;
+use OCP\Dashboard\Model\WidgetItems;
 use OCP\Dashboard\Model\WidgetOptions;
 use OCP\IDateTimeFormatter;
 use OCP\IL10N;
 use OCP\IURLGenerator;
-use OCP\Util;
 
-class CalendarWidget implements IAPIWidget, IButtonWidget, IIconWidget, IOptionWidget {
+class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWidget, IOptionWidget, IReloadableWidget {
 	protected IL10N $l10n;
 	protected IInitialState $initialStateService;
 	protected JSDataService $dataService;
@@ -57,13 +40,6 @@ class CalendarWidget implements IAPIWidget, IButtonWidget, IIconWidget, IOptionW
 
 	/**
 	 * CalendarWidget constructor.
-	 *
-	 * @param IL10N $l10n
-	 * @param IInitialState $initialStateService
-	 * @param JSDataService $dataService
-	 * @param IDateTimeFormatter $dateTimeFormatter
-	 * @param IURLGenerator $urlGenerator
-	 * @param IManager $calendarManager
 	 */
 	public function __construct(IL10N $l10n,
 		IInitialState $initialStateService,
@@ -129,12 +105,7 @@ class CalendarWidget implements IAPIWidget, IButtonWidget, IIconWidget, IOptionW
 	 * @inheritDoc
 	 */
 	public function load(): void {
-		Util::addScript(Application::APP_ID, 'calendar-dashboard');
-		Util::addStyle(Application::APP_ID, 'dashboard');
-
-		$this->initialStateService->provideLazyInitialState('dashboard_data', function () {
-			return $this->dataService;
-		});
+		// No assets need to be loaded anymore as the widget is rendered from the API
 	}
 
 	public function getItems(string $userId, ?string $since = null, int $limit = 7): array {
@@ -191,6 +162,27 @@ class CalendarWidget implements IAPIWidget, IButtonWidget, IIconWidget, IOptionW
 	/**
 	 * @inheritDoc
 	 */
+	public function getItemsV2(string $userId, ?string $since = null, int $limit = 7): WidgetItems {
+		$widgetItems = $this->getItems($userId, $since, $limit);
+
+		$halfEmptyContentMessage = '';
+		if (!empty($widgetItems)) {
+			$startOfTomorrow = $this->timeFactory->getDateTime('tomorrow')->getTimestamp();
+			if ($widgetItems[0]->getSinceId() >= $startOfTomorrow) {
+				$halfEmptyContentMessage = $this->l10n->t('No more events today');
+			}
+		}
+
+		return new WidgetItems(
+			$widgetItems,
+			empty($widgetItems) ? $this->l10n->t('No upcoming events') : '',
+			$halfEmptyContentMessage,
+		);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function getWidgetButtons(string $userId): array {
 		return [
 			new WidgetButton(
@@ -208,5 +200,12 @@ class CalendarWidget implements IAPIWidget, IButtonWidget, IIconWidget, IOptionW
 	 */
 	public function getWidgetOptions(): WidgetOptions {
 		return new WidgetOptions(true);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getReloadInterval(): int {
+		return 600;
 	}
 }

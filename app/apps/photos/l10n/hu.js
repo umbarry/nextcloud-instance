@@ -65,6 +65,7 @@ OC.L10N.register(
     "Jump to specific date in list" : "Ugrás a listán egy megadott dátumhoz",
     "Jump to {date}" : "Ugrás ekorra {date}",
     "Add to {destination}" : "Hozzáadás ehhez: {destination}",
+    "The destination folder is owned by {owner}" : "A célmappa {owner}tulajdonában van",
     "There are no photos or videos yet!" : "Még nincs fénykép vagy videó.",
     "_{years} year ago_::_{years} years ago_" : ["{years} éve","{years} éve"],
     "Enable squared photos view" : "A négyzet alakú fotónézet engedélyezése",
@@ -127,7 +128,7 @@ OC.L10N.register(
     "Photos with tags will show up here" : "A címkével rendelkező fényképek itt fognak megjelenni",
     "Popular tags" : "Népszerű címkék",
     "All tags" : "Összes jelölés",
-    "One of the source folders does not exists" : "Az egyik forrás könyvtár nem létezik",
+    "One of the source folders does not exist" : "Az egyik forrás könyvtár nem létezik",
     "Add" : "Hozzáadás",
     "Add to album" : "Hozzáadás az albumhoz",
     "Delete selection" : "Kiválasztás törlése",
@@ -157,6 +158,7 @@ OC.L10N.register(
     "Default Photos upload and Albums location" : "Fényképfeltöltés és Albumok alapértelmezett helye",
     "Select the default location for your media" : "Válassza ki a médiafájlok alapértelmezett helyét",
     "Invalid location selected" : "Érvénytelen hely választva",
-    "Photos directory" : "Fényképek könyvtár"
+    "Photos directory" : "Fényképek könyvtár",
+    "One of the source folders does not exists" : "Az egyik forrás könyvtár nem létezik"
 },
 "nplurals=2; plural=(n != 1);");

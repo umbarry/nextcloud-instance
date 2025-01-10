@@ -1,24 +1,6 @@
-/**
- * Calendar App
- *
- * @copyright 2019 Georg Ehrke <oc.list@georgehrke.com>
- *
- * @author Georg Ehrke
- * @author Richard Steinmetz <richard@steinmetz.cloud>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
- *
- * You should have received a copy of the GNU Affero General Public
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
+/*!
+ * SPDX-FileCopyrightText: 2019 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 .app-calendar .app-sidebar,
@@ -56,6 +38,37 @@
 		background-position-x: 8px;
 	}
 
+	.app-sidebar-header {
+		&__action {
+			margin-top: 0 !important;
+			max-height: none !important;
+			flex-wrap: wrap;
+
+			div {
+				flex-shrink: 0;
+			}
+		}
+
+		&__desc {
+			// We use our custom header layout for the sidebar editor
+			height: 0 !important;
+			padding: 0 !important;
+			margin: 0 !important;
+
+			// But keep the three-dot menu in the front
+			.app-sidebar-header__menu {
+				z-index: 1;
+			}
+		}
+
+		&__description {
+			flex-direction: column;
+
+			// Close button should be aligned with calendar picker (header)
+			padding-top: 5px;
+		}
+	}
+
 	.app-sidebar-tab {
 		// Make the whole sidebar scrollable instead of just the active tab
 		overflow: unset !important;
@@ -80,6 +93,14 @@
 		}
 		&__content {
 			margin-bottom: 120px;
+		}
+	}
+
+	.app-sidebar-tabs {
+		// Fix empty content in case of invalid event URLs
+		.empty-content {
+			height: 100vh;
+			padding: 0 20px;
 		}
 	}
 
@@ -161,8 +182,7 @@
 			display: flex;
 			align-items: center;
 
-			.multiselect,
-			input[type=number] {
+			.multiselect {
 				min-width: 100px;
 				width: 25%;
 			}

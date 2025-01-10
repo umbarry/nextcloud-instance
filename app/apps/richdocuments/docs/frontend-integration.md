@@ -1,3 +1,7 @@
+<!--
+  - SPDX-FileCopyrightText: 2020 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
 ## Frontend integration API
 
 ### Configuration
@@ -96,6 +100,10 @@ The following handlers are currently supported:
 - insertGraphic: will be called when an image from the Nextcloud storage should be inserted
   - Arguments
     - insertFileFromPath(path): Callback to trigger the actual inserting of the graphic from an absolute file path
+- insertFile: will be called when a file (e.g., multimedia) from the Nextcloud storage should be inserted (generalized insertGraphic)
+  - Arguments
+    - mimeTypeFilter: array of MIME types (strings) to filter in the UI
+    - insertFileFromPath(path): Callback to trigger the actual inserting of the file from an absolute file path
 
 In addition, the following handlers can be used to overwrite the handling of file actions that are rendered in the Nextcloud header bar:
 - actionDetails

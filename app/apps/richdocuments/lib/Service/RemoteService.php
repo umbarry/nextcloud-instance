@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
 namespace OCA\Richdocuments\Service;
 
 use Exception;
@@ -49,6 +52,49 @@ class RemoteService {
 			$this->logger->info('Failed to fetch target thumbnail', ['exception' => $e]);
 		}
 		return null;
+	}
+
+	/**
+	 * @return resource|string
+	 */
+	public function convertFileTo(File $file, string $format) {
+		$useTempFile = $file->isEncrypted() || !$file->getStorage()->isLocal();
+		if ($useTempFile) {
+			$fileName = $file->getStorage()->getLocalFile($file->getInternalPath());
+			$stream = fopen($fileName, 'r');
+		} else {
+			$stream = $file->fopen('r');
+		}
+
+		if ($stream === false) {
+			throw new Exception('Failed to open stream');
+		}
+		return $this->convertTo($file->getName(), $stream, $format);
+	}
+
+	/**
+	 * @param resource $stream
+	 * @return resource|string
+	 */
+	public function convertTo(string $filename, $stream, string $format) {
+		$client = $this->clientService->newClient();
+		$options = RemoteOptionsService::getDefaultOptions();
+		// FIXME: can be removed once https://github.com/CollaboraOnline/online/issues/6983 is fixed upstream
+		$options['expect'] = false;
+
+		if ($this->appConfig->getDisableCertificateValidation()) {
+			$options['verify'] = false;
+		}
+
+		$options['multipart'] = [['name' => $filename, 'contents' => $stream]];
+
+		try {
+			$response = $client->post($this->appConfig->getCollaboraUrlInternal() . '/cool/convert-to/' . $format, $options);
+			return $response->getBody();
+		} catch (\Exception $e) {
+			$this->logger->error('Failed to convert preview: ' . $e->getMessage(), ['exception' => $e]);
+			throw $e;
+		}
 	}
 
 	private function getRequestOptionsForFile(File $file, ?string $target = null): array {

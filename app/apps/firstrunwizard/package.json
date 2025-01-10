@@ -1,7 +1,7 @@
 {
   "name": "firstrunwizard",
   "description": "A first run wizard that explains the usage of Nextcloud to new users",
-  "version": "2.18.0",
+  "version": "3.0.0",
   "author": "Julius Härtl <jus@bitgrid.net>",
   "license": "AGPL-3.0-or-later",
   "private": true,
@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
-    "@nextcloud/axios": "^2.5.0",
-    "@nextcloud/dialogs": "^5.3.5",
+    "@nextcloud/axios": "^2.5.1",
+    "@nextcloud/dialogs": "^5.3.7",
     "@nextcloud/initial-state": "^2.2.0",
     "@nextcloud/l10n": "^3.1.0",
     "@nextcloud/router": "^3.0.1",
@@ -41,6 +41,6 @@
     "@nextcloud/vite-config": "^1.4.2",
     "@vue/tsconfig": "^0.5.1",
     "sass": "^1.77.8",
-    "vite": "^5.4.1"
+    "vite": "^5.4.11"
   }
 }

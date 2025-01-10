@@ -1,24 +1,7 @@
 <?php
-/*
- * @copyright Copyright (c) 2021 Julius Härtl <jus@bitgrid.net>
- *
- * @author Julius Härtl <jus@bitgrid.net>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+/**
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
@@ -30,6 +13,10 @@ use OCA\Richdocuments\AppInfo\Application;
 use OCA\Richdocuments\Helper;
 use OCA\Richdocuments\TemplateManager;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
+use OCP\AppFramework\Http\Attribute\BruteForceProtection;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\Files\Folder;
@@ -40,29 +27,25 @@ use OCP\Files\Lock\LockContext;
 use OCP\Files\Lock\NoLockProviderException;
 use OCP\IL10N;
 use OCP\IRequest;
+use OCP\ISession;
 use OCP\PreConditionNotMetException;
 use OCP\Share\IManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
 class DocumentAPIController extends \OCP\AppFramework\OCSController {
-	private $rootFolder;
-	private $shareManager;
-	private $templateManager;
-	private $l10n;
-	private $logger;
-	private $lockManager;
-	private $userId;
-
-	public function __construct(IRequest $request, IRootFolder $rootFolder, IManager $shareManager, TemplateManager $templateManager, IL10N $l10n, LoggerInterface $logger, ILockManager $lockManager, $userId) {
+	public function __construct(
+		IRequest $request,
+		private IRootFolder $rootFolder,
+		private IManager $shareManager,
+		private TemplateManager $templateManager,
+		private IL10N $l10n,
+		private LoggerInterface $logger,
+		private ILockManager $lockManager,
+		private ISession $session,
+		private ?string $userId
+	) {
 		parent::__construct(Application::APPNAME, $request);
-		$this->rootFolder = $rootFolder;
-		$this->shareManager = $shareManager;
-		$this->templateManager = $templateManager;
-		$this->l10n = $l10n;
-		$this->logger = $logger;
-		$this->lockManager = $lockManager;
-		$this->userId = $userId;
 	}
 
 	/**
@@ -71,14 +54,27 @@ class DocumentAPIController extends \OCP\AppFramework\OCSController {
 	 * As the server template API for file creation is not available there, we need a dedicated API
 	 * in order to properly create files as public page visitors. This is being called in the new file
 	 * actions in src/view/NewFileMenu.js
-	 *
-	 * @NoAdminRequired
-	 * @PublicPage
 	 */
+	#[NoAdminRequired]
+	#[PublicPage]
+	#[BruteForceProtection(action: 'richdocumentsCreatePublic')]
+	#[AnonRateLimit(limit: 5, period: 120)]
 	public function create(string $mimeType, string $fileName, string $directoryPath = '/', ?string $shareToken = null, ?int $templateId = null): JSONResponse {
 		try {
 			if ($shareToken !== null) {
 				$share = $this->shareManager->getShareByToken($shareToken);
+
+				if ($share->getPassword()) {
+					if (!$this->session->exists('public_link_authenticated')
+						|| $this->session->get('public_link_authenticated') !== (string)$share->getId()
+					) {
+						throw new Exception('Invalid password');
+					}
+				}
+
+				if (!($share->getPermissions() & \OCP\Constants::PERMISSION_CREATE)) {
+					throw new Exception('No create permissions');
+				}
 			}
 
 			$rootFolder = $shareToken !== null ? $share->getNode() : $this->rootFolder->getUserFolder($this->userId);
@@ -89,10 +85,12 @@ class DocumentAPIController extends \OCP\AppFramework\OCSController {
 			}
 		} catch (Throwable $e) {
 			$this->logger->error('Failed to create document', ['exception' => $e]);
-			return new JSONResponse([
+			$response = new JSONResponse([
 				'status' => 'error',
 				'message' => $this->l10n->t('Cannot create document')
 			], Http::STATUS_BAD_REQUEST);
+			$response->throttle();
+			return $response;
 		}
 
 		$basename = $this->l10n->t('New Document.odt');
@@ -156,11 +154,14 @@ class DocumentAPIController extends \OCP\AppFramework\OCSController {
 		]);
 	}
 
-	#[Http\Attribute\NoAdminRequired]
+	#[NoAdminRequired]
 	public function openLocal(int $fileId): DataResponse {
 		try {
-			$files = $this->rootFolder->getUserFolder($this->userId)->getById($fileId);
-			$file = array_shift($files);
+			$file = $this->rootFolder->getUserFolder($this->userId)->getFirstNodeById($fileId);
+			if ($file === null) {
+				return new DataResponse([], Http::STATUS_NOT_FOUND);
+			}
+
 			$this->lockManager->unlock(new LockContext(
 				$file,
 				ILock::TYPE_APP,

@@ -11,12 +11,13 @@ OC.L10N.register(
     "Save" : "সংরক্ষণ",
     "Description" : "বিবরণ",
     "Close" : "বন্ধ",
+    "Edit" : "সম্পাদনা",
     "Error" : "সমস্যা",
-    "Nickname" : "ছদ্মনাম",
     "Remove from favorites" : "Remove from favorites",
     "Add to favorites" : "Add to favorites",
     "Details" : "বিসতারিত",
     "Download" : "ডাউনলোড",
-    "Create" : "তৈরী কর"
+    "Create" : "তৈরী কর",
+    "Nickname" : "ছদ্মনাম"
 },
 "nplurals=2; plural=(n != 1);");

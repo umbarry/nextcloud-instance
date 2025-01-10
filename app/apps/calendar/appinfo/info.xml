@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
+<!--
+  - SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-FileCopyrightText: 2014-2016 ownCloud, Inc.
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>calendar</id>
@@ -15,10 +20,11 @@
 * ☑️ Tasks! See tasks with a due date directly in the calendar
 * 🙈 **We’re not reinventing the wheel!** Based on the great [c-dav library](https://github.com/nextcloud/cdav-library), [ical.js](https://github.com/mozilla-comm/ical.js) and [fullcalendar](https://github.com/fullcalendar/fullcalendar) libraries.
 	]]></description>
-	<version>4.7.16</version>
+	<version>5.0.8</version>
 	<licence>agpl</licence>
-	<author>Anna Larch</author>
-	<author homepage="https://github.com/nextcloud/groupware">Nextcloud Groupware Team</author>
+	<author homepage="https://github.com/st3iny">Richard Steinmetz</author>
+	<author homepage="https://github.com/SebastianKrupinski">Sebastian Krupinski </author>
+	<author homepage="https://github.com/tcitworld">Thomas Citharel</author>
 	<namespace>Calendar</namespace>
 	<documentation>
 		<user>https://docs.nextcloud.com/server/latest/user_manual/en/groupware/calendar.html</user>
@@ -34,8 +40,9 @@
 	<screenshot>https://raw.githubusercontent.com/nextcloud/calendar/main/screenshots/week_room_suggestion.png</screenshot>
 	<screenshot>https://raw.githubusercontent.com/nextcloud/calendar/main/screenshots/week_sidebar.png</screenshot>
 	<dependencies>
-		<php min-version="8.0" max-version="8.3" />
-		<nextcloud min-version="26" max-version="29" />
+		<php min-version="8.1" max-version="8.3" />
+		<nextcloud min-version="30" max-version="30" />
+		<backend>caldav</backend>
 	</dependencies>
 	<background-jobs>
 		<job>OCA\Calendar\BackgroundJob\CleanUpOutdatedBookingsJob</job>

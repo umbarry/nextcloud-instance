@@ -65,6 +65,7 @@ OC.L10N.register(
     "Jump to specific date in list" : "Zu einem bestimmten Datum in der Liste springen",
     "Jump to {date}" : "Zu {date} springen",
     "Add to {destination}" : "Hinzufügen zu {destination}",
+    "The destination folder is owned by {owner}" : "Der Zielordner gehört {owner}",
     "There are no photos or videos yet!" : "Es gibt noch keine Fotos oder Videos!",
     "_{years} year ago_::_{years} years ago_" : ["Vor {years} Jahr","Vor {years} Jahren"],
     "Enable squared photos view" : "Quadratische Fotoansicht aktivieren",
@@ -127,7 +128,7 @@ OC.L10N.register(
     "Photos with tags will show up here" : "Fotos mit Schlagworten werden hier angezeigt",
     "Popular tags" : "Beliebte Schlagworte",
     "All tags" : "Alle Schlagworte",
-    "One of the source folders does not exists" : "Einer der Quellordner existiert nicht",
+    "One of the source folders does not exist" : "Einer der Quellordner existiert nicht",
     "Add" : "Hinzufügen",
     "Add to album" : "Zum Album hinzufügen",
     "Delete selection" : "Auswahl löschen",
@@ -157,6 +158,7 @@ OC.L10N.register(
     "Default Photos upload and Albums location" : "Standardspeicherort für das Hochladen von Fotos und Alben",
     "Select the default location for your media" : "Standardspeicherort für Ihre Medien auswählen",
     "Invalid location selected" : "Ungültigen Speicherort ausgewählt",
-    "Photos directory" : "Fotoverzeichnis"
+    "Photos directory" : "Fotoverzeichnis",
+    "One of the source folders does not exists" : "Einer der Quellordner existiert nicht"
 },
 "nplurals=2; plural=(n != 1);");

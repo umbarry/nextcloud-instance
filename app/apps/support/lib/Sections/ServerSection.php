@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2017 Julius Härtl <jus@bitgrid.net>
  *
@@ -30,9 +32,12 @@ use OCA\Files_External\Lib\StorageConfig;
 use OCA\Files_External\Service\GlobalStoragesService;
 use OCA\Support\IDetail;
 use OCA\Support\Section;
+use OCA\Support\Service\SubscriptionService;
+use OCA\Support\Subscription\SubscriptionAdapter;
 use OCA\User_LDAP\Configuration;
 use OCA\User_LDAP\Helper;
 use OCP\App\IAppManager;
+use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Http\Client\IClientService;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -42,34 +47,19 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class ServerSection extends Section {
-	private IConfig $config;
-	private Checker $checker;
-	private IAppManager $appManager;
-	private SystemConfig $systemConfig;
-	private IDBConnection $connection;
-	private IClientService $clientService;
-	private IUserManager $userManager;
-	private LoggerInterface $logger;
-
 	public function __construct(
-		IConfig $config,
-		Checker $checker,
-		IAppManager $appManager,
-		IDBConnection $connection,
-		IClientService $clientService,
-		IUserManager $userManager,
-		LoggerInterface $logger,
-		SystemConfig $systemConfig,
+		protected readonly IConfig $config,
+		protected readonly Checker $checker,
+		protected readonly IAppManager $appManager,
+		protected readonly IDBConnection $connection,
+		protected readonly IClientService $clientService,
+		protected readonly IUserManager $userManager,
+		protected readonly LoggerInterface $logger,
+		protected readonly SystemConfig $systemConfig,
+		protected readonly SubscriptionAdapter $adapter,
+		protected readonly ITimeFactory $timeFactory,
 	) {
 		parent::__construct('server-detail', 'Server configuration detail');
-		$this->config = $config;
-		$this->checker = $checker;
-		$this->appManager = $appManager;
-		$this->systemConfig = $systemConfig;
-		$this->connection = $connection;
-		$this->clientService = $clientService;
-		$this->userManager = $userManager;
-		$this->logger = $logger;
 	}
 
 	public function getDetails(): array {
@@ -94,6 +84,7 @@ class ServerSection extends Section {
 
 		$this->createDetail('Encryption', $this->getEncryptionInfo());
 		$this->createDetail('User-backends', $this->getUserBackendInfo());
+		$this->createDetail('Subscription', $this->getSubscriptionInfo());
 
 		if ($this->isLDAPEnabled()) {
 			$this->createDetail('LDAP configuration', $this->getLDAPInfo(), IDetail::TYPE_COLLAPSIBLE_PREFORMAT);
@@ -107,21 +98,21 @@ class ServerSection extends Section {
 		return parent::getDetails();
 	}
 
-	private function getWebserver() {
+	private function getWebserver(): string {
 		return ($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown') . ' (' . PHP_SAPI . ')';
 	}
 
-	private function getNextcloudVersion() {
+	private function getNextcloudVersion(): string {
 		return \OC_Util::getHumanVersion() . ' - ' . $this->config->getSystemValue('version');
 	}
-	private function getOsVersion() {
+	private function getOsVersion(): string {
 		return function_exists('php_uname') ? php_uname('s') . ' ' . php_uname('r') . ' ' . php_uname('v') . ' ' . php_uname('m') : PHP_OS;
 	}
-	private function getPhpVersion() {
+	private function getPhpVersion(): string {
 		return PHP_VERSION . "\n\nModules loaded: " . implode(', ', get_loaded_extensions());
 	}
 
-	protected function getDatabaseInfo() {
+	protected function getDatabaseInfo(): string {
 		return $this->config->getSystemValue('dbtype') . ' ' . $this->getDatabaseVersion();
 	}
 
@@ -133,7 +124,7 @@ class ServerSection extends Section {
 	 * @author Joas Schilling <coding@schilljs.com>
 	 * @license AGPL-3.0
 	 */
-	private function getDatabaseVersion() {
+	private function getDatabaseVersion(): string {
 		switch ($this->config->getSystemValue('dbtype')) {
 			case 'sqlite':
 			case 'sqlite3':
@@ -209,7 +200,7 @@ class ServerSection extends Section {
 		return 'unknown';
 	}
 
-	private function renderAppList() {
+	private function renderAppList(): string {
 		$apps = $this->getAppList();
 		$result = "Enabled:\n";
 		foreach ($apps['enabled'] as $name => $version) {
@@ -230,7 +221,7 @@ class ServerSection extends Section {
 	/**
 	 * @return string[][]
 	 */
-	private function getAppList() {
+	private function getAppList(): array {
 		$apps = \OC_App::getAllApps();
 		$enabledApps = $disabledApps = [];
 		$versions = \OC_App::getAppVersions();
@@ -255,11 +246,11 @@ class ServerSection extends Section {
 		return $apps;
 	}
 
-	protected function getEncryptionInfo() {
+	protected function getEncryptionInfo(): string {
 		return $this->config->getAppValue('core', 'encryption_enabled', 'no');
 	}
 
-	protected function getExternalStorageInfo() {
+	protected function getExternalStorageInfo(): string {
 		$globalService = \OC::$server->query(GlobalStoragesService::class);
 		$mounts = $globalService->getStorageForAllUsers();
 
@@ -341,7 +332,7 @@ class ServerSection extends Section {
 		return $output->fetch();
 	}
 
-	private function getConfig() {
+	private function getConfig(): array {
 		$keys = $this->systemConfig->getKeys();
 		$configs = [];
 		foreach ($keys as $key) {
@@ -357,7 +348,7 @@ class ServerSection extends Section {
 		return $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
 	}
 
-	private function getUserBackendInfo() {
+	private function getUserBackendInfo(): string {
 		$backends = $this->userManager->getBackends();
 
 		$output = PHP_EOL;
@@ -368,7 +359,7 @@ class ServerSection extends Section {
 		return $output;
 	}
 
-	private function isLDAPEnabled() {
+	private function isLDAPEnabled(): bool {
 		$backends = $this->userManager->getBackends();
 
 		foreach ($backends as $backend) {
@@ -380,11 +371,11 @@ class ServerSection extends Section {
 		return false;
 	}
 
-	private function isTalkEnabled() {
+	private function isTalkEnabled(): bool {
 		return $this->appManager->isEnabledForUser('spreed');
 	}
 
-	private function getTalkInfo() {
+	private function getTalkInfo(): string {
 		$output = PHP_EOL;
 
 		$config = $this->config->getAppValue('spreed', 'stun_servers');
@@ -495,7 +486,7 @@ class ServerSection extends Section {
 		}
 	}
 
-	private function getLDAPInfo() {
+	private function getLDAPInfo(): string {
 		/** @var Helper $helper */
 		$helper = \OC::$server->query(Helper::class);
 
@@ -525,5 +516,48 @@ class ServerSection extends Section {
 		}
 
 		return $output->fetch();
+	}
+
+	private function getSubscriptionInfo(): string {
+		$output = PHP_EOL;
+
+		if ($this->adapter->hasValidSubscription()) {
+			$output .= ' * Instance has valid subscription key set' . PHP_EOL;
+		} else {
+			$output .= ' * No valid subscription key set' . PHP_EOL;
+		}
+
+		$lastError = (int)$this->config->getAppValue('support', 'last_error', 0);
+
+		if ($lastError > 0) {
+			switch ($lastError) {
+				case SubscriptionService::ERROR_FAILED_RETRY:
+					$output .= ' * The subscription info could not properly fetched and will be retried' . PHP_EOL;
+					break;
+				case SubscriptionService::ERROR_FAILED_INVALID:
+					$output .= ' * The subscription key was invalid' . PHP_EOL;
+					break;
+				case SubscriptionService::ERROR_NO_INTERNET_CONNECTION:
+					$output .= ' * The subscription key could not be verified, because this server has no internet connection' . PHP_EOL;
+					break;
+				case SubscriptionService::ERROR_INVALID_SUBSCRIPTION_KEY:
+					$output .= ' * The subscription key had an invalid format' . PHP_EOL;
+					break;
+				default:
+					$output .= ' * An error occurred while fetching the subscription information' . PHP_EOL;
+					break;
+			}
+		}
+
+		if ($this->adapter->isHardUserLimitReached()) {
+			$output .= ' * Reached user limit of subscription' . PHP_EOL;
+		}
+
+		$rateLimitReached = (int)$this->config->getAppValue('notifications', 'rate_limit_reached', '0');
+		if ($rateLimitReached >= ($this->timeFactory->now()->getTimestamp() - 7 * 24 * 3600)) {
+			$output .= ' * Fair-use push notification limit reached' . PHP_EOL;
+		}
+
+		return $output;
 	}
 }

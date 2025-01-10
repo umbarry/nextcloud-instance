@@ -1,6 +1,7 @@
 OC.L10N.register(
     "notifications",
     {
+    "User not found" : "Užívateľ nebol nájdený",
     "Hello %s" : "Ahoj %s",
     "Hello %s," : "Ahoj %s,",
     "_New notification for %s_::_%n new notifications for %s_" : ["%n nové oznámenie pre %s","%n nových oznámení pre %s","%n nových oznámení pre %s","%n nových oznámení pre %s"],
@@ -12,7 +13,7 @@ OC.L10N.register(
     "Push notifications - Fair use policy" : "Push notifikácie - Politika spravodlivého užívania",
     "Nextcloud GmbH sponsors a free push notification gateway for private users. To ensure good service, the gateway limits the number of push notifications per server and the limit was reached for this server. For enterprise users, a more scalable gateway is available." : "Nextcloud GmbH sponzoruje bezplatnú bránu pre push notifikácie pre súkromných používateľov. Pre zabezpečenie dobrého servisu je táto brána obmedzená počtom push notifikácií na server a limit pre tento server bol dosiahnutý. Pre podnikových používateľov je k dispozícii škálovateľnejšia brána.",
     "This app provides a backend and frontend for the notification API available in Nextcloud." : "Táto aplikácia poskytuje backend a frontend pre notifikačné API dostupné v Nextcloud.",
-    "This app provides a backend and frontend for the notification API available in Nextcloud.\n\t\tThe API is used by other apps to notify users in the web UI and sync clients about various things. Some examples are:\n\n📬 Federated file sharing: You received a new remote share\n\n📑 Comments: Another user mentioned you in a comment on a file\n\n🚢 Update notification: Available update for an app or nextcloud itself\n\n📣 Announcement center: An announcement was posted by an admin" : "Táto aplikácia poskytuje backend a frontend pre notifikačné API dostupné v Nextcloud.\n\t\tAPI je používané aplikáciami na notifikáciu používateľov vo webovom rozhraní a synchronizačných klientoch.  Niektoré príklady notifikácií:\n\n📬 Združené sprístupňovanie súborov: Prijali ste nové sprístupnenie zo vzdialeného servra\n\n📑 Komentáre: Iný používateľ Vás spomenul v komentári k súboru\n\n🚢 Notifikácia aktualizácie: Dostupná aktualizácia aplikácie alebo samotného Nextcloud-u\n\n📣 Centrum oznámení: Administrátor vytvoril oznámenie",
+    "This app provides a backend and frontend for the notification API available in Nextcloud.\n\t\tThe API is used by other apps to notify users in the web UI and sync clients about various things. Some examples are:\n\n📬 Federated file sharing: You received a new remote share\n\n📑 Comments: Another user mentioned you in a comment on a file\n\n🚢 Update notification: Available update for an app or nextcloud itself\n\n📣 Announcement center: An announcement was posted by an admin" : "Táto aplikácia poskytuje backend a frontend pre notifikačné API dostupné v Nextcloud.\n\t\tAPI je používané aplikáciami na notifikáciu užívateľov vo webovom rozhraní a synchronizačných klientoch.  Niektoré príklady notifikácií:\n\n📬 Združené zdieľanie súborov: Prijali ste nové zdieľanie zo vzdialeného servra\n\n📑 Komentáre: Iný užívateľ Vás spomenul v komentári k súboru\n\n🚢 Notifikácia aktualizácie: Dostupná aktualizácia aplikácie alebo samotného Nextcloud-u\n\n📣 Centrum oznámení: Administrátor vytvoril oznámenie",
     "Failed to perform action" : "Nepodarilo sa vykonať akciu",
     "Dismiss" : "Zatvoriť",
     "Contact Nextcloud GmbH" : "Kontaktujte Nextcloud GmbH",
@@ -38,6 +39,8 @@ OC.L10N.register(
     "Your settings have been updated." : "Vaše nastavenia boli aktualizované.",
     "An error occurred while updating your settings." : "Nastala chyba počas ukladania nastavení.",
     "You need to set up your email address before you can receive notification emails." : "Ak chcete dostávať oznámenia emailom, musíte najskôr vyplniť vašu emailovú adresu.",
+    "Also repeat sound on a secondary speaker" : "Zopakovať zvuk aj na sekundárnom reproduktore",
+    "Selection of the speaker device is currently not supported by Safari" : "Výber zariadenia reproduktora momentálne nie je podporovaný prehliadačom Safari",
     "Select a device" : "Vyberte zariadenie",
     "None" : "Žiadne"
 },

@@ -1,6 +1,6 @@
 {
 	"name": "nextcloud/3rdparty",
-	"version": "dev-stable29",
+	"version": "dev-stable30",
 	"description": "All 3rdparty components",
 	"license": "MIT",
 	"config": {
@@ -9,7 +9,7 @@
 		"optimize-autoloader": true,
 		"classmap-authoritative": true,
 		"platform": {
-			"php": "8.0.2"
+			"php": "8.1.0"
 		},
 		"sort-packages": true,
 		"allow-plugins": {
@@ -17,21 +17,21 @@
 		}
 	},
 	"require": {
-		"php": "^8.0",
+		"php": "^8.1",
 		"aws/aws-sdk-php": "^3.240",
 		"bantu/ini-get-wrapper": "v1.0.1",
 		"cweagans/composer-patches": "^1.7",
 		"deepdiver/zipstreamer": "^2.0.3",
 		"deepdiver1975/tarstreamer": "^2.1.0",
-		"doctrine/dbal": "^3.8.3",
-		"egulias/email-validator": "^3.2.6",
-		"fusonic/opengraph": "^2.2",
+		"doctrine/dbal": "^3.9.1",
+		"egulias/email-validator": "^4.0.2",
+		"fusonic/opengraph": "^2.3.0",
 		"giggsey/libphonenumber-for-php-lite": "^8.13.12",
-		"guzzlehttp/guzzle": "^7.8.1",
+		"guzzlehttp/guzzle": "^7.8.2",
 		"icewind/searchdav": "^3.1.0",
 		"icewind/streams": "^0.7.7",
 		"kornrunner/blurhash": "^1.2",
-		"laravel/serializable-closure": "^1.3.3",
+		"laravel/serializable-closure": "^1.3.5",
 		"mexitek/phpcolors": "^1.0",
 		"microsoft/azure-storage-blob": "^1.5.4",
 		"mlocati/ip-lib": "^1.18",
@@ -45,21 +45,22 @@
 		"psr/clock": "^1.0",
 		"psr/container": "^2.0.2",
 		"psr/event-dispatcher": "^1.0",
+		"psr/log": "^2.0.0",
 		"punic/punic": "^3.8",
 		"sabre/dav": "^4.4.0",
 		"scssphp/scssphp": "^1.12",
-		"stecman/symfony-console-completion": "^0.11.0",
-		"symfony/console": "^5.4.24",
-		"symfony/event-dispatcher": "^5.4.26",
-		"symfony/http-foundation": "^5.4.24",
-		"symfony/mailer": "^5.4.22",
-		"symfony/polyfill-intl-grapheme": "^1.28",
-		"symfony/polyfill-intl-normalizer": "^1.28",
-		"symfony/process": "^5.4.34",
-		"symfony/routing": "^5.4.24",
-		"symfony/translation": "^5.4.24",
+		"stecman/symfony-console-completion": "^0.13.0",
+		"symfony/console": "^6.4.12",
+		"symfony/event-dispatcher": "^6.4.8",
+		"symfony/http-foundation": "^6.4.12",
+		"symfony/mailer": "^6.4.12",
+		"symfony/polyfill-intl-grapheme": "^1.31.0",
+		"symfony/polyfill-intl-normalizer": "^1.31.0",
+		"symfony/process": "^6.4.12",
+		"symfony/routing": "^6.4.12",
+		"symfony/translation": "^6.4.12",
 		"wapmorgan/mp3info": "^0.1.0",
-		"web-auth/webauthn-lib": "^3.1"
+		"web-auth/webauthn-lib": "^4.9.1"
 	},
 	"scripts": {
 		"lint": "find . -name \\*.php -print0 | xargs -0 -n1 php -l"

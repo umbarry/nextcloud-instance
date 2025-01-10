@@ -1,24 +1,7 @@
 <?php
-/*
- * @copyright Copyright (c) 2021 Julius Härtl <jus@bitgrid.net>
- *
- * @author Julius Härtl <jus@bitgrid.net>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+/**
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
@@ -28,6 +11,7 @@ namespace OCA\Richdocuments\Service;
 use OCA\Richdocuments\AppConfig;
 use OCA\Richdocuments\AppInfo\Application;
 use OCA\Richdocuments\Db\Wopi;
+use OCA\Theming\ImageManager;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Defaults;
 use OCP\IConfig;
@@ -39,6 +23,7 @@ class InitialStateService {
 	public function __construct(
 		private IInitialState $initialState,
 		private AppConfig $appConfig,
+		private ImageManager $imageManager,
 		private CapabilitiesService $capabilitiesService,
 		private IURLGenerator $urlGenerator,
 		private Defaults $themingDefaults,
@@ -101,15 +86,16 @@ class InitialStateService {
 			'UIMode' => $this->config->getAppValue(Application::APPNAME, 'uiDefaults-UIMode', 'notebookbar')
 		]);
 
-		$logoSet = $this->config->getAppValue('theming', 'logoheaderMime', '') !== '';
+		$logoType = 'logoheader';
+		$logoSet = $this->imageManager->hasImage($logoType);
 		if (!$logoSet) {
-			$logoSet = $this->config->getAppValue('theming', 'logoMime', '') !== '';
+			$logoType = 'logo';
+			$logoSet = $this->imageManager->hasImage($logoType);
 		}
 
-		$this->initialState->provideInitialState('theming-customLogo', ($logoSet ?
-			$this->urlGenerator->getAbsoluteURL($this->themingDefaults->getLogo())
-			: false));
+		$logo = $logoSet ? $this->imageManager->getImageUrlAbsolute($logoType) : false;
 
+		$this->initialState->provideInitialState('theming-customLogo', $logo);
 		$this->initialState->provideInitialState('open_local_editor', $this->config->getAppValue(Application::APPNAME, 'open_local_editor', 'yes') === 'yes');
 	}
 }

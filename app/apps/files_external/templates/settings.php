@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2012-2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
 use OCA\Files_External\Lib\Auth\AuthMechanism;
 use OCA\Files_External\Lib\Backend\Backend;
 use OCA\Files_External\Lib\DefinitionParameter;
@@ -16,10 +22,8 @@ $l->t("Never");
 $l->t("Once every direct access");
 $l->t('Read only');
 
-script('files_external', [
-	'settings',
-	'templates'
-]);
+\OCP\Util::addScript('files_external', 'settings');
+\OCP\Util::addScript('files_external', 'templates');
 style('files_external', 'settings');
 
 // load custom JS
@@ -140,7 +144,7 @@ function writeParameterInput($parameter, $options, $classes = []) {
 			<?php endif; ?>
 			>
 				<td class="status">
-					<span data-placement="right" title="<?php p($l->t('Click to recheck the configuration')); ?>"></span>
+					<span data-placement="right" title="<?php p($l->t('Click to recheck the configuration')); ?>" style="display: none;"></span>
 				</td>
 				<td class="mountPoint"><input type="text" name="mountPoint" value=""
 					placeholder="<?php p($l->t('Folder name')); ?>">

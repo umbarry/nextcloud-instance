@@ -2,25 +2,8 @@
 
 declare(strict_types = 1);
 /**
- * @copyright Copyright (c) 2018 John Molakvoæ <skjnldsv@protonmail.com>
- *
- * @author John Molakvoæ <skjnldsv@protonmail.com>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Richdocuments;
@@ -179,9 +162,9 @@ class TemplateManager {
 
 		$templateDir = $this->getUserTemplateDir();
 		// finally get the template file
-		$files = $templateDir->getById($fileId);
-		if ($files !== []) {
-			return $files[0];
+		$file = $templateDir->getFirstNodeById($fileId);
+		if ($file !== null) {
+			return $file;
 		}
 
 		throw new NotFoundException();
@@ -592,7 +575,7 @@ class TemplateManager {
 			} catch (NotFoundException $e) {
 				$userFolder = $this->rootFolder->getUserFolder($this->userId);
 				try {
-					$template = $userFolder->getById($templateId);
+					$template = $userFolder->getFirstNodeById($templateId);
 				} catch (NotFoundException $e) {
 					$this->logger->warning('Could not retrieve template source file', ['exception' => $e]);
 					return null;

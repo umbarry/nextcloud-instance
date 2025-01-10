@@ -1,3 +1,7 @@
+/*!
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
 @use 'sass:math';
 
 .rd-settings-documentation {
@@ -21,6 +25,18 @@
 
 input#zoteroAPIKeyField {
 	width: 300px;
+}
+
+textarea#documentSigningCertField {
+	width: 600px;
+}
+
+textarea#documentSigningKeyField {
+	width: 600px;
+}
+
+textarea#documentSigningCaField {
+	width: 600px;
 }
 
 #richdocuments,

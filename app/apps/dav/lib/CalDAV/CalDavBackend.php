@@ -1,41 +1,8 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- * @copyright Copyright (c) 2018 Georg Ehrke
- * @copyright Copyright (c) 2020, leith abdulla (<online-nextcloud@eleith.com>)
- *
- * @author Chih-Hsuan Yen <yan12125@gmail.com>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author dartcafe <github@dartcafe.de>
- * @author Georg Ehrke <oc.list@georgehrke.com>
- * @author Joas Schilling <coding@schilljs.com>
- * @author John Molakvoæ <skjnldsv@protonmail.com>
- * @author leith abdulla <online-nextcloud@eleith.com>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Simon Spannagel <simonspa@kth.se>
- * @author Stefan Weil <sw@weilnetz.de>
- * @author Thomas Citharel <nextcloud@tcit.fr>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Vinicius Cubas Brand <vinicius@eita.org.br>
- * @author Richard Steinmetz <richard@steinmetz.cloud>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OCA\DAV\CalDAV;
 
@@ -98,6 +65,7 @@ use Sabre\VObject\ParseException;
 use Sabre\VObject\Property;
 use Sabre\VObject\Reader;
 use Sabre\VObject\Recur\EventIterator;
+use Sabre\VObject\Recur\MaxInstancesExceededException;
 use Sabre\VObject\Recur\NoInstancesException;
 use function array_column;
 use function array_map;
@@ -210,7 +178,9 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 */
 	protected array $userDisplayNames;
 
+	private string $dbObjectsTable = 'calendarobjects';
 	private string $dbObjectPropertiesTable = 'calendarobjects_props';
+	private string $dbObjectInvitationsTable = 'calendar_invitations';
 	private array $cachedObjects = [];
 
 	public function __construct(
@@ -788,7 +758,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			'uri' => $calendarUri,
 			'synctoken' => 1,
 			'transparent' => 0,
-			'components' => 'VEVENT,VTODO',
+			'components' => 'VEVENT,VTODO,VJOURNAL',
 			'displayname' => $calendarUri
 		];
 
@@ -908,6 +878,8 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				$calendarData = $this->getCalendarById($calendarId);
 				$shares = $this->getShares($calendarId);
 
+				$this->purgeCalendarInvitations($calendarId);
+
 				$qbDeleteCalendarObjectProps = $this->db->getQueryBuilder();
 				$qbDeleteCalendarObjectProps->delete($this->dbObjectPropertiesTable)
 					->where($qbDeleteCalendarObjectProps->expr()->eq('calendarid', $qbDeleteCalendarObjectProps->createNamedParameter($calendarId)))
@@ -976,6 +948,43 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				$shares
 			));
 		}, $this->db);
+	}
+
+	/**
+	 * Returns all calendar objects with limited metadata for a calendar
+	 *
+	 * Every item contains an array with the following keys:
+	 *   * id - the table row id
+	 *   * etag - An arbitrary string
+	 *   * uri - a unique key which will be used to construct the uri. This can
+	 *     be any arbitrary string.
+	 *   * calendardata - The iCalendar-compatible calendar data
+	 *
+	 * @param mixed $calendarId
+	 * @param int $calendarType
+	 * @return array
+	 */
+	public function getLimitedCalendarObjects(int $calendarId, int $calendarType = self::CALENDAR_TYPE_CALENDAR):array {
+		$query = $this->db->getQueryBuilder();
+		$query->select(['id','uid', 'etag', 'uri', 'calendardata'])
+			->from('calendarobjects')
+			->where($query->expr()->eq('calendarid', $query->createNamedParameter($calendarId)))
+			->andWhere($query->expr()->eq('calendartype', $query->createNamedParameter($calendarType)))
+			->andWhere($query->expr()->isNull('deleted_at'));
+		$stmt = $query->executeQuery();
+
+		$result = [];
+		while (($row = $stmt->fetch()) !== false) {
+			$result[$row['uid']] = [
+				'id' => $row['id'],
+				'etag' => $row['etag'],
+				'uri' => $row['uri'],
+				'calendardata' => $row['calendardata'],
+			];
+		}
+		$stmt->closeCursor();
+
+		return $result;
 	}
 
 	/**
@@ -1138,7 +1147,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			return $this->cachedObjects[$key];
 		}
 		$query = $this->db->getQueryBuilder();
-		$query->select(['id', 'uri', 'lastmodified', 'etag', 'calendarid', 'size', 'calendardata', 'componenttype', 'classification', 'deleted_at'])
+		$query->select(['id', 'uri', 'uid', 'lastmodified', 'etag', 'calendarid', 'size', 'calendardata', 'componenttype', 'classification', 'deleted_at'])
 			->from('calendarobjects')
 			->where($query->expr()->eq('calendarid', $query->createNamedParameter($calendarId)))
 			->andWhere($query->expr()->eq('uri', $query->createNamedParameter($objectUri)))
@@ -1160,6 +1169,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 		return [
 			'id' => $row['id'],
 			'uri' => $row['uri'],
+			'uid' => $row['uid'],
 			'lastmodified' => $row['lastmodified'],
 			'etag' => '"' . $row['etag'] . '"',
 			'calendarid' => $row['calendarid'],
@@ -1480,6 +1490,8 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 
 				$this->purgeProperties($calendarId, $data['id']);
 
+				$this->purgeObjectInvitations($data['uid']);
+
 				if ($calendarType === self::CALENDAR_TYPE_CALENDAR) {
 					$calendarRow = $this->getCalendarById($calendarId);
 					$shares = $this->getShares($calendarId);
@@ -1676,7 +1688,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			}
 		}
 		$query = $this->db->getQueryBuilder();
-		$query->select(['id', 'uri', 'lastmodified', 'etag', 'calendarid', 'size', 'calendardata', 'componenttype', 'classification', 'deleted_at'])
+		$query->select(['id', 'uri', 'uid', 'lastmodified', 'etag', 'calendarid', 'size', 'calendardata', 'componenttype', 'classification', 'deleted_at'])
 			->from('calendarobjects')
 			->where($query->expr()->eq('calendarid', $query->createNamedParameter($calendarId)))
 			->andWhere($query->expr()->eq('calendartype', $query->createNamedParameter($calendarType)))
@@ -1715,6 +1727,12 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 					continue;
 				} catch (InvalidDataException $ex) {
 					$this->logger->error('Caught invalid data exception for calendar data. This usually indicates invalid calendar data. calendar-id:'.$calendarId.' uri:'.$row['uri'], [
+						'app' => 'dav',
+						'exception' => $ex,
+					]);
+					continue;
+				} catch (MaxInstancesExceededException $ex) {
+					$this->logger->warning('Caught max instances exceeded exception for calendar data. This usually indicates too much recurring (more than 3500) event in calendar data. Object uri: '.$row['uri'], [
 						'app' => 'dav',
 						'exception' => $ex,
 					]);
@@ -1908,12 +1926,12 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 		}
 
 		if (!empty($searchProperties)) {
-			$or = $innerQuery->expr()->orX();
+			$or = [];
 			foreach ($searchProperties as $searchProperty) {
-				$or->add($innerQuery->expr()->eq('op.name',
-					$outerQuery->createNamedParameter($searchProperty)));
+				$or[] = $innerQuery->expr()->eq('op.name',
+					$outerQuery->createNamedParameter($searchProperty));
 			}
-			$innerQuery->andWhere($or);
+			$innerQuery->andWhere($innerQuery->expr()->orX(...$or));
 		}
 
 		if ($pattern !== '') {
@@ -1957,12 +1975,12 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 		}
 
 		if (!empty($options['types'])) {
-			$or = $outerQuery->expr()->orX();
+			$or = [];
 			foreach ($options['types'] as $type) {
-				$or->add($outerQuery->expr()->eq('componenttype',
-					$outerQuery->createNamedParameter($type)));
+				$or[] = $outerQuery->expr()->eq('componenttype',
+					$outerQuery->createNamedParameter($type));
 			}
-			$outerQuery->andWhere($or);
+			$outerQuery->andWhere($outerQuery->expr()->orX(...$or));
 		}
 
 		$outerQuery->andWhere($outerQuery->expr()->in('c.id', $outerQuery->createFunction($innerQuery->getSQL())));
@@ -2068,24 +2086,32 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				continue;
 			}
 
-			$isValid = $this->validateFilterForObject($row, [
-				'name' => 'VCALENDAR',
-				'comp-filters' => [
-					[
-						'name' => 'VEVENT',
-						'comp-filters' => [],
-						'prop-filters' => [],
-						'is-not-defined' => false,
-						'time-range' => [
-							'start' => $start,
-							'end' => $end,
+			try {
+				$isValid = $this->validateFilterForObject($row, [
+					'name' => 'VCALENDAR',
+					'comp-filters' => [
+						[
+							'name' => 'VEVENT',
+							'comp-filters' => [],
+							'prop-filters' => [],
+							'is-not-defined' => false,
+							'time-range' => [
+								'start' => $start,
+								'end' => $end,
+							],
 						],
 					],
-				],
-				'prop-filters' => [],
-				'is-not-defined' => false,
-				'time-range' => null,
-			]);
+					'prop-filters' => [],
+					'is-not-defined' => false,
+					'time-range' => null,
+				]);
+			} catch (MaxInstancesExceededException $ex) {
+				$this->logger->warning('Caught max instances exceeded exception for calendar data. This usually indicates too much recurring (more than 3500) event in calendar data. Object uri: '.$row['uri'], [
+					'app' => 'dav',
+					'exception' => $ex,
+				]);
+				continue;
+			}
 
 			if (is_resource($row['calendardata'])) {
 				// Put the stream back to the beginning so it can be read another time
@@ -2183,16 +2209,17 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			$escapePattern = !\array_key_exists('escape_like_param', $options) || $options['escape_like_param'] !== false;
 
 			$calendarObjectIdQuery = $this->db->getQueryBuilder();
-			$calendarOr = $calendarObjectIdQuery->expr()->orX();
-			$searchOr = $calendarObjectIdQuery->expr()->orX();
+			$calendarOr = [];
+			$searchOr = [];
 
 			// Fetch calendars and subscription
 			$calendars = $this->getCalendarsForUser($principalUri);
 			$subscriptions = $this->getSubscriptionsForUser($principalUri);
 			foreach ($calendars as $calendar) {
-				$calendarAnd = $calendarObjectIdQuery->expr()->andX();
-				$calendarAnd->add($calendarObjectIdQuery->expr()->eq('cob.calendarid', $calendarObjectIdQuery->createNamedParameter((int)$calendar['id'])));
-				$calendarAnd->add($calendarObjectIdQuery->expr()->eq('cob.calendartype', $calendarObjectIdQuery->createNamedParameter(self::CALENDAR_TYPE_CALENDAR)));
+				$calendarAnd = $calendarObjectIdQuery->expr()->andX(
+					$calendarObjectIdQuery->expr()->eq('cob.calendarid', $calendarObjectIdQuery->createNamedParameter((int)$calendar['id'])),
+					$calendarObjectIdQuery->expr()->eq('cob.calendartype', $calendarObjectIdQuery->createNamedParameter(self::CALENDAR_TYPE_CALENDAR)),
+				);
 
 				// If it's shared, limit search to public events
 				if (isset($calendar['{http://owncloud.org/ns}owner-principal'])
@@ -2200,12 +2227,13 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 					$calendarAnd->add($calendarObjectIdQuery->expr()->eq('co.classification', $calendarObjectIdQuery->createNamedParameter(self::CLASSIFICATION_PUBLIC)));
 				}
 
-				$calendarOr->add($calendarAnd);
+				$calendarOr[] = $calendarAnd;
 			}
 			foreach ($subscriptions as $subscription) {
-				$subscriptionAnd = $calendarObjectIdQuery->expr()->andX();
-				$subscriptionAnd->add($calendarObjectIdQuery->expr()->eq('cob.calendarid', $calendarObjectIdQuery->createNamedParameter((int)$subscription['id'])));
-				$subscriptionAnd->add($calendarObjectIdQuery->expr()->eq('cob.calendartype', $calendarObjectIdQuery->createNamedParameter(self::CALENDAR_TYPE_SUBSCRIPTION)));
+				$subscriptionAnd = $calendarObjectIdQuery->expr()->andX(
+					$calendarObjectIdQuery->expr()->eq('cob.calendarid', $calendarObjectIdQuery->createNamedParameter((int)$subscription['id'])),
+					$calendarObjectIdQuery->expr()->eq('cob.calendartype', $calendarObjectIdQuery->createNamedParameter(self::CALENDAR_TYPE_SUBSCRIPTION)),
+				);
 
 				// If it's shared, limit search to public events
 				if (isset($subscription['{http://owncloud.org/ns}owner-principal'])
@@ -2213,28 +2241,30 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 					$subscriptionAnd->add($calendarObjectIdQuery->expr()->eq('co.classification', $calendarObjectIdQuery->createNamedParameter(self::CLASSIFICATION_PUBLIC)));
 				}
 
-				$calendarOr->add($subscriptionAnd);
+				$calendarOr[] = $subscriptionAnd;
 			}
 
 			foreach ($searchProperties as $property) {
-				$propertyAnd = $calendarObjectIdQuery->expr()->andX();
-				$propertyAnd->add($calendarObjectIdQuery->expr()->eq('cob.name', $calendarObjectIdQuery->createNamedParameter($property, IQueryBuilder::PARAM_STR)));
-				$propertyAnd->add($calendarObjectIdQuery->expr()->isNull('cob.parameter'));
+				$propertyAnd = $calendarObjectIdQuery->expr()->andX(
+					$calendarObjectIdQuery->expr()->eq('cob.name', $calendarObjectIdQuery->createNamedParameter($property, IQueryBuilder::PARAM_STR)),
+					$calendarObjectIdQuery->expr()->isNull('cob.parameter'),
+				);
 
-				$searchOr->add($propertyAnd);
+				$searchOr[] = $propertyAnd;
 			}
 			foreach ($searchParameters as $property => $parameter) {
-				$parameterAnd = $calendarObjectIdQuery->expr()->andX();
-				$parameterAnd->add($calendarObjectIdQuery->expr()->eq('cob.name', $calendarObjectIdQuery->createNamedParameter($property, IQueryBuilder::PARAM_STR)));
-				$parameterAnd->add($calendarObjectIdQuery->expr()->eq('cob.parameter', $calendarObjectIdQuery->createNamedParameter($parameter, IQueryBuilder::PARAM_STR_ARRAY)));
+				$parameterAnd = $calendarObjectIdQuery->expr()->andX(
+					$calendarObjectIdQuery->expr()->eq('cob.name', $calendarObjectIdQuery->createNamedParameter($property, IQueryBuilder::PARAM_STR)),
+					$calendarObjectIdQuery->expr()->eq('cob.parameter', $calendarObjectIdQuery->createNamedParameter($parameter, IQueryBuilder::PARAM_STR_ARRAY)),
+				);
 
-				$searchOr->add($parameterAnd);
+				$searchOr[] = $parameterAnd;
 			}
 
-			if ($calendarOr->count() === 0) {
+			if (empty($calendarOr)) {
 				return [];
 			}
-			if ($searchOr->count() === 0) {
+			if (empty($searchOr)) {
 				return [];
 			}
 
@@ -2242,8 +2272,8 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				->from($this->dbObjectPropertiesTable, 'cob')
 				->leftJoin('cob', 'calendarobjects', 'co', $calendarObjectIdQuery->expr()->eq('co.id', 'cob.objectid'))
 				->andWhere($calendarObjectIdQuery->expr()->in('co.componenttype', $calendarObjectIdQuery->createNamedParameter($componentTypes, IQueryBuilder::PARAM_STR_ARRAY)))
-				->andWhere($calendarOr)
-				->andWhere($searchOr)
+				->andWhere($calendarObjectIdQuery->expr()->orX(...$calendarOr))
+				->andWhere($calendarObjectIdQuery->expr()->orX(...$searchOr))
 				->andWhere($calendarObjectIdQuery->expr()->isNull('deleted_at'));
 
 			if ($pattern !== '') {
@@ -2439,74 +2469,57 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				);
 			$stmt = $qb->executeQuery();
 			$currentToken = $stmt->fetchOne();
+			$initialSync = !is_numeric($syncToken);
 
 			if ($currentToken === false) {
 				return null;
 			}
 
-			$result = [
-				'syncToken' => $currentToken,
-				'added' => [],
-				'modified' => [],
-				'deleted' => [],
-			];
-
-			if ($syncToken) {
-				$qb = $this->db->getQueryBuilder();
-
-				$qb->select('uri', 'operation')
-					->from('calendarchanges')
-					->where(
-						$qb->expr()->andX(
-							$qb->expr()->gte('synctoken', $qb->createNamedParameter($syncToken)),
-							$qb->expr()->lt('synctoken', $qb->createNamedParameter($currentToken)),
-							$qb->expr()->eq('calendarid', $qb->createNamedParameter($calendarId)),
-							$qb->expr()->eq('calendartype', $qb->createNamedParameter($calendarType))
-						)
-					)->orderBy('synctoken');
-				if (is_int($limit) && $limit > 0) {
-					$qb->setMaxResults($limit);
-				}
-
-				// Fetching all changes
-				$stmt = $qb->executeQuery();
-				$changes = [];
-
-				// This loop ensures that any duplicates are overwritten, only the
-				// last change on a node is relevant.
-				while ($row = $stmt->fetch()) {
-					$changes[$row['uri']] = $row['operation'];
-				}
-				$stmt->closeCursor();
-
-				foreach ($changes as $uri => $operation) {
-					switch ($operation) {
-						case 1:
-							$result['added'][] = $uri;
-							break;
-						case 2:
-							$result['modified'][] = $uri;
-							break;
-						case 3:
-							$result['deleted'][] = $uri;
-							break;
-					}
-				}
-			} else {
-				// No synctoken supplied, this is the initial sync.
+			// evaluate if this is a initial sync and construct appropriate command
+			if ($initialSync) {
 				$qb = $this->db->getQueryBuilder();
 				$qb->select('uri')
 					->from('calendarobjects')
-					->where(
-						$qb->expr()->andX(
-							$qb->expr()->eq('calendarid', $qb->createNamedParameter($calendarId)),
-							$qb->expr()->eq('calendartype', $qb->createNamedParameter($calendarType))
-						)
-					);
-				$stmt = $qb->executeQuery();
-				$result['added'] = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-				$stmt->closeCursor();
+					->where($qb->expr()->eq('calendarid', $qb->createNamedParameter($calendarId)))
+					->andWhere($qb->expr()->eq('calendartype', $qb->createNamedParameter($calendarType)))
+					->andWhere($qb->expr()->isNull('deleted_at'));
+			} else {
+				$qb = $this->db->getQueryBuilder();
+				$qb->select('uri', $qb->func()->max('operation'))
+					->from('calendarchanges')
+					->where($qb->expr()->eq('calendarid', $qb->createNamedParameter($calendarId)))
+					->andWhere($qb->expr()->eq('calendartype', $qb->createNamedParameter($calendarType)))
+					->andWhere($qb->expr()->gte('synctoken', $qb->createNamedParameter($syncToken)))
+					->andWhere($qb->expr()->lt('synctoken', $qb->createNamedParameter($currentToken)))
+					->groupBy('uri');
 			}
+			// evaluate if limit exists
+			if (is_numeric($limit)) {
+				$qb->setMaxResults($limit);
+			}
+			// execute command
+			$stmt = $qb->executeQuery();
+			// build results
+			$result = ['syncToken' => $currentToken, 'added' => [], 'modified' => [], 'deleted' => []];
+			// retrieve results
+			if ($initialSync) {
+				$result['added'] = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+			} else {
+				// \PDO::FETCH_NUM is needed due to the inconsistent field names
+				// produced by doctrine for MAX() with different databases
+				while ($entry = $stmt->fetch(\PDO::FETCH_NUM)) {
+					// assign uri (column 0) to appropriate mutation based on operation (column 1)
+					// forced (int) is needed as doctrine with OCI returns the operation field as string not integer
+					match ((int)$entry[1]) {
+						1 => $result['added'][] = $entry[0],
+						2 => $result['modified'][] = $entry[0],
+						3 => $result['deleted'][] = $entry[0],
+						default => $this->logger->debug('Unknown calendar change operation detected')
+					};
+				}
+			}
+			$stmt->closeCursor();
+
 			return $result;
 		}, $this->db);
 	}
@@ -3223,7 +3236,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 
 						$query->setParameter('name', $property->name);
 						$query->setParameter('parameter', null);
-						$query->setParameter('value', $value);
+						$query->setParameter('value', mb_strcut($value, 0, 254));
 						$query->executeStatement();
 					}
 
@@ -3307,6 +3320,45 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				->executeStatement();
 
 			$this->addChanges($subscriptionId, $uris, 3, self::CALENDAR_TYPE_SUBSCRIPTION);
+		}, $this->db);
+	}
+
+	/**
+	 * @param int $subscriptionId
+	 * @param array<int> $calendarObjectIds
+	 * @param array<string> $calendarObjectUris
+	 */
+	public function purgeCachedEventsForSubscription(int $subscriptionId, array $calendarObjectIds, array $calendarObjectUris): void {
+		if(empty($calendarObjectUris)) {
+			return;
+		}
+
+		$this->atomic(function () use ($subscriptionId, $calendarObjectIds, $calendarObjectUris) {
+			foreach (array_chunk($calendarObjectIds, 1000) as $chunk) {
+				$query = $this->db->getQueryBuilder();
+				$query->delete($this->dbObjectPropertiesTable)
+					->where($query->expr()->eq('calendarid', $query->createNamedParameter($subscriptionId)))
+					->andWhere($query->expr()->eq('calendartype', $query->createNamedParameter(self::CALENDAR_TYPE_SUBSCRIPTION)))
+					->andWhere($query->expr()->in('id', $query->createNamedParameter($chunk, IQueryBuilder::PARAM_INT_ARRAY), IQueryBuilder::PARAM_INT_ARRAY))
+					->executeStatement();
+
+				$query = $this->db->getQueryBuilder();
+				$query->delete('calendarobjects')
+					->where($query->expr()->eq('calendarid', $query->createNamedParameter($subscriptionId)))
+					->andWhere($query->expr()->eq('calendartype', $query->createNamedParameter(self::CALENDAR_TYPE_SUBSCRIPTION)))
+					->andWhere($query->expr()->in('id', $query->createNamedParameter($chunk, IQueryBuilder::PARAM_INT_ARRAY), IQueryBuilder::PARAM_INT_ARRAY))
+					->executeStatement();
+			}
+
+			foreach (array_chunk($calendarObjectUris, 1000) as $chunk) {
+				$query = $this->db->getQueryBuilder();
+				$query->delete('calendarchanges')
+					->where($query->expr()->eq('calendarid', $query->createNamedParameter($subscriptionId)))
+					->andWhere($query->expr()->eq('calendartype', $query->createNamedParameter(self::CALENDAR_TYPE_SUBSCRIPTION)))
+					->andWhere($query->expr()->in('uri', $query->createNamedParameter($chunk, IQueryBuilder::PARAM_STR_ARRAY), IQueryBuilder::PARAM_STR_ARRAY))
+					->executeStatement();
+			}
+			$this->addChanges($subscriptionId, $calendarObjectUris, 3, self::CALENDAR_TYPE_SUBSCRIPTION);
 		}, $this->db);
 	}
 
@@ -3496,5 +3548,47 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			$subscription[$xmlName] = $value;
 		}
 		return $subscription;
+	}
+
+	/**
+	 * delete all invitations from a given calendar
+	 *
+	 * @since 31.0.0
+	 *
+	 * @param int $calendarId
+	 *
+	 * @return void
+	 */
+	protected function purgeCalendarInvitations(int $calendarId): void {
+		// select all calendar object uid's
+		$cmd = $this->db->getQueryBuilder();
+		$cmd->select('uid')
+			->from($this->dbObjectsTable)
+			->where($cmd->expr()->eq('calendarid', $cmd->createNamedParameter($calendarId)));
+		$allIds = $cmd->executeQuery()->fetchAll(\PDO::FETCH_COLUMN);
+		// delete all links that match object uid's
+		$cmd = $this->db->getQueryBuilder();
+		$cmd->delete($this->dbObjectInvitationsTable)
+			->where($cmd->expr()->in('uid', $cmd->createParameter('uids'), IQueryBuilder::PARAM_STR_ARRAY));
+		foreach (array_chunk($allIds, 1000) as $chunkIds) {
+			$cmd->setParameter('uids', $chunkIds, IQueryBuilder::PARAM_STR_ARRAY);
+			$cmd->executeStatement();
+		}
+	}
+
+	/**
+	 * Delete all invitations from a given calendar event
+	 *
+	 * @since 31.0.0
+	 *
+	 * @param string $eventId UID of the event
+	 *
+	 * @return void
+	 */
+	protected function purgeObjectInvitations(string $eventId): void {
+		$cmd = $this->db->getQueryBuilder();
+		$cmd->delete($this->dbObjectInvitationsTable)
+			->where($cmd->expr()->eq('uid', $cmd->createNamedParameter($eventId, IQueryBuilder::PARAM_STR), IQueryBuilder::PARAM_STR));
+		$cmd->executeStatement();
 	}
 }

@@ -1,51 +1,10 @@
 <?php
-/*
- * *
- *  * calendar App
- *  *
- *  * @copyright 2023 Anna Larch <anna.larch@gmx.net>
- *  *
- *  * @author Anna Larch <anna.larch@gmx.net>
- *  *
- *  * This library is free software; you can redistribute it and/or
- *  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
- *  * License as published by the Free Software Foundation; either
- *  * version 3 of the License, or any later version.
- *  *
- *  * This library is distributed in the hope that it will be useful,
- *  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
- *  *
- *  * You should have received a copy of the GNU Affero General Public
- *  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *  *
- *
- */
 
 declare(strict_types=1);
-
-/*
- * @copyright 2023 Anna Larch <anna.larch@gmx.net>
- *
- * @author 2023 Anna Larch <anna.larch@gmx.net>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 namespace OCA\Calendar\Service\Appointments;
 
 use Sabre\VObject\Component;
@@ -88,14 +47,6 @@ class TimezoneGenerator {
 		$standard = $daylightStart = null;
 		foreach ($transitions as $i => $trans) {
 			$component = null;
-
-			// skip the first entry...
-			if ($i === 0) {
-				// ... but remember the offset for the next TZOFFSETFROM value
-				$tzfrom = $trans['offset'] / 3600;
-				continue;
-			}
-
 			// daylight saving time definition
 			if ($trans['isdst']) {
 				$daylightDefinition = $trans['ts'];
@@ -110,9 +61,15 @@ class TimezoneGenerator {
 			}
 
 			if ($component) {
-				$date = new \DateTime($trans['time']);
-				$offset = $trans['offset'] / 3600;
-
+				if ($i === 0) {
+					$date = new \DateTime('19700101T000000');
+					$tzfrom = $trans['offset'] / 3600;
+					$offset = $tzfrom;
+				} else {
+					$date = new \DateTime($trans['time']);
+					$offset = $trans['offset'] / 3600;
+				}
+				
 				$component->DTSTART = $date->format('Ymd\THis');
 				$component->TZOFFSETFROM = sprintf('%s%02d%02d', $tzfrom >= 0 ? '+' : '-', abs(floor($tzfrom)), ($tzfrom - floor($tzfrom)) * 60);
 				$component->TZOFFSETTO = sprintf('%s%02d%02d', $offset >= 0 ? '+' : '-', abs(floor($offset)), ($offset - floor($offset)) * 60);

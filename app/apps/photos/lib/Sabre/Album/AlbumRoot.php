@@ -2,23 +2,8 @@
 
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2022 Robin Appelman <robin@icewind.nl>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Photos\Sabre\Album;
@@ -29,6 +14,7 @@ use OCA\Photos\Album\AlbumMapper;
 use OCA\Photos\Album\AlbumWithFiles;
 use OCA\Photos\Service\UserConfigService;
 use OCP\Files\Folder;
+use OCP\Files\InvalidDirectoryException;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
 use Sabre\DAV\Exception\Conflict;
@@ -104,6 +90,10 @@ class AlbumRoot implements ICollection, ICopyTarget {
 			// If the node is not a folder, we throw
 			if (!($photosFolder instanceof Folder)) {
 				throw new Conflict('The destination exists and is not a folder');
+			}
+
+			if ($photosFolder->isShared()) {
+				throw new InvalidDirectoryException('The destination is a received share');
 			}
 
 			// Check for conflict and rename the file accordingly

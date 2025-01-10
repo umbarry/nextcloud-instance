@@ -1,35 +1,7 @@
 <?php
 /**
- * @copyright Copyright (c) 2016 Arthur Schiwon <blizzz@arthur-schiwon.de>
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bjoern Schiessle <bjoern@schiessle.org>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Sascha Wiswedel <sascha.wiswedel@nextcloud.com>
- * @author Vincent Petry <vincent@nextcloud.com>
- * @author Thomas Citharel <nextcloud@tcit.fr>
- * @author Ferdinand Thiessen <opensource@fthiessen.de>
- *
- * @license AGPL-3.0-or-later
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 namespace OCA\Settings\Settings\Admin;
 
@@ -81,8 +53,8 @@ class Sharing implements IDelegatedSettings {
 			'restrictUserEnumerationFullMatchEmail' => $this->getHumanBooleanConfig('core', 'shareapi_restrict_user_enumeration_full_match_email', true),
 			'restrictUserEnumerationFullMatchIgnoreSecondDN' => $this->getHumanBooleanConfig('core', 'shareapi_restrict_user_enumeration_full_match_ignore_second_dn'),
 			'enforceLinksPassword' => Util::isPublicLinkPasswordRequired(false),
-			'passwordExcludedGroups' => json_decode($excludedPasswordGroups) ?? [],
-			'passwordExcludedGroupsFeatureEnabled' => $this->config->getSystemValueBool('sharing.allow_disabled_password_enforcement_groups', false),
+			'enforceLinksPasswordExcludedGroups' => json_decode($excludedPasswordGroups) ?? [],
+			'enforceLinksPasswordExcludedGroupsEnabled' => $this->config->getSystemValueBool('sharing.allow_disabled_password_enforcement_groups', false),
 			'onlyShareWithGroupMembers' => $this->shareManager->shareWithGroupMembersOnly(),
 			'onlyShareWithGroupMembersExcludeGroupList' => json_decode($onlyShareWithGroupMembersExcludeGroupList) ?? [],
 			'defaultExpireDate' => $this->getHumanBooleanConfig('core', 'shareapi_default_expire_date'),

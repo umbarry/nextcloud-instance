@@ -31,6 +31,7 @@ class ComposerStaticInitContacts
         'OCA\\Contacts\\Cron\\SocialUpdateRegistration' => __DIR__ . '/../..' . '/lib/Cron/SocialUpdateRegistration.php',
         'OCA\\Contacts\\Dav\\PatchPlugin' => __DIR__ . '/../..' . '/lib/Dav/PatchPlugin.php',
         'OCA\\Contacts\\Listener\\LoadContactsFilesActions' => __DIR__ . '/../..' . '/lib/Listener/LoadContactsFilesActions.php',
+        'OCA\\Contacts\\Service\\GroupSharingService' => __DIR__ . '/../..' . '/lib/Service/GroupSharingService.php',
         'OCA\\Contacts\\Service\\ImageResizer' => __DIR__ . '/../..' . '/lib/Service/ImageResizer.php',
         'OCA\\Contacts\\Service\\SocialApiService' => __DIR__ . '/../..' . '/lib/Service/SocialApiService.php',
         'OCA\\Contacts\\Service\\Social\\CompositeSocialProvider' => __DIR__ . '/../..' . '/lib/Service/Social/CompositeSocialProvider.php',

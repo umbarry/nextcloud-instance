@@ -16,6 +16,7 @@ return array(
     'OCA\\Contacts\\Cron\\SocialUpdateRegistration' => $baseDir . '/lib/Cron/SocialUpdateRegistration.php',
     'OCA\\Contacts\\Dav\\PatchPlugin' => $baseDir . '/lib/Dav/PatchPlugin.php',
     'OCA\\Contacts\\Listener\\LoadContactsFilesActions' => $baseDir . '/lib/Listener/LoadContactsFilesActions.php',
+    'OCA\\Contacts\\Service\\GroupSharingService' => $baseDir . '/lib/Service/GroupSharingService.php',
     'OCA\\Contacts\\Service\\ImageResizer' => $baseDir . '/lib/Service/ImageResizer.php',
     'OCA\\Contacts\\Service\\SocialApiService' => $baseDir . '/lib/Service/SocialApiService.php',
     'OCA\\Contacts\\Service\\Social\\CompositeSocialProvider' => $baseDir . '/lib/Service/Social/CompositeSocialProvider.php',

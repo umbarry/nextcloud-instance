@@ -65,6 +65,7 @@ OC.L10N.register(
     "Jump to specific date in list" : "Léim go dáta ar leith sa liosta",
     "Jump to {date}" : "Léim go {date}",
     "Add to {destination}" : "Cuir le { ceann scríbe}",
+    "The destination folder is owned by {owner}" : "Is le {owner} an fillteán sprice",
     "There are no photos or videos yet!" : "Níl aon ghrianghraif nó físeáin ann fós!",
     "_{years} year ago_::_{years} years ago_" : ["{years} bliain ó shin","{years} bliaina ó shin","{years} bliaina ó shin","{years} bliaina ó shin","{years} bliaina ó shin"],
     "Enable squared photos view" : "Cumasaigh amharc cearnógach ar ghrianghraif",
@@ -127,7 +128,7 @@ OC.L10N.register(
     "Photos with tags will show up here" : "Taispeánfar grianghraif le clibeanna anseo",
     "Popular tags" : "Clibeanna Coitianta",
     "All tags" : "Gach clibeanna",
-    "One of the source folders does not exists" : "Níl ceann de na fillteáin foinse ann",
+    "One of the source folders does not exist" : "Níl ceann de na fillteáin foinse ann",
     "Add" : "Cuir",
     "Add to album" : "Cuir leis an albam",
     "Delete selection" : "Scrios an roghnúchán",
@@ -157,6 +158,7 @@ OC.L10N.register(
     "Default Photos upload and Albums location" : "Réamhshocrú uaslódála Grianghraif agus suíomh Albaim",
     "Select the default location for your media" : "Roghnaigh an suíomh réamhshocraithe do na meáin",
     "Invalid location selected" : "Suíomh neamhbhailí roghnaithe",
-    "Photos directory" : "Eolaire grianghraif"
+    "Photos directory" : "Eolaire grianghraif",
+    "One of the source folders does not exists" : "Níl ceann de na fillteáin foinse ann"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);");

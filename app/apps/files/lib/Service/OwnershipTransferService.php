@@ -3,32 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @copyright 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
- *
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Julius Härtl <jus@bitgrid.net>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Sascha Wiswedel <sascha.wiswedel@nextcloud.com>
- * @author Tobia De Koninck <LEDfan@users.noreply.github.com>
- * @author Ferdinand Thiessen <opensource@fthiessen.de>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2019 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Files\Service;
@@ -47,6 +23,7 @@ use OCP\Files\IRootFolder;
 use OCP\Files\Mount\IMountManager;
 use OCP\IUser;
 use OCP\IUserManager;
+use OCP\L10N\IFactory;
 use OCP\Share\IManager as IShareManager;
 use OCP\Share\IShare;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -69,6 +46,8 @@ class OwnershipTransferService {
 		private IMountManager $mountManager,
 		private IUserMountCache $userMountCache,
 		private IUserManager $userManager,
+		private IFactory $l10nFactory,
+		private IRootFolder $rootFolder,
 	) {
 		$this->encryptionManager = $encryptionManager;
 	}
@@ -107,8 +86,10 @@ class OwnershipTransferService {
 		// Requesting the user folder will set it up if the user hasn't logged in before
 		// We need a setupFS for the full filesystem setup before as otherwise we will just return
 		// a lazy root folder which does not create the destination users folder
+		\OC_Util::setupFS($sourceUser->getUID());
 		\OC_Util::setupFS($destinationUser->getUID());
-		\OC::$server->getUserFolder($destinationUser->getUID());
+		$this->rootFolder->getUserFolder($sourceUser->getUID());
+		$this->rootFolder->getUserFolder($destinationUser->getUID());
 		Filesystem::initMountPoints($sourceUid);
 		Filesystem::initMountPoints($destinationUid);
 
@@ -117,19 +98,15 @@ class OwnershipTransferService {
 		if ($move) {
 			$finalTarget = "$destinationUid/files/";
 		} else {
+			$l = $this->l10nFactory->get('files', $this->l10nFactory->getUserLanguage($destinationUser));
 			$date = date('Y-m-d H-i-s');
 
-			// Remove some characters which are prone to cause errors
-			$cleanUserName = str_replace(['\\', '/', ':', '.', '?', '#', '\'', '"'], '-', $sourceUser->getDisplayName());
-			// Replace multiple dashes with one dash
-			$cleanUserName = preg_replace('/-{2,}/s', '-', $cleanUserName);
-			$cleanUserName = $cleanUserName ?: $sourceUid;
-
-			$finalTarget = "$destinationUid/files/transferred from $cleanUserName on $date";
+			$cleanUserName = $this->sanitizeFolderName($sourceUser->getDisplayName()) ?: $sourceUid;
+			$finalTarget = "$destinationUid/files/" . $this->sanitizeFolderName($l->t('Transferred from %1$s on %2$s', [$cleanUserName, $date]));
 			try {
 				$view->verifyPath(dirname($finalTarget), basename($finalTarget));
 			} catch (InvalidPathException $e) {
-				$finalTarget = "$destinationUid/files/transferred from $sourceUid on $date";
+				$finalTarget = "$destinationUid/files/" . $this->sanitizeFolderName($l->t('Transferred from %1$s on %2$s', [$sourceUid, $date]));
 			}
 		}
 
@@ -209,6 +186,13 @@ class OwnershipTransferService {
 		}
 	}
 
+	private function sanitizeFolderName(string $name): string {
+		// Remove some characters which are prone to cause errors
+		$name = str_replace(['\\', '/', ':', '.', '?', '#', '\'', '"'], '-', $name);
+		// Replace multiple dashes with one dash
+		return preg_replace('/-{2,}/s', '-', $name);
+	}
+
 	private function walkFiles(View $view, $path, Closure $callBack) {
 		foreach ($view->getDirectoryContent($path) as $fileInfo) {
 			if (!$callBack($fileInfo)) {
@@ -223,7 +207,7 @@ class OwnershipTransferService {
 	/**
 	 * @param OutputInterface $output
 	 *
-	 * @throws \Exception
+	 * @throws TransferOwnershipException
 	 */
 	protected function analyse(string $sourceUid,
 		string $destinationUid,
@@ -231,33 +215,56 @@ class OwnershipTransferService {
 		View $view,
 		OutputInterface $output): void {
 		$output->writeln('Validating quota');
-		$size = $view->getFileInfo($sourcePath, false)->getSize(false);
+		$sourceFileInfo = $view->getFileInfo($sourcePath, false);
+		if ($sourceFileInfo === false) {
+			throw new TransferOwnershipException("Unknown path provided: $sourcePath", 1);
+		}
+		$size = $sourceFileInfo->getSize(false);
 		$freeSpace = $view->free_space($destinationUid . '/files/');
 		if ($size > $freeSpace && $freeSpace !== FileInfo::SPACE_UNKNOWN) {
-			$output->writeln('<error>Target user does not have enough free space available.</error>');
-			throw new \Exception('Execution terminated.');
+			throw new TransferOwnershipException('Target user does not have enough free space available.', 1);
 		}
 
 		$output->writeln("Analysing files of $sourceUid ...");
 		$progress = new ProgressBar($output);
 		$progress->start();
 
+		if ($this->encryptionManager->isEnabled()) {
+			$masterKeyEnabled = \OCP\Server::get(\OCA\Encryption\Util::class)->isMasterKeyEnabled();
+		} else {
+			$masterKeyEnabled = false;
+		}
 		$encryptedFiles = [];
-		$this->walkFiles($view, $sourcePath,
-			function (FileInfo $fileInfo) use ($progress, &$encryptedFiles) {
-				if ($fileInfo->getType() === FileInfo::TYPE_FOLDER) {
-					// only analyze into folders from main storage,
-					if (!$fileInfo->getStorage()->instanceOfStorage(IHomeStorage::class)) {
-						return false;
-					}
-					return true;
-				}
-				$progress->advance();
-				if ($fileInfo->isEncrypted()) {
-					$encryptedFiles[] = $fileInfo;
-				}
-				return true;
-			});
+		if ($sourceFileInfo->getType() === FileInfo::TYPE_FOLDER) {
+			if ($sourceFileInfo->isEncrypted()) {
+				/* Encrypted folder means e2ee encrypted */
+				$encryptedFiles[] = $sourceFileInfo;
+			} else {
+				$this->walkFiles($view, $sourcePath,
+					function (FileInfo $fileInfo) use ($progress, $masterKeyEnabled, &$encryptedFiles) {
+						if ($fileInfo->getType() === FileInfo::TYPE_FOLDER) {
+							// only analyze into folders from main storage,
+							if (!$fileInfo->getStorage()->instanceOfStorage(IHomeStorage::class)) {
+								return false;
+							}
+							if ($fileInfo->isEncrypted()) {
+								/* Encrypted folder means e2ee encrypted, we cannot transfer it */
+								$encryptedFiles[] = $fileInfo;
+							}
+							return true;
+						}
+						$progress->advance();
+						if ($fileInfo->isEncrypted() && !$masterKeyEnabled) {
+							/* Encrypted file means SSE, we can only transfer it if master key is enabled */
+							$encryptedFiles[] = $fileInfo;
+						}
+						return true;
+					});
+			}
+		} elseif ($sourceFileInfo->isEncrypted() && !$masterKeyEnabled) {
+			/* Encrypted file means SSE, we can only transfer it if master key is enabled */
+			$encryptedFiles[] = $sourceFileInfo;
+		}
 		$progress->finish();
 		$output->writeln('');
 
@@ -268,7 +275,7 @@ class OwnershipTransferService {
 				/** @var FileInfo $encryptedFile */
 				$output->writeln("  " . $encryptedFile->getPath());
 			}
-			throw new \Exception('Execution terminated.');
+			throw new TransferOwnershipException('Some files are encrypted - please decrypt them first.', 1);
 		}
 	}
 
@@ -412,10 +419,10 @@ class OwnershipTransferService {
 	):void {
 		$output->writeln("Restoring shares ...");
 		$progress = new ProgressBar($output, count($shares));
-		$rootFolder = \OCP\Server::get(IRootFolder::class);
 
 		foreach ($shares as ['share' => $share, 'suffix' => $suffix]) {
 			try {
+				$output->writeln('Transfering share ' . $share->getId() . ' of type ' . $share->getShareType(), OutputInterface::VERBOSITY_VERBOSE);
 				if ($share->getShareType() === IShare::TYPE_USER &&
 					$share->getSharedWith() === $destinationUid) {
 					// Unmount the shares before deleting, so we don't try to get the storage later on.
@@ -451,8 +458,9 @@ class OwnershipTransferService {
 						} catch (\OCP\Files\NotFoundException) {
 							// ID has changed due to transfer between different storages
 							// Try to get the new ID from the target path and suffix of the share
-							$node = $rootFolder->get(Filesystem::normalizePath($targetLocation . '/' . $suffix));
+							$node = $this->rootFolder->get(Filesystem::normalizePath($targetLocation . '/' . $suffix));
 							$newNodeId = $node->getId();
+							$output->writeln('Had to change node id to ' . $newNodeId, OutputInterface::VERBOSITY_VERY_VERBOSE);
 						}
 						$share->setNodeId($newNodeId);
 

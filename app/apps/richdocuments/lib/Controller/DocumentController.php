@@ -1,14 +1,8 @@
 <?php
 /**
- * ownCloud - Richdocuments App
- *
- * @author Victor Dubiniuk
- * @copyright 2014 Victor Dubiniuk victor.dubiniuk@gmail.com
- *
- * This file is licensed under the Affero General Public License version 3 or
- * later.
+ * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 namespace OCA\Richdocuments\Controller;
 
 use Exception;
@@ -187,7 +181,8 @@ class DocumentController extends Controller {
 
 		$template = $this->templateManager->get($templateId);
 		$urlSrc = $this->tokenManager->getUrlSrc($file);
-		$wopi = $this->tokenManager->generateWopiTokenForTemplate($template, $this->userId, $file->getId());
+		$isGuest = $this->userId === null;
+		$wopi = $this->tokenManager->generateWopiTokenForTemplate($template, $file->getId(), $this->userId, $isGuest);
 
 		$params = [
 			'permissions' => $template->getPermissions(),
@@ -288,7 +283,9 @@ class DocumentController extends Controller {
 					'userId' => $remoteWopi->getEditorUid() ? ($remoteWopi->getEditorUid() . '@' . $remoteServer) : null,
 				];
 
-				return $this->documentTemplateResponse($wopi, $params);
+				$response = $this->documentTemplateResponse($wopi, $params);
+				$response->addHeader('X-Frame-Options', 'ALLOW');
+				return $response;
 			}
 		} catch (ShareNotFound $e) {
 			return new TemplateResponse('core', '404', [], 'guest');
@@ -299,6 +296,16 @@ class DocumentController extends Controller {
 
 		return new TemplateResponse('core', '403', [], 'guest');
 	}
+
+	/**
+	 * Open file on Source instance with token from Initiator instance
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	public function remotePost(string $shareToken, string $remoteServer, string $remoteServerToken, ?string $filePath = null): TemplateResponse {
+		return $this->remote($shareToken, $remoteServer, $remoteServerToken, $filePath);
+	}
+
 
 	private function renderErrorPage(string $message, int $status = Http::STATUS_INTERNAL_SERVER_ERROR): TemplateResponse {
 		$params = [
@@ -381,7 +388,15 @@ class DocumentController extends Controller {
 			$share = $shareToken ? $this->shareManager->getShareByToken($shareToken) : null;
 			$file = $shareToken ? $this->getFileForShare($share, $fileId, $path) : $this->getFileForUser($fileId, $path);
 
-			$wopi = $this->getToken($file, $share);
+			$federatedUrl = $this->federationService->getRemoteRedirectURL($file, null, $share);
+			if ($federatedUrl) {
+				return new DataResponse([
+					'federatedUrl' => $federatedUrl,
+				]);
+			}
+
+			$isGuest = $guestName || !$this->userId;
+			$wopi = $this->getToken($file, $share, null, $isGuest);
 
 			$this->tokenManager->setGuestName($wopi, $guestName);
 
@@ -414,8 +429,7 @@ class DocumentController extends Controller {
 		if ($path !== null) {
 			$node = $folder->get($path);
 		} else {
-			$nodes = $folder->getById($fileId);
-			$node = array_shift($nodes);
+			$node = $folder->getFirstNodeById($fileId);
 		}
 
 		if ($node instanceof File) {
@@ -455,8 +469,7 @@ class DocumentController extends Controller {
 		if ($path !== null) {
 			$node = $node->get($path);
 		} else {
-			$nodes = $node->getById($fileId);
-			$node = array_shift($nodes);
+			$node = $node->getFirstNodeById($fileId);
 		}
 
 		if ($node instanceof File) {
@@ -466,11 +479,20 @@ class DocumentController extends Controller {
 		throw new NotFoundException();
 	}
 
-	private function getToken(File $file, ?IShare $share = null, ?int $version = null): Wopi {
+	private function getToken(File $file, ?IShare $share = null, ?int $version = null, bool $isGuest = false): Wopi {
 		// Pass through $version
 		$templateFile = $this->templateManager->getTemplateSource($file->getId());
 		if ($templateFile) {
-			return $this->tokenManager->generateWopiTokenForTemplate($templateFile, $share?->getShareOwner() ?? $this->userId, $file->getId());
+			$owneruid = $share?->getShareOwner() ?? $file->getOwner()->getUID();
+
+			return $this->tokenManager->generateWopiTokenForTemplate(
+				$templateFile,
+				$file->getId(),
+				$owneruid,
+				$isGuest,
+				false,
+				$share?->getPermissions()
+			);
 		}
 
 		return $this->tokenManager->generateWopiToken($this->getWopiFileId($file->getId(), $version), $share?->getToken(), $this->userId);

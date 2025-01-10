@@ -63,6 +63,7 @@
     "Jump to specific date in list" : "Joan zerrendako data zehatz batera",
     "Jump to {date}" : "Joan {date} datara",
     "Add to {destination}" : "Gehitu hona: {destination}",
+    "The destination folder is owned by {owner}" : " Helburu karpetaren jabea {owner} da",
     "There are no photos or videos yet!" : "Ez dago argazki edo bideorik oraindik!",
     "_{years} year ago_::_{years} years ago_" : ["orain dela urte {years}","orain dela {years} urte"],
     "Enable squared photos view" : "Gaitu lauki formako argazki ikuspegia",
@@ -124,7 +125,8 @@
     "No tags yet" : "Etitketarik ez oraindik",
     "Photos with tags will show up here" : "Etiketadun argazkiak hemen erakutsiko dira",
     "Popular tags" : "Etiketa ohikoak",
-    "One of the source folders does not exists" : "Iturburu-karpeta bat ez da existitzen",
+    "All tags" : "Etiketa guztiak",
+    "One of the source folders does not exist" : "Iturburu-karpeta bat ez da existitzen",
     "Add" : "Gehitu",
     "Add to album" : "Gehitu albumera",
     "Delete selection" : "Ezabatu hautatutakoak",
@@ -154,6 +156,7 @@
     "Default Photos upload and Albums location" : "Argazkien karga eta albumen kokaleku lehenetsia",
     "Select the default location for your media" : "Hautatu zure multimediaren kokaleku lehenetsia",
     "Invalid location selected" : "Kokaleku baliogabea hautatu da",
-    "Photos directory" : "Argazkien direktorioa"
+    "Photos directory" : "Argazkien direktorioa",
+    "One of the source folders does not exists" : "Iturburu-karpeta bat ez da existitzen"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

@@ -65,6 +65,7 @@ OC.L10N.register(
     "Jump to specific date in list" : "Ir á data específica da lista",
     "Jump to {date}" : "Ir a {data}",
     "Add to {destination}" : "Engadir a {destination}",
+    "The destination folder is owned by {owner}" : "O cartafol de destino é propiedade de {owner}",
     "There are no photos or videos yet!" : "Aínda non hai fotos nin vídeos!",
     "_{years} year ago_::_{years} years ago_" : ["Hai {years} ano","Hai {years} anos"],
     "Enable squared photos view" : "Activar a vista de fotos cadradas",
@@ -123,11 +124,11 @@ OC.L10N.register(
     "Cover photo for shared album {albumName}." : "Foto de portada do álbum compartido {albumName}.",
     "Back to tags overview" : "Volver á vista xeral das etiquetas",
     "No photos with this tag yet" : "Aínda non hai fotos con esta etiqueta",
-    "No tags yet" : "Non hai nada etiquetado",
+    "No tags yet" : "Non hai ren etiquetado",
     "Photos with tags will show up here" : "As fotos etiquetadas aparecerán aquí",
     "Popular tags" : "Etiquetas populares",
     "All tags" : "Todas as etiquetas",
-    "One of the source folders does not exists" : "Un dos cartafoles de orixe non existe",
+    "One of the source folders does not exist" : "Un dos cartafoles de orixe non existe",
     "Add" : "Engadir",
     "Add to album" : "Engadir ao álbum",
     "Delete selection" : "Eliminar a selección",
@@ -157,6 +158,7 @@ OC.L10N.register(
     "Default Photos upload and Albums location" : "Localización predeterminada para enviar fotos e álbums",
     "Select the default location for your media" : "Seleccione a localización predeterminada para os seus ficheiros multimedia",
     "Invalid location selected" : "Foi seleccionada unha localización non válida",
-    "Photos directory" : "Directorio de fotos"
+    "Photos directory" : "Directorio de fotos",
+    "One of the source folders does not exists" : "Un dos cartafoles de orixe non existe"
 },
 "nplurals=2; plural=(n != 1);");

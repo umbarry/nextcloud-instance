@@ -1,5 +1,32 @@
 ## [Unreleased]
-## 2024.7.10 - Feature release
+## 2024.12.11 - Bugfix release
+### Fixed
+- Fixed version number in EOL message
+
+## 2024.12.0 - Feature release
+### Added
+- Traditional Chinese translation
+### Changed
+- Updated Dashlane import to new format
+### Fixed
+- Crash on requests with bearer auth
+- Favicons requests result in 429 error code
+
+
+## 2024.11.0 - Feature release
+#### Fixed
+- Sharing not working
+- User verification fails on NC 30.0.2 and NC 29.0.9
+
+## 2024.9.0 - Feature release
+### Added
+- Translation for Galician
+### Changed
+- Removed some special characters from password generator
+### Fixed
+- Imaginary not working when api key used
+
+## 2024.7.0 - Feature release
 ### Changed
 - Breached passwords database updated to v12
 - Info page when WebAssembly disabled

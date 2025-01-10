@@ -1,28 +1,6 @@
-/**
- * Calendar App
- *
- * @copyright 2016 Raghu Nayyar <hey@raghunayyar.com>
- * @copyright 2018 Georg Ehrke <oc.list@georgehrke.com>
- * @copyright 2017 John Molakvoæ <skjnldsv@protonmail.com>
- *
- * @author Raghu Nayyar
- * @author Georg Ehrke
- * @author John Molakvoæ
- * @author Richard Steinmetz <richard@steinmetz.cloud>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
- *
- * You should have received a copy of the GNU Affero General Public
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
+/*!
+ * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 .app-calendar {
@@ -41,11 +19,11 @@
 		}
 
 		.button:first-child:not(:only-of-type) {
-			border-radius: var(--border-radius-pill) 0 0 var(--border-radius-pill);
+			border-radius: var(--border-radius-element) 0 0 var(--border-radius-element);
 		}
 
 		.button:last-child:not(:only-of-type) {
-			border-radius: 0 var(--border-radius-pill) var(--border-radius-pill) 0;
+			border-radius: 0 var(--border-radius-element) var(--border-radius-element) 0;
 		}
 
 		.button:not(:only-of-type):not(:first-child):not(:last-child) {
@@ -53,7 +31,7 @@
 		}
 
 		.button:only-child {
-			border-radius: var(--border-radius-pill);
+			border-radius: var(--border-radius-element);
 		}
 
 		.button:hover,
@@ -89,8 +67,12 @@
 		}
 	}
 
-	.app-navigation-header {
-		padding: calc(var(--default-grid-baseline, 4px) * 2);
+	.app-navigation__body {
+		overflow-y: unset !important;
+
+		.app-navigation-header {
+			padding: calc(var(--default-grid-baseline, 4px) * 2);
+		}
 	}
 
 	.new-event-today-view-section {
@@ -117,6 +99,7 @@
 	// Add background to navigation toggle to fix overlap with calendar elements
 	.app-navigation-toggle {
 		background-color: var(--color-main-background) !important;
+		border: 1px solid var(--color-background-dark) !important;
 	}
 
 	.app-navigation {

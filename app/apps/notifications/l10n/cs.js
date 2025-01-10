@@ -1,6 +1,7 @@
 OC.L10N.register(
     "notifications",
     {
+    "User not found" : "Uživatel nenalezen",
     "Hello %s" : "Dobrý den %s",
     "Hello %s," : "Dobrý den %s,",
     "_New notification for %s_::_%n new notifications for %s_" : ["Nové upozornění ohledně %s","%n nová upozornění ohledně %s","%n nových upozornění ohledně %s","%n nová upozornění ohledně %s"],
@@ -38,6 +39,9 @@ OC.L10N.register(
     "Your settings have been updated." : "Vaše nastavení byla aktualizována.",
     "An error occurred while updating your settings." : "Při aktualizaci vašich nastavení došlo k chybě.",
     "You need to set up your email address before you can receive notification emails." : "Pokud chcete dostávat upozornění e-mailem, je třeba nejprve nastavit svou e-mailovou adresu.",
+    "Also repeat sound on a secondary speaker" : "Zopakovat zvuk také na sekundárním reproduktoru",
+    "Selection of the speaker device is currently not supported by Safari" : "Safari aktuálně nepodporuje výběr zvukového zařízení",
+    "Select a device" : "Vyberte zařízení",
     "None" : "Žádná"
 },
 "nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;");

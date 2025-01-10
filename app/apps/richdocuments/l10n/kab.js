@@ -12,14 +12,15 @@ OC.L10N.register(
     "Save" : "Sekles",
     "No results" : "Ulac igmad",
     "Close" : "Mdel",
+    "Edit" : "Ẓreg",
     "Error" : "Erreur",
-    "Set" : "Sbadu",
     "Remove from favorites" : "Kkes-it seg ismal",
     "Add to favorites" : "Rnu ismal",
     "Details" : "Talqayt",
     "Download" : "Sider",
     "Guest" : "Inebgi",
     "New file" : "Rnu afaylu",
-    "Create" : "Snulfu-d"
+    "Create" : "Snulfu-d",
+    "Set" : "Sbadu"
 },
 "nplurals=2; plural=(n != 1);");

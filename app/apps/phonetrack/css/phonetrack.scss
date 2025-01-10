@@ -448,11 +448,17 @@ input[role=precision] {
 	border-radius: var(--border-radius, 4px);
 	padding: 5px;
 }
+#filterPointsTable td:nth-child(2) {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
 #filterPointsTable td {
 	padding: 3px;
 }
 #filterPointsTable input[type=number].time {
 	width: 44px !important;
+	margin: 0 !important;
 }
 #filterPointsTable td {
 	word-wrap: break-word;
@@ -504,7 +510,7 @@ input[type=date] {
 #filterPointsTable input[type=number],
 .editPoint input[type=number] {
 	-moz-appearance: number-input !important;
-	-webkit-appearance: initial !important;
+	//-webkit-appearance: initial !important;
 	padding: 5px !important;
 }
 .editPoint input[type=number] {
@@ -1015,14 +1021,16 @@ input.geofencename {
 .leaflet-control-dialog-contents {
 	padding: 2px 0px !important;
 	overflow: visible !important;
+	color: var(--color-main-text);
+	background-color: var(--color-main-background);
 }
 .leaflet-control-dialog-inner {
 	padding: 0px 0px !important;
 	overflow: visible !important;
 }
-.leaflet-control-dialog i:not(.display) {
-	display: none;
-}
+//.leaflet-control-dialog i:not(.display) {
+//	display: none;
+//}
 #loadingnotification {
 	padding-top: 7px;
 }
@@ -1126,10 +1134,6 @@ a.icon-active span {
 }
 .leaflet-bar button:hover, leaflet-bar a:hover {
   background-color: var(--color-background-darker);
-}
-#dummylogo {
-	display: none;
-	content: url("images/phonetrack.png");
 }
 /* jquery dialog */
 .ui-dialog-titlebar-close {

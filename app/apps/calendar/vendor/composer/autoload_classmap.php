@@ -31,7 +31,6 @@ return array(
     'OCA\\Calendar\\Controller\\SettingsController' => $baseDir . '/lib/Controller/SettingsController.php',
     'OCA\\Calendar\\Controller\\ViewController' => $baseDir . '/lib/Controller/ViewController.php',
     'OCA\\Calendar\\Dashboard\\CalendarWidget' => $baseDir . '/lib/Dashboard/CalendarWidget.php',
-    'OCA\\Calendar\\Dashboard\\CalendarWidgetV2' => $baseDir . '/lib/Dashboard/CalendarWidgetV2.php',
     'OCA\\Calendar\\Db\\AppointmentConfig' => $baseDir . '/lib/Db/AppointmentConfig.php',
     'OCA\\Calendar\\Db\\AppointmentConfigMapper' => $baseDir . '/lib/Db/AppointmentConfigMapper.php',
     'OCA\\Calendar\\Db\\Booking' => $baseDir . '/lib/Db/Booking.php',

@@ -76,7 +76,7 @@ Sie können auch einzelne Passwörter mit anderen Nutzern teilen.
  * [iOS App](https://apps.apple.com/app/id1546212226) von [Johannes Schliephake](https://github.com/johannes-schliephake/nextcloud-passwords-ios)
 ]]>
     </description>
-    <version>2024.7.10</version>
+    <version>2024.12.11</version>
     <licence>agpl</licence>
     <author mail="nc.passwords@mdns.eu" homepage="https://git.mdns.eu/nextcloud/passwords">Marius David Wieschollek</author>
     <namespace>Passwords</namespace>
@@ -121,7 +121,7 @@ Sie können auch einzelne Passwörter mit anderen Nutzern teilen.
         <![CDATA[https://raw.githubusercontent.com/wiki/marius-wieschollek/passwords/Users/_files/handbook-section.png]]>
     </screenshot>
     <dependencies>
-        <php min-version="8.0" max-version="8.3"/>
+        <php min-version="8.0" max-version="8.4"/>
         <nextcloud min-version="28" max-version="29"/>
     </dependencies>
     <background-jobs>

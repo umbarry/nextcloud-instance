@@ -8,6 +8,7 @@
     "Albums" : "อัลบั้ม",
     "Archive" : "เก็บถาวร",
     "On this day" : "วันนี้ในอดีต",
+    "Places" : "สถานที่",
     "Tags" : "แท็ก",
     "Videos" : "วิดีโอ",
     "Edit" : "แก้ไข",
@@ -37,6 +38,7 @@
     "Save" : "บันทึก",
     "Create album" : "สร้างอัลบั้ม",
     "Save changes" : "บันทึกการเปลี่ยนแปลง",
+    "Year" : "ปี",
     "Month" : "เดือน",
     "Day" : "วัน",
     "Title" : "ชื่อเรื่อง",
@@ -53,6 +55,7 @@
     "Oldest first" : "เก่าที่สุดก่อน",
     "Newest first" : "ใหม่ที่สุดก่อน",
     "Share folder" : "แชร์โฟลเดอร์",
+    "Upload files" : "อัพโหลดไฟล์จากเครื่อง",
     "Home" : "หน้าหลัก",
     "Previous" : "ก่อนหน้า",
     "Next" : "ถัดไป",
@@ -62,6 +65,8 @@
     "Size" : "ขนาด",
     "Position" : "ตำแหน่ง",
     "Setup" : "ตั้งค่า",
+    "Memories from past years will appear here" : "ความทรงจำของปีที่ผ่านมาจะปรากฎอยู่ตรงนี้",
+    "Your videos will appear here" : "วิดีโอของคุณจะปรากฎอยู่ตรงนี้",
     "Yes" : "ใช่",
     "No" : "ไม่ตกลง"
 },"pluralForm" :"nplurals=1; plural=0;"

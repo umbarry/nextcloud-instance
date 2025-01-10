@@ -4,28 +4,8 @@ declare(strict_types=1);
 
 
 /**
- * Circles - Bring cloud-users closer together.
- *
- * This file is licensed under the Affero General Public License version 3 or
- * later. See the COPYING file.
- *
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2021
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 
@@ -89,6 +69,7 @@ class CirclesManager {
 	/** @var CirclesQueryHelper */
 	private $circlesQueryHelper;
 
+	private bool $forceSync = false;
 
 	/**
 	 * CirclesManager constructor.
@@ -172,7 +153,8 @@ class CirclesManager {
 	 * @throws InvalidIdException
 	 * @throws FederatedUserException
 	 */
-	public function startSession(?FederatedUser $federatedUser = null): void {
+	public function startSession(?FederatedUser $federatedUser = null, bool $forceSync = false): void {
+		$this->forceSync = $forceSync;
 		if (is_null($federatedUser)) {
 			$this->federatedUserService->initCurrentUser();
 		} else {
@@ -183,7 +165,8 @@ class CirclesManager {
 	/**
 	 *
 	 */
-	public function startSuperSession(): void {
+	public function startSuperSession(bool $forceSync = false): void {
+		$this->forceSync = $forceSync;
 		$this->federatedUserService->unsetCurrentUser();
 		$this->federatedUserService->bypassCurrentUserCondition(true);
 	}
@@ -244,6 +227,7 @@ class CirclesManager {
 	public function stopSession(): void {
 		$this->federatedUserService->unsetCurrentUser();
 		$this->federatedUserService->bypassCurrentUserCondition(false);
+		$this->forceSync = false;
 	}
 
 
@@ -318,7 +302,7 @@ class CirclesManager {
 	 * @throws UnknownRemoteException
 	 */
 	public function destroyCircle(string $singleId): void {
-		$this->circleService->destroy($singleId);
+		$this->circleService->destroy($singleId, $this->forceSync);
 	}
 
 
@@ -446,7 +430,7 @@ class CirclesManager {
 	 * @throws UnknownRemoteException
 	 */
 	public function addMember(string $circleId, FederatedUser $federatedUser): Member {
-		$outcome = $this->memberService->addMember($circleId, $federatedUser);
+		$outcome = $this->memberService->addMember($circleId, $federatedUser, $this->forceSync);
 		$member = new Member();
 		$member->import($outcome);
 
@@ -495,7 +479,7 @@ class CirclesManager {
 	 * @throws UnknownRemoteException
 	 */
 	public function removeMember(string $memberId): void {
-		$this->memberService->removeMember($memberId);
+		$this->memberService->removeMember($memberId, $this->forceSync);
 	}
 
 

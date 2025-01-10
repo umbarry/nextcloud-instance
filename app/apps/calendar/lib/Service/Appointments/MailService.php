@@ -1,29 +1,10 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * Calendar App
- *
- * @copyright 2021 Anna Larch <anna.larch@gmx.net>
- *
- * @author Anna Larch <anna.larch@gmx.net>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
- *
- * You should have received a copy of the GNU Affero General Public
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 namespace OCA\Calendar\Service\Appointments;
 
 use Exception;
@@ -126,13 +107,13 @@ class MailService {
 		$bookingUrl = $this->urlGenerator->linkToRouteAbsolute('calendar.booking.confirmBooking', ['token' => $booking->getToken()]);
 		$template->addBodyButton($this->l10n->t('Confirm'), $bookingUrl);
 
-		$template->addBodyListItem($user->getDisplayName(), 'Appointment with:');
+		$template->addBodyListItem($user->getDisplayName(), $this->l10n->t('Appointment with:'));
 		if (!empty($config->getDescription())) {
-			$template->addBodyListItem($config->getDescription(), 'Description:');
+			$template->addBodyListItem($config->getDescription(), $this->l10n->t('Description:'));
 		}
 
 		// Create Booking overview
-		$this->addBulletList($template, $this->l10n, $booking, $config);
+		$this->addBulletList($template, $this->l10n, $booking, $config, false);
 
 		$bodyText = $this->l10n->t('This confirmation link expires in %s hours.', [(BookingService::EXPIRY / 3600)]);
 		$template->addBodyText($bodyText);
@@ -196,13 +177,13 @@ class MailService {
 		$summary = $this->l10n->t('Dear %s, your booking has been accepted.', [$booking->getDisplayName()]);
 		$template->addHeading($summary);
 
-		$template->addBodyListItem($user->getDisplayName(), 'Appointment with:');
+		$template->addBodyListItem($user->getDisplayName(), $this->l10n->t('Appointment with:'));
 		if (!empty($config->getDescription())) {
-			$template->addBodyListItem($config->getDescription(), 'Description:');
+			$template->addBodyListItem($config->getDescription(), $this->l10n->t('Description:'));
 		}
 
 		// Create Booking overview
-		$this->addBulletList($template, $this->l10n, $booking, $config);
+		$this->addBulletList($template, $this->l10n, $booking, $config, false);
 
 		$bodyText = $this->l10n->t('If you wish to cancel the appointment after all, please contact your organizer by replying to this email or by visiting their profile page.');
 		$template->addBodyText($bodyText);
@@ -232,15 +213,21 @@ class MailService {
 	private function addBulletList(IEMailTemplate $template,
 		IL10N $l10n,
 		Booking $booking,
-		AppointmentConfig $config): void {
+		AppointmentConfig $config,
+		bool $recipient): void {
 		$template->addBodyListItem($booking->getDisplayName(), $l10n->t('Appointment for:'));
+
+		// determain timezone depending on who is getting the message (Requestee/Requester)
+		$tzid = ($recipient) ? $config->getAvailabilityAsArray()['timezoneId'] : $booking->getTimezone();
+		$dtstart = new \DateTime("now", new \DateTimeZone($booking->getTimezone())); // generate DateTime with booking time zone
+		$dtstart->setTimestamp($booking->getStart()); // set booking time stamp
 
 		$l = $this->lFactory->findGenericLanguage();
 		$relativeDateTime = $this->dateFormatter->formatDateTimeRelativeDay(
-			$booking->getStart(),
+			$dtstart,
 			'long',
 			'short',
-			new \DateTimeZone($booking->getTimezone()),
+			new \DateTimeZone($tzid),
 			$this->lFactory->get('calendar', $l)
 		);
 
@@ -306,13 +293,13 @@ class MailService {
 		$summary = $l10n->t('Dear %s, %s (%s) booked an appointment with you.', [$user->getDisplayName(), $booking->getDisplayName(), $booking->getEmail()]);
 		$template->addHeading($summary);
 
-		$template->addBodyListItem($booking->getDisplayName() . ' (' . $booking->getEmail() . ')', 'Appointment with:');
+		$template->addBodyListItem($booking->getDisplayName() . ' (' . $booking->getEmail() . ')', $l10n->t('Appointment with:'));
 		if (!empty($config->getDescription())) {
-			$template->addBodyListItem($config->getDescription(), 'Description:');
+			$template->addBodyListItem($config->getDescription(), $l10n->t('Description:'));
 		}
 
 		// Create Booking overview
-		$this->addBulletList($template, $l10n, $booking, $config);
+		$this->addBulletList($template, $l10n, $booking, $config, true);
 		$template->addFooter();
 
 		$attachment = $this->mailer->createAttachment($calendar, 'appointment.ics', 'text/calendar');
@@ -335,12 +322,16 @@ class MailService {
 		}
 	}
 
-	public function sendOrganizerBookingInformationNotification(Booking $booking, AppointmentConfig $config) {
+	public function sendOrganizerBookingInformationNotification(Booking $booking, AppointmentConfig $config): void {
+		$tzid = $config->getAvailabilityAsArray()['timezoneId']; // extract time zone from appointment configuration
+		$dtstart = new \DateTime("now", new \DateTimeZone($booking->getTimezone())); // generate DateTime with booking time zone
+		$dtstart->setTimestamp($booking->getStart()); // set booking time stamp
+
 		$relativeDateTime = $this->dateFormatter->formatDateTimeRelativeDay(
-			$booking->getStart(),
+			$dtstart,
 			'long',
 			'short',
-			new \DateTimeZone($booking->getTimezone()),
+			new \DateTimeZone($tzid),
 			$this->lFactory->get('calendar')
 		);
 

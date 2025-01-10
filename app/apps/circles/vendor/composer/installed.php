@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'nextcloud/circles',
-        'pretty_version' => 'dev-stable29',
-        'version' => 'dev-stable29',
-        'reference' => 'fce50623e45c54984f43c6f21fba5d62abdd7036',
+        'pretty_version' => 'dev-stable30',
+        'version' => 'dev-stable30',
+        'reference' => '82dd4d586d31323c6efe9b168597bbba8d709496',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'nextcloud/circles' => array(
-            'pretty_version' => 'dev-stable29',
-            'version' => 'dev-stable29',
-            'reference' => 'fce50623e45c54984f43c6f21fba5d62abdd7036',
+            'pretty_version' => 'dev-stable30',
+            'version' => 'dev-stable30',
+            'reference' => '82dd4d586d31323c6efe9b168597bbba8d709496',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

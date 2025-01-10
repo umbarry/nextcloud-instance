@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  - SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-FileCopyrightText: 2013-2016 ownCloud, Inc.
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
 <info>
 	<id>richdocuments</id>
 	<name>Nextcloud Office</name>
@@ -6,7 +11,7 @@
 	<description><![CDATA[This application can connect to a Collabora Online (or other) server (WOPI-like Client). Nextcloud is the WOPI Host. Please read the documentation to learn more about that.
 
 You can also edit your documents off-line with the Collabora Office app from the **[Android](https://play.google.com/store/apps/details?id=com.collabora.libreoffice)** and **[iOS](https://apps.apple.com/us/app/collabora-office/id1440482071)** store.]]></description>
-	<version>8.4.4</version>
+	<version>8.5.3</version>
 	<licence>agpl</licence>
 	<author>Collabora Productivity based on work of Frank Karlitschek, Victor Dubiniuk</author>
 	<types>
@@ -25,7 +30,7 @@ You can also edit your documents off-line with the Collabora Office app from the
 	<screenshot>https://github.com/nextcloud/richdocuments/raw/main/screenshots/Nextcloud-spreadsheet.png</screenshot>
 	<screenshot>https://github.com/nextcloud/richdocuments/raw/main/screenshots/Nextcloud-presentation.png</screenshot>
 	<dependencies>
-		<nextcloud min-version="29" max-version="29"/>
+		<nextcloud min-version="30" max-version="30"/>
 	</dependencies>
 	<background-jobs>
 		<job>OCA\Richdocuments\Backgroundjobs\ObtainCapabilities</job>

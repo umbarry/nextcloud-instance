@@ -4,28 +4,8 @@ declare(strict_types=1);
 
 
 /**
- * Circles - Bring cloud-users closer together.
- *
- * This file is licensed under the Affero General Public License version 3 or
- * later. See the COPYING file.
- *
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2021
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 
@@ -35,6 +15,7 @@ use Exception;
 use OC\User\NoUserException;
 use OCA\Circles\Db\AccountsRequest;
 use OCA\Circles\Db\CircleRequest;
+use OCA\Circles\Db\EventWrapperRequest;
 use OCA\Circles\Db\MemberRequest;
 use OCA\Circles\Db\ShareWrapperRequest;
 use OCA\Circles\Exceptions\InitiatorNotFoundException;
@@ -49,6 +30,7 @@ use OCA\Circles\Tools\Model\SimpleDataStore;
 use OCA\Circles\Tools\Traits\TNCLogger;
 use OCP\IGroupManager;
 use OCP\IUserManager;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -60,7 +42,6 @@ class MaintenanceService {
 	use TNCLogger;
 
 	public const TIMEOUT = 18000;
-
 	public static $DELAY =
 		[
 			1 => 60,    // every minute
@@ -70,94 +51,25 @@ class MaintenanceService {
 			5 => 432000 // evey week
 		];
 
+	private ?OutputInterface $output = null;
 
-	/** @var IUserManager */
-	private $userManager;
-
-	/** @var IGroupManager */
-	private $groupManager;
-
-	/** @var AccountsRequest */
-	private $accountRequest;
-
-	/** @var CircleRequest */
-	private $circleRequest;
-
-	/** @var MemberRequest */
-	private $memberRequest;
-
-	/** @var ShareWrapperRequest */
-	private $shareWrapperRequest;
-
-	/** @var SyncService */
-	private $syncService;
-
-	/** @var FederatedUserService */
-	private $federatedUserService;
-
-	private ShareWrapperService $shareWrapperService;
-
-	/** @var MembershipService */
-	private $membershipService;
-
-	/** @var EventWrapperService */
-	private $eventWrapperService;
-
-	/** @var CircleService */
-	private $circleService;
-
-	/** @var ConfigService */
-	private $configService;
-
-
-	/** @var OutputInterface */
-	private $output;
-
-
-	/**
-	 * MaintenanceService constructor.
-	 *
-	 * @param IUserManager $userManager
-	 * @param IGroupManager $groupManager
-	 * @param CircleRequest $circleRequest
-	 * @param MemberRequest $memberRequest
-	 * @param ShareWrapperRequest $shareWrapperRequest
-	 * @param SyncService $syncService
-	 * @param FederatedUserService $federatedUserService
-	 * @param ShareWrapperService $shareWrapperService
-	 * @param MembershipService $membershipService
-	 * @param EventWrapperService $eventWrapperService
-	 * @param CircleService $circleService
-	 * @param ConfigService $configService
-	 */
 	public function __construct(
-		IUserManager $userManager,
-		IGroupManager $groupManager,
-		CircleRequest $circleRequest,
-		AccountsRequest $accountRequest,
-		MemberRequest $memberRequest,
-		ShareWrapperRequest $shareWrapperRequest,
-		SyncService $syncService,
-		FederatedUserService $federatedUserService,
-		ShareWrapperService $shareWrapperService,
-		MembershipService $membershipService,
-		EventWrapperService $eventWrapperService,
-		CircleService $circleService,
-		ConfigService $configService
+		private IUserManager $userManager,
+		private IGroupManager $groupManager,
+		private CircleRequest $circleRequest,
+		private AccountsRequest $accountRequest,
+		private MemberRequest $memberRequest,
+		private ShareWrapperRequest $shareWrapperRequest,
+		private EventWrapperRequest $eventWrapperRequest,
+		private SyncService $syncService,
+		private FederatedUserService $federatedUserService,
+		private ShareWrapperService $shareWrapperService,
+		private MembershipService $membershipService,
+		private EventWrapperService $eventWrapperService,
+		private CircleService $circleService,
+		private ConfigService $configService,
+		private LoggerInterface $logger,
 	) {
-		$this->userManager = $userManager;
-		$this->groupManager = $groupManager;
-		$this->circleRequest = $circleRequest;
-		$this->accountRequest = $accountRequest;
-		$this->memberRequest = $memberRequest;
-		$this->shareWrapperRequest = $shareWrapperRequest;
-		$this->syncService = $syncService;
-		$this->federatedUserService = $federatedUserService;
-		$this->shareWrapperService = $shareWrapperService;
-		$this->eventWrapperService = $eventWrapperService;
-		$this->membershipService = $membershipService;
-		$this->circleService = $circleService;
-		$this->configService = $configService;
 	}
 
 
@@ -286,6 +198,13 @@ class MaintenanceService {
 			$this->output('Synchronizing local entities');
 			$this->syncService->sync();
 		} catch (Exception $e) {
+		}
+
+		try {
+			$this->output('Delete old and terminated FederatedEvents');
+			$this->eventWrapperRequest->deleteOldEntries(false);
+		} catch (Exception $e) {
+			$this->logger->warning('issue while deleting old events', ['exception' => $e]);
 		}
 	}
 
@@ -519,8 +438,6 @@ class MaintenanceService {
 	 * @param string $message
 	 */
 	private function output(string $message): void {
-		if (!is_null($this->output)) {
-			$this->output->writeln('- ' . $message);
-		}
+		$this->output?->writeln('- ' . $message);
 	}
 }

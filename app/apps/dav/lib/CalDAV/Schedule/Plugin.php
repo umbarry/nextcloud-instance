@@ -1,31 +1,7 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, Roeland Jago Douma <roeland@famdouma.nl>
- * @copyright Copyright (c) 2016, Joas Schilling <coding@schilljs.com>
- *
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Daniel Kesselberg <mail@danielkesselberg.de>
- * @author Georg Ehrke <oc.list@georgehrke.com>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Thomas Citharel <nextcloud@tcit.fr>
- * @author Richard Steinmetz <richard@steinmetz.cloud>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 namespace OCA\DAV\CalDAV\Schedule;
 
@@ -34,6 +10,7 @@ use OCA\DAV\CalDAV\CalDavBackend;
 use OCA\DAV\CalDAV\Calendar;
 use OCA\DAV\CalDAV\CalendarHome;
 use OCA\DAV\CalDAV\DefaultCalendarValidator;
+use OCA\DAV\CalDAV\TipBroker;
 use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 use Sabre\CalDAV\ICalendar;
@@ -106,6 +83,13 @@ class Plugin extends \Sabre\CalDAV\Schedule\Plugin {
 			$server->protectedProperties,
 			static fn (string $property) => $property !== self::SCHEDULE_DEFAULT_CALENDAR_URL,
 		);
+	}
+
+	/**
+	 * Returns an instance of the iTip\Broker.
+	 */
+	protected function createITipBroker(): TipBroker {
+		return new TipBroker();
 	}
 
 	/**
@@ -182,7 +166,42 @@ class Plugin extends \Sabre\CalDAV\Schedule\Plugin {
 		}
 
 		try {
-			parent::calendarObjectChange($request, $response, $vCal, $calendarPath, $modified, $isNew);
+
+			if (!$this->scheduleReply($this->server->httpRequest)) {
+				return;
+			}
+			
+			/** @var \OCA\DAV\CalDAV\Calendar $calendarNode */
+			$calendarNode = $this->server->tree->getNodeForPath($calendarPath);
+			// extract addresses for owner
+			$addresses = $this->getAddressesForPrincipal($calendarNode->getOwner());
+			// determine if request is from a sharee
+			if ($calendarNode->isShared()) {
+				// extract addresses for sharee and add to address collection
+				$addresses = array_merge(
+					$addresses,
+					$this->getAddressesForPrincipal($calendarNode->getPrincipalURI())
+				);
+			}
+			// determine if we are updating a calendar event
+			if (!$isNew) {
+				// retrieve current calendar event node
+				/** @var \OCA\DAV\CalDAV\CalendarObject $currentNode */
+				$currentNode = $this->server->tree->getNodeForPath($request->getPath());
+				// convert calendar event string data to VCalendar object
+				/** @var \Sabre\VObject\Component\VCalendar $currentObject */
+				$currentObject = Reader::read($currentNode->get());
+			} else {
+				$currentObject = null;
+			}
+			// process request
+			$this->processICalendarChange($currentObject, $vCal, $addresses, [], $modified);
+	
+			if ($currentObject) {
+				// Destroy circular references so PHP will GC the object.
+				$currentObject->destroy();
+			}
+			
 		} catch (SameOrganizerForAllComponentsException $e) {
 			$this->handleSameOrganizerException($e, $vCal, $calendarPath);
 		}
@@ -550,7 +569,9 @@ EOF;
 		$calendarTimeZone = new DateTimeZone('UTC');
 
 		$homePath = $result[0][200]['{' . self::NS_CALDAV . '}calendar-home-set']->getHref();
+		/** @var \OCA\DAV\CalDAV\Calendar $node */
 		foreach ($this->server->tree->getNodeForPath($homePath)->getChildren() as $node) {
+			
 			if (!$node instanceof ICalendar) {
 				continue;
 			}

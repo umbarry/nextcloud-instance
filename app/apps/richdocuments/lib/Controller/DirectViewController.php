@@ -1,24 +1,7 @@
 <?php
 /**
- * @copyright Copyright (c) 2018, Roeland Jago Douma <roeland@famdouma.nl>
- *
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 namespace OCA\Richdocuments\Controller;
 
@@ -94,47 +77,29 @@ class DirectViewController extends Controller {
 		$this->userScopeService->setFilesystemScope($direct->getUid());
 
 		$folder = $this->rootFolder->getUserFolder($direct->getUid());
-		if ($this->templateManager->isTemplate($direct->getFileid())) {
-			$item = $this->templateManager->get($direct->getFileid());
-			if ($direct->getTemplateDestination() === 0 || $direct->getTemplateDestination() === null) {
-				return new JSONResponse([], Http::STATUS_BAD_REQUEST);
+
+		try {
+			$item = $folder->getFirstNodeById($direct->getFileid());
+			if (!($item instanceof Node)) {
+				throw new \Exception();
 			}
 
-			try {
-				$urlSrc = $this->tokenManager->getUrlSrc($item);
-
-				$wopi = $this->tokenManager->generateWopiTokenForTemplate($item, $direct->getUid(), $direct->getTemplateDestination(), true);
-
-				$targetFile = $folder->getById($direct->getTemplateDestination())[0];
-				$relativePath = $folder->getRelativePath($targetFile->getPath());
-			} catch (\Exception $e) {
-				$this->logger->error('Failed to generate token for new file on direct editing', ['exception' => $e]);
-				return new JSONResponse([], Http::STATUS_BAD_REQUEST);
-			}
-		} else {
-			try {
-				$item = $folder->getById($direct->getFileid())[0];
-				if (!($item instanceof Node)) {
-					throw new \Exception();
-				}
-
-				/** Open file from remote collabora */
-				$federatedUrl = $this->federationService->getRemoteRedirectURL($item, $direct);
-				if ($federatedUrl !== null) {
-					$response = new RedirectResponse($federatedUrl);
-					$response->addHeader('X-Frame-Options', 'ALLOW');
-					return $response;
-				}
-
-				$urlSrc = $this->tokenManager->getUrlSrc($item);
-				$wopi = $this->tokenManager->generateWopiToken($item->getId(), null, $direct->getUid(), true);
-			} catch (\Exception $e) {
-				$this->logger->error('Failed to generate token for existing file on direct editing', ['exception' => $e]);
-				return $this->renderErrorPage('Failed to open the requested file.');
+			/** Open file from remote collabora */
+			$federatedUrl = $this->federationService->getRemoteRedirectURL($item, $direct);
+			if ($federatedUrl !== null) {
+				$response = new RedirectResponse($federatedUrl);
+				$response->addHeader('X-Frame-Options', 'ALLOW');
+				return $response;
 			}
 
-			$relativePath = $folder->getRelativePath($item->getPath());
+			$urlSrc = $this->tokenManager->getUrlSrc($item);
+			$wopi = $this->tokenManager->generateWopiToken($item->getId(), null, $direct->getUid(), true);
+		} catch (\Exception $e) {
+			$this->logger->error('Failed to generate token for existing file on direct editing', ['exception' => $e]);
+			return $this->renderErrorPage('Failed to open the requested file.');
 		}
+
+		$relativePath = $folder->getRelativePath($item->getPath());
 
 		try {
 			$params = [
@@ -161,8 +126,7 @@ class DirectViewController extends Controller {
 
 			$node = $share->getNode();
 			if ($node instanceof Folder) {
-				$nodes = $node->getById($direct->getFileid());
-				$node = array_shift($nodes);
+				$node = $node->getFirstNodeById($direct->getFileid());
 				if ($node === null) {
 					throw new NotFoundException();
 				}

@@ -106,10 +106,9 @@ OC.L10N.register(
     "Memories is very feature rich and setting it up properly can take some time." : "Memories is very feature rich and setting it up properly can take some time.",
     "If you just installed Memories, make sure you read the getting started guide:" : "If you just installed Memories, make sure you read the getting started guide:",
     "External Link" : "External Link",
-    "In case you run into any issues or bugs, you can get help through several channels." : "In case you run into any issues or bugs, you can get help through several channels.",
     "Memories is a completely free and open source app under active development." : "Memories is a completely free and open source app under active development.",
     "You can contribute in several ways. See the project page for more details:" : "You can contribute in several ways. See the project page for more details:",
-    "Help & Support" : "Help & Support",
+    "Help & Support" : "راهنمایی و پشتیبانی",
     "{n} media files have been indexed" : "{n} media files have been indexed",
     "Automatic Indexing status: {status}" : "Automatic Indexing status: {status}",
     "Last index job was run {t} seconds ago." : "Last index job was run {t} seconds ago.",
@@ -446,6 +445,8 @@ OC.L10N.register(
     "Create an album to get started" : "Create an album to get started",
     "Archive photos you don't want to see in your timeline" : "Archive photos you don't want to see in your timeline",
     "Tag photos to find them easily" : "Tag photos to find them easily",
-    "Places you have been to will appear here" : "Places you have been to will appear here"
+    "Places you have been to will appear here" : "Places you have been to will appear here",
+    "Yes" : "بله",
+    "No" : "خیر"
 },
 "nplurals=2; plural=(n > 1);");

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "notifications",
     {
+    "User not found" : "Gebruiker niet gevonden",
     "Hello %s" : "Hallo %s",
     "Hello %s," : "Hallo %s,",
     "_New notification for %s_::_%n new notifications for %s_" : ["Nieuwe melding voor %s","%n nieuwe meldingen voor %s"],
@@ -35,6 +36,7 @@ OC.L10N.register(
     "Your settings have been updated." : "Je instellingen zijn bijgewerkt.",
     "An error occurred while updating your settings." : "Fout opgetreden bij het updaten van je instellingen.",
     "You need to set up your email address before you can receive notification emails." : "Je moet je e-mailadres instellen voor je meldingse-mails kunt ontvangen.",
+    "Select a device" : "Selecteer een apparaat",
     "None" : "Geen"
 },
 "nplurals=2; plural=(n != 1);");

@@ -2,33 +2,17 @@
 
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2023 Nextcloud GmbH
- *
- * @author Ferdinand Thiessen <opensource@fthiessen.de>
- *
- * @license AGPL-3.0-or-later
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 namespace OCA\LogReader\Controller;
 
 use OCA\LogReader\Constants;
 use OCA\LogReader\Service\SettingsService;
+use OCA\LogReader\Settings\Admin;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IConfig;
 use OCP\IRequest;
@@ -49,9 +33,8 @@ class SettingsController extends ApiController {
 
 	/**
 	 * Get the current app config
-	 *
-	 * @AuthorizedAdminSetting(settings=OCA\LogReader\Settings\Admin)
 	 */
+	#[AuthorizedAdminSetting(settings: Admin::class)]
 	public function getAppConfig(): JSONResponse {
 		return new JSONResponse($this->settingsService->getAppSettings());
 	}
@@ -62,8 +45,8 @@ class SettingsController extends ApiController {
 	 * @param string $settingsKey AppConfig Key to store
 	 * @param mixed $settingsValues Corresponding AppConfig Value
 	 *
-	 * @AuthorizedAdminSetting(settings=OCA\LogReader\Settings\Admin)
 	 */
+	#[AuthorizedAdminSetting(settings: Admin::class)]
 	public function updateAppConfig(string $settingsKey, $settingsValue): JSONResponse {
 		$this->logger->debug('Updating AppConfig: {settingsKey} => {settingsValue}', [
 			'settingsKey' => $settingsKey,

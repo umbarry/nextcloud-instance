@@ -51,7 +51,9 @@ OC.L10N.register(
     "Read only" : "Chỉ xem",
     "Creation date" : "Ngày thành lập",
     "Oldest first" : "Cũ nhất trước",
+    "Ascending" : "Tăng dần",
     "Newest first" : "Mới nhất trước",
+    "Descending" : "Giảm dần",
     "Share folder" : "Chia sẻ thư mục",
     "Upload files" : "Tải lên tập tin",
     "Home" : "Trang chủ",
@@ -66,9 +68,11 @@ OC.L10N.register(
     "Line" : "Hàng",
     "Text" : "Văn bản",
     "Size" : "Kích cỡ",
+    "Extension" : "Tiện ích",
     "Name is required." : "Tên là bắt buộc.",
     "Auto" : "Tự động",
     "Setup" : "Cài đặt",
-    "Yes" : "Có"
+    "Yes" : "Có",
+    "No" : "Không"
 },
 "nplurals=1; plural=0;");

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "notifications",
     {
+    "We want to keep offering our push notification service for free, but large number of users overload our infrastructure. For this reason we have to rate-limit the use of push notifications. If you need this feature, consider using Nextcloud Enterprise." : "Nous voulons continuer d'offrir notre service d'envoi de notifications push gratuitement, mais de gros utilisateurs surchargent notre infrastructure. Pour cette raison, nous avons appliqué une limite de débit à l'usage des notifications push. Si vous avez besoin de cette fonctionnalité, envisagez d'utiliser Nextcloud Enterprise.",
+    "User not found" : "Utilisateur non trouvé",
+    "The device does not seem to be supported" : "L'appareil ne semble pas être supporté",
+    "An unexpected error occurred, ask your administration to check the logs." : "Une erreur inattendue s'est produite, demandez à votre administration de vérifier les journaux de Nextcloud.",
     "Hello %s" : "Bonjour %s",
     "Hello %s," : "Bonjour %s,",
     "_New notification for %s_::_%n new notifications for %s_" : ["Nouvelle notification pour %s","%n nouvelles notifications pour %s","%n nouvelles notifications pour %s"],
@@ -29,7 +33,7 @@ OC.L10N.register(
     "Configure the default notification settings for new users" : "Configurez les paramètres de notification par défaut pour les nouveaux utilisateurs.",
     "Send email reminders about unhandled notifications after:" : "Envoyer par e-mail des rappels des notifications non gérées après :",
     "Play sound when a new notification arrives" : "Jouer un son quand une notification arrive",
-    "Play sound when a call started (requires Nextcloud Talk)" : "Jouer un son quand un appel démarre (l'application Nextcloud Talk est requise)",
+    "Play sound when a call started (requires Nextcloud Talk)" : "Jouer un son quand un appel est lancé (l'application Nextcloud Talk est requise)",
     "Never" : "Jamais",
     "1 hour" : "1 heure",
     "3 hours" : "3 heures",
@@ -38,6 +42,8 @@ OC.L10N.register(
     "Your settings have been updated." : "Vos paramètres ont été mis à jour.",
     "An error occurred while updating your settings." : "Un erreur est survenue lors de la mise à jour de vos paramètres.",
     "You need to set up your email address before you can receive notification emails." : "Vous devez définir votre adresse e-mail avant de pouvoir recevoir des e-mails de notification.",
+    "Also repeat sound on a secondary speaker" : "Aussi répète le sont son sur le second haut-parleur",
+    "Selection of the speaker device is currently not supported by Safari" : "La sélection du périphérique de haut-parleur n'est actuellement pas prise en charge par Safari",
     "Select a device" : "Sélectionner un appareil",
     "None" : "Aucun"
 },

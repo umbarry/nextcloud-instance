@@ -4,31 +4,8 @@ declare(strict_types=1);
 
 
 /**
- * Circles - Bring cloud-users closer together.
- *
- * This file is licensed under the Affero General Public License version 3 or
- * later. See the COPYING file.
- *
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @author Vinicius Cubas Brand <vinicius@eita.org.br>
- * @author Daniel Tygel <dtygel@eita.org.br>
- *
- * @copyright 2017
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2017 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 
@@ -104,13 +81,13 @@ class NotificationService {
 		);
 
 		$declineAction = $notification->createAction();
-		$declineUrl = $this->linkToOCS('circles.Local.circleLeave', ['circleId' => $member->getCircleId()]);
+		$declineUrl = $this->urlGenerator->linkToOCSRouteAbsolute('circles.Local.circleLeave', ['circleId' => $member->getCircleId()]);
 		$declineAction->setLabel('refuse')
 					  ->setLink($declineUrl, 'PUT');
 		$notification->addAction($declineAction);
 
 		$acceptAction = $notification->createAction();
-		$acceptUrl = $this->linkToOCS('circles.Local.circleJoin', ['circleId' => $member->getCircleId()]);
+		$acceptUrl = $this->urlGenerator->linkToOCSRouteAbsolute('circles.Local.circleJoin', ['circleId' => $member->getCircleId()]);
 		$acceptAction->setLabel('accept')
 					 ->setLink($acceptUrl, 'PUT');
 		$notification->addAction($acceptAction);
@@ -149,7 +126,7 @@ class NotificationService {
 			);
 
 			$declineAction = $notification->createAction();
-			$declineUrl = $this->linkToOCS(
+			$declineUrl = $this->urlGenerator->linkToOCSRouteAbsolute(
 				'circles.Local.memberRemove',
 				[
 					'circleId' => $member->getCircleId(),
@@ -161,7 +138,7 @@ class NotificationService {
 			$notification->addAction($declineAction);
 
 			$acceptAction = $notification->createAction();
-			$acceptUrl = $this->linkToOCS(
+			$acceptUrl = $this->urlGenerator->linkToOCSRouteAbsolute(
 				'circles.Local.memberConfirm',
 				[
 					'circleId' => $member->getCircleId(),
@@ -214,19 +191,6 @@ class NotificationService {
 					 ->setSubject($subject);
 
 		return $notification;
-	}
-
-
-	/**
-	 * @param string $route
-	 * @param array $params
-	 *
-	 * @return string
-	 */
-	private function linkToOCS(string $route, array $params = []): string {
-		$absolute = $this->urlGenerator->linkToOCSRouteAbsolute($route, $params);
-
-		return parse_url($absolute, PHP_URL_PATH);
 	}
 
 	public function markInvitationAsProcessed(Member $member): void {

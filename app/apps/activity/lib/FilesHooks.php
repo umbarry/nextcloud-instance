@@ -1,27 +1,9 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Frank Karlitschek <frank@karlitschek.de>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
-
 namespace OCA\Activity;
 
 use OC\Files\Filesystem;
@@ -95,7 +77,7 @@ class FilesHooks {
 		if ($this->currentUser->getUserIdentifier() !== '') {
 			$this->addNotificationsForFileAction($path, Files::TYPE_SHARE_CREATED, 'created_self', 'created_by');
 		} else {
-			$this->addNotificationsForFileAction($path, Files::TYPE_SHARE_CREATED, '', 'created_public');
+			$this->addNotificationsForFileAction($path, Files_Sharing::TYPE_PUBLIC_UPLOAD, '', 'created_public');
 		}
 	}
 
@@ -126,9 +108,9 @@ class FilesHooks {
 		$this->addNotificationsForFileAction($path, Files::TYPE_SHARE_RESTORED, 'restored_self', 'restored_by');
 	}
 
-	private function getFileChangeActivitySettings(int $fileId, array $users): array {
-		$filteredEmailUsers = $this->userSettings->filterUsersBySetting($users, 'email', Files::TYPE_FILE_CHANGED);
-		$filteredNotificationUsers = $this->userSettings->filterUsersBySetting($users, 'notification', Files::TYPE_FILE_CHANGED);
+	private function getFileChangeActivitySettings(int $fileId, array $users, $type = Files::TYPE_FILE_CHANGED): array {
+		$filteredEmailUsers = $this->userSettings->filterUsersBySetting($users, 'email', $type);
+		$filteredNotificationUsers = $this->userSettings->filterUsersBySetting($users, 'notification', $type);
 
 		/** @psalm-suppress UndefinedMethod */
 		$favoriteUsers = $this->tagManager->getUsersFavoritingObject('files', $fileId);
@@ -177,7 +159,7 @@ class FilesHooks {
 		}
 
 		[$filteredEmailUsers, $filteredNotificationUsers] =
-			$this->getFileChangeActivitySettings($fileId, array_keys($affectedUsers));
+			$this->getFileChangeActivitySettings($fileId, array_keys($affectedUsers), $activityType);
 
 		foreach ($affectedUsers as $user => $path) {
 			$user = (string)$user;

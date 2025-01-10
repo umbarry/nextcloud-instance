@@ -54,7 +54,6 @@ class ComposerStaticInitCalendar
         'OCA\\Calendar\\Controller\\SettingsController' => __DIR__ . '/../..' . '/lib/Controller/SettingsController.php',
         'OCA\\Calendar\\Controller\\ViewController' => __DIR__ . '/../..' . '/lib/Controller/ViewController.php',
         'OCA\\Calendar\\Dashboard\\CalendarWidget' => __DIR__ . '/../..' . '/lib/Dashboard/CalendarWidget.php',
-        'OCA\\Calendar\\Dashboard\\CalendarWidgetV2' => __DIR__ . '/../..' . '/lib/Dashboard/CalendarWidgetV2.php',
         'OCA\\Calendar\\Db\\AppointmentConfig' => __DIR__ . '/../..' . '/lib/Db/AppointmentConfig.php',
         'OCA\\Calendar\\Db\\AppointmentConfigMapper' => __DIR__ . '/../..' . '/lib/Db/AppointmentConfigMapper.php',
         'OCA\\Calendar\\Db\\Booking' => __DIR__ . '/../..' . '/lib/Db/Booking.php',

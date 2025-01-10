@@ -1,32 +1,10 @@
 <?php
 
+
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bjoern Schiessle <bjoern@schiessle.org>
- * @author Björn Schießle <bjoern@schiessle.org>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Thomas Citharel <nextcloud@tcit.fr>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Anna Larch <anna.larch@gmx.net>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OCA\DAV\CardDAV;
 
@@ -130,25 +108,54 @@ class SyncService {
 		}, $this->dbConnection);
 	}
 
+	private function prepareUri(string $host, string $path): string {
+		/*
+		 * The trailing slash is important for merging the uris together.
+		 *
+		 * $host is stored in oc_trusted_servers.url and usually without a trailing slash.
+		 *
+		 * Example for a report request
+		 *
+		 * $host = 'https://server.internal/cloud'
+		 * $path = 'remote.php/dav/addressbooks/system/system/system'
+		 *
+		 * Without the trailing slash, the webroot is missing:
+		 * https://server.internal/remote.php/dav/addressbooks/system/system/system
+		 *
+		 * Example for a download request
+		 *
+		 * $host = 'https://server.internal/cloud'
+		 * $path = '/cloud/remote.php/dav/addressbooks/system/system/system/Database:alice.vcf'
+		 *
+		 * The response from the remote usually contains the webroot already and must be normalized to:
+		 * https://server.internal/cloud/remote.php/dav/addressbooks/system/system/system/Database:alice.vcf
+		 */
+		$host = rtrim($host, '/') . '/';
+
+		$uri = \GuzzleHttp\Psr7\UriResolver::resolve(
+			\GuzzleHttp\Psr7\Utils::uriFor($host),
+			\GuzzleHttp\Psr7\Utils::uriFor($path)
+		);
+
+		return (string)$uri;
+	}
+
 	/**
 	 * @throws ClientExceptionInterface
 	 */
 	protected function requestSyncReport(string $url, string $userName, string $addressBookUrl, string $sharedSecret, ?string $syncToken): array {
 		$client = $this->clientService->newClient();
-
-		// the trailing slash is important for merging base_uri and uri
-		$url = rtrim($url, '/') . '/';
+		$uri = $this->prepareUri($url, $addressBookUrl);
 
 		$options = [
 			'auth' => [$userName, $sharedSecret],
-			'base_uri' => $url,
 			'body' => $this->buildSyncCollectionRequestBody($syncToken),
 			'headers' => ['Content-Type' => 'application/xml']
 		];
 
 		$response = $client->request(
 			'REPORT',
-			$addressBookUrl,
+			$uri,
 			$options
 		);
 
@@ -160,17 +167,14 @@ class SyncService {
 
 	protected function download(string $url, string $userName, string $sharedSecret, string $resourcePath): string {
 		$client = $this->clientService->newClient();
-
-		// the trailing slash is important for merging base_uri and uri
-		$url = rtrim($url, '/') . '/';
+		$uri = $this->prepareUri($url, $resourcePath);
 
 		$options = [
 			'auth' => [$userName, $sharedSecret],
-			'base_uri' => $url,
 		];
 
 		$response = $client->get(
-			$resourcePath,
+			$uri,
 			$options
 		);
 

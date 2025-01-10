@@ -2,35 +2,14 @@
 
 declare(strict_types=1);
 /**
- * Calendar App
- *
- * @author Georg Ehrke
- * @author Jakob Röhrl
- * @author Christoph Wurst
- * @author Jonas Heinrich
- *
- * @copyright 2019 Georg Ehrke <oc.list@georgehrke.com>
- * @copyright 2019 Jakob Röhrl <jakob.roehrl@web.de>
- * @copyright 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
- * @copyright 2023 Jonas Heinrich <heinrich@synyx.net>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
- *
- * You should have received a copy of the GNU Affero General Public
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2019 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 namespace OCA\Calendar\Controller;
 
+use Exception;
 use OCA\Calendar\Service\ServiceException;
+use OCA\Circles\Api\v1\Circles;
 use OCA\Circles\Exceptions\CircleNotFoundException;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;
@@ -40,6 +19,7 @@ use OCP\AppFramework\QueryException;
 use OCP\Contacts\IManager;
 use OCP\IRequest;
 use OCP\IUserManager;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ContactController
@@ -63,11 +43,14 @@ class ContactController extends Controller {
 	 * @param IRequest $request
 	 * @param IManager $contacts
 	 */
-	public function __construct(string $appName,
+	public function __construct(
+		string $appName,
 		IRequest $request,
 		IManager $contacts,
 		IAppManager $appManager,
-		IUserManager $userManager) {
+		IUserManager $userManager,
+		private LoggerInterface $logger,
+	) {
 		parent::__construct($appName, $request);
 		$this->contactsManager = $contacts;
 		$this->appManager = $appManager;
@@ -196,32 +179,32 @@ class ContactController extends Controller {
 	 * @param string $circleId CircleId to query for members
 	 * @return JSONResponse
 	 * @throws Exception
-	 * @throws \OCP\AppFramework\QueryException
 	 *
 	 * @NoAdminRequired
 	 */
 	public function getCircleMembers(string $circleId):JSONResponse {
-		if (!$this->appManager->isEnabledForUser('circles') || !class_exists('\OCA\Circles\Api\v1\Circles')) {
+		if (!class_exists('\OCA\Circles\Api\v1\Circles') || !$this->appManager->isEnabledForUser('circles')) {
+			$this->logger->debug('Circles not enabled');
 			return new JSONResponse();
 		}
 		if (!$this->contactsManager->isEnabled()) {
+			$this->logger->debug('Contacts not enabled');
 			return new JSONResponse();
 		}
 
 		try {
-			$circle = \OCA\Circles\Api\v1\Circles::detailsCircle($circleId, true);
+			$circle = Circles::detailsCircle($circleId, true);
 		} catch (QueryException $ex) {
+			$this->logger->error('Could not resolve circle details', ['exception' => $ex]);
 			return new JSONResponse();
 		} catch (CircleNotFoundException $ex) {
-			return new JSONResponse();
-		}
-
-		if (!$circle) {
+			$this->logger->error('Could not find circle', ['exception' => $ex]);
 			return new JSONResponse();
 		}
 
 		$circleMembers = $circle->getInheritedMembers();
 
+		$contacts = [];
 		foreach ($circleMembers as $circleMember) {
 			if ($circleMember->isLocal()) {
 
@@ -230,7 +213,8 @@ class ContactController extends Controller {
 				$user = $this->userManager->get($circleMemberUserId);
 
 				if ($user === null) {
-					throw new ServiceException('Could not find organizer');
+					$this->logger->error('Could not find user with user id' . $circleMemberUserId);
+					throw new ServiceException('Could not find circle member');
 				}
 
 				$contacts[] = [

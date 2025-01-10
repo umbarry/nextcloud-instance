@@ -23,7 +23,7 @@ OC.L10N.register(
     "Send email" : "Imbia messàgiu de posta eletrònica",
     "Today" : "Oe",
     "Yesterday" : "Eris",
-    "You need to set up your email address before you can receive notification emails." : "Deves impostare s'indiritzu de posta eletrònica tuo pro retzire is messàgios de notìfica.",
+    "You need to set up your email address before you can receive notification emails." : "Depes cunfigurare s'indiritzu de posta eletrònica tuo pro retzire is messàgios de notìfica.",
     "Send activity emails" : "Imbia messàgios de atividade",
     "As soon as possible" : "Apena possìbile",
     "Hourly" : "Ogni ora",
@@ -34,8 +34,11 @@ OC.L10N.register(
     "Open {filename}" : "Aberi {filename}",
     "in {path}" : "in {path}",
     "Home" : "Pàgina printzipale",
+    "Loading activities" : "Carrighende atividades",
     "This stream will show events like additions, changes & shares" : "Custu flussu at a mustrare eventos che a agiuntas, càmbios e cumpartziduras",
     "No activity yet" : "Ancora peruna atividade ",
+    "Loading more activities" : "Carrighende àteras atividades",
+    "Activity settings" : "Cunfiguratziones de atividade",
     "Enable RSS feed" : "Ativa su flussu RSS ",
     "RSS feed" : "Ativa su flussu RSS",
     "Unable to load the activity list" : "Non faghet a carrigare sa lista de atividades",
@@ -45,6 +48,7 @@ OC.L10N.register(
     "Choose for which activities you want to get a push notification." : "Sèbera pro cales atividades cheres retzire una notìfica automàtica.",
     "Send daily activity summary in the morning" : "Imbia unu resumu de is atividades de ogni die a mangianu",
     "Default settings" : "Cunfiguratzione predefinida",
+    "Configure the default notification settings for new accounts." : "Cunfigura is paràmetros de notìficas predefinidos pro is contos noos.",
     "No more events to load" : "Perunu eventu de carrigare"
 },
 "nplurals=2; plural=(n != 1);");

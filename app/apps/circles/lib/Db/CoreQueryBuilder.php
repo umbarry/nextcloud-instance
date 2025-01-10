@@ -4,28 +4,8 @@ declare(strict_types=1);
 
 
 /**
- * Circles - Bring cloud-users closer together.
- *
- * This file is licensed under the Affero General Public License version 3 or
- * later. See the COPYING file.
- *
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2021
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 
@@ -56,29 +36,29 @@ class CoreQueryBuilder extends ExtendedQueryBuilder {
 	use TArrayTools;
 
 
-	public const SINGLE = 'cs';
-	public const CIRCLE = 'cc';
-	public const MEMBER = 'mm';
-	public const OWNER = 'wn';
-	public const FEDERATED_EVENT = 'ev';
-	public const REMOTE = 'rm';
-	public const BASED_ON = 'on';
-	public const INITIATOR = 'in';
-	public const DIRECT_INITIATOR = 'di';
-	public const MEMBERSHIPS = 'ms';
-	public const CONFIG = 'cf';
-	public const UPSTREAM_MEMBERSHIPS = 'up';
-	public const INHERITANCE_FROM = 'ih';
-	public const INHERITED_BY = 'by';
-	public const INVITED_BY = 'nv';
-	public const MOUNT = 'mo';
-	public const MOUNTPOINT = 'mp';
-	public const SHARE = 'sh';
-	public const FILE_CACHE = 'fc';
-	public const STORAGES = 'st';
-	public const TOKEN = 'tk';
-	public const OPTIONS = 'pt';
-	public const HELPER = 'hp';
+	public const SINGLE = 'a';
+	public const CIRCLE = 'b';
+	public const MEMBER = 'c';
+	public const OWNER = 'd';
+	public const FEDERATED_EVENT = 'e';
+	public const REMOTE = 'f';
+	public const BASED_ON = 'g';
+	public const INITIATOR = 'h';
+	public const DIRECT_INITIATOR = 'i';
+	public const MEMBERSHIPS = 'j';
+	public const CONFIG = 'k';
+	public const UPSTREAM_MEMBERSHIPS = 'l';
+	public const INHERITANCE_FROM = 'm';
+	public const INHERITED_BY = 'n';
+	public const INVITED_BY = 'o';
+	public const MOUNT = 'p';
+	public const MOUNTPOINT = 'q';
+	public const SHARE = 'r';
+	public const FILE_CACHE = 's';
+	public const STORAGES = 't';
+	public const TOKEN = 'u';
+	public const OPTIONS = 'v';
+	public const HELPER = 'w';
 
 
 	public static $SQL_PATH = [
@@ -1327,8 +1307,8 @@ class CoreQueryBuilder extends ExtendedQueryBuilder {
 			 ->leftJoin(
 			 	$alias, CoreRequestBuilder::TABLE_MEMBER, $aliasInitiator,
 			 	$expr->andX(
-			 		$expr->eq($aliasInitiator . '.circle_id', $helperAlias . '.' . $field),
-			 		$this->exprLimitInt('level', Member::LEVEL_OWNER, $aliasInitiator)
+			 		$expr->eq($aliasInitiator . '.circle_id', $alias . '.unique_id'),
+			 		$expr->eq($aliasInitiator . '.' . $field, $helperAlias . '.inheritance_first'),
 			 	)
 			 );
 		//
@@ -1584,7 +1564,7 @@ class CoreQueryBuilder extends ExtendedQueryBuilder {
 	 *
 	 * @throws RequestBuilderException
 	 */
-	public function leftJoinMountpoint(string $aliasMount, string $aliasMountMemberships = '') {
+	public function leftJoinMountpoint(string $aliasMount, IFederatedUser $federatedUser, string $aliasMountMemberships = '') {
 		$expr = $this->expr();
 
 		$aliasMountpoint = $this->generateAlias($aliasMount, self::MOUNTPOINT);
@@ -1596,7 +1576,7 @@ class CoreQueryBuilder extends ExtendedQueryBuilder {
 			$aliasMountMemberships, CoreRequestBuilder::TABLE_MOUNTPOINT, $aliasMountpoint,
 			$expr->andX(
 				$expr->eq($aliasMountpoint . '.mount_id', $aliasMount . '.mount_id'),
-				$expr->eq($aliasMountpoint . '.single_id', $aliasMountMemberships . '.single_id')
+				$expr->eq($aliasMountpoint . '.single_id', $this->createNamedParameter($federatedUser->getSingleId()))
 			)
 		);
 

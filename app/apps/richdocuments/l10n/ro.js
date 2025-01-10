@@ -27,9 +27,9 @@ OC.L10N.register(
     "Select file or folder to link to" : "Selectați fișierul sau folderul țintă a link-ului",
     "Insert image" : "Introdu imagine",
     "Close" : "Închide",
+    "Edit" : "Editează",
     "Error" : "Eroare",
     "An error occurred" : "A apărut o eraore",
-    "Nickname" : "Pseudonim",
     "Saving …" : "Se salvează",
     "Remove from favorites" : "Șterge din favorite",
     "Add to favorites" : "Adăugați la favorite",
@@ -40,6 +40,7 @@ OC.L10N.register(
     "Create" : "Creează",
     "Could not create file" : "Nu s-a putut crea fisierul",
     "Select template" : "Selectează șablon",
+    "Nickname" : "Pseudonim",
     "Saving…" : "Se salvează..."
 },
 "nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));");

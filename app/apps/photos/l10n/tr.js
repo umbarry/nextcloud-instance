@@ -65,6 +65,7 @@ OC.L10N.register(
     "Jump to specific date in list" : "Listede belirli bir tarihe git",
     "Jump to {date}" : "{date} tarihine git",
     "Add to {destination}" : "{destination} üzerine ekle",
+    "The destination folder is owned by {owner}" : "Hedef klasörün sahibi {owner}",
     "There are no photos or videos yet!" : "Henüz bir fotoğraf ya da görüntü yok!",
     "_{years} year ago_::_{years} years ago_" : ["{years} yıl önce","{years} yıl önce"],
     "Enable squared photos view" : "Kare fotoğraf görünümü kullanılsın",
@@ -127,7 +128,6 @@ OC.L10N.register(
     "Photos with tags will show up here" : "Etiketlenmiş fotoğraflar burada görüntülenir",
     "Popular tags" : "Sık kullanılan etiketler",
     "All tags" : "Tüm etiketler",
-    "One of the source folders does not exists" : "Kaynak klasörlerden biri bulunamadı",
     "Add" : "Ekle",
     "Add to album" : "Albüme ekle",
     "Delete selection" : "Seçilmişleri sil",
@@ -157,6 +157,7 @@ OC.L10N.register(
     "Default Photos upload and Albums location" : "Varsayılan Fotoğraflar yükleme ve Albümler konumu",
     "Select the default location for your media" : "Ortamlarınızın varsayılan konumunu seçin",
     "Invalid location selected" : "Seçilen konum geçersiz",
-    "Photos directory" : "Fotoğraflar klasörü"
+    "Photos directory" : "Fotoğraflar klasörü",
+    "One of the source folders does not exists" : "Kaynak klasörlerden biri bulunamadı"
 },
 "nplurals=2; plural=(n > 1);");

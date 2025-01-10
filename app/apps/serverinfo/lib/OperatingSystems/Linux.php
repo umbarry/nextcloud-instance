@@ -3,22 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @author Frank Karlitschek <frank@nextcloud.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2019 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 
 namespace OCA\ServerInfo\OperatingSystems;
@@ -144,13 +130,11 @@ class Linux implements IOperatingSystem {
 
 	public function getNetworkInfo(): array {
 		$result = [
-			'hostname' => \gethostname(),
-			'dns' => '',
 			'gateway' => '',
+			'hostname' => \gethostname(),
 		];
 
 		if (function_exists('shell_exec')) {
-			$result['dns'] = shell_exec('cat /etc/resolv.conf |grep -i \'^nameserver\'|head -n1|cut -d \' \' -f2');
 			$result['gateway'] = shell_exec('ip route | awk \'/default/ { print $3 }\'');
 		}
 
@@ -216,7 +200,7 @@ class Linux implements IOperatingSystem {
 		}
 
 		$matches = [];
-		$pattern = '/^(?<Filesystem>[\S]+)\s*(?<Type>[\S]+)\s*(?<Blocks>\d+)\s*(?<Used>\d+)\s*(?<Available>\d+)\s*(?<Capacity>\d+%)\s*(?<Mounted>[\w\/-]+)$/m';
+		$pattern = '/^(?<Filesystem>[\S]+)\s*(?<Type>[\S]+)\s*(?<Blocks>\d+)\s*(?<Used>\d+)\s*(?<Available>\d+)\s*(?<Capacity>\d+%)\s*(?<Mounted>[\w\/\-\.]+)$/m';
 
 		$result = preg_match_all($pattern, $disks, $matches);
 		if ($result === 0 || $result === false) {
@@ -233,9 +217,10 @@ class Linux implements IOperatingSystem {
 			$disk = new Disk();
 			$disk->setDevice($filesystem);
 			$disk->setFs($matches['Type'][$i]);
-			$disk->setUsed((int)((int)$matches['Used'][$i] / 1024));
-			$disk->setAvailable((int)((int)$matches['Available'][$i] / 1024));
-			$disk->setPercent($matches['Capacity'][$i]);
+			$used = (int)((int)$matches['Blocks'][$i] - (int)$matches['Available'][$i]);
+			$disk->setUsed((int)ceil($used / 1024));
+			$disk->setAvailable((int)floor((int)$matches['Available'][$i] / 1024));
+			$disk->setPercent(round(($used * 100 / (int)$matches['Blocks'][$i]), 2) . '%');
 			$disk->setMount($matches['Mounted'][$i]);
 
 			$data[] = $disk;

@@ -64,7 +64,8 @@ OC.L10N.register(
     "Dates" : "Datas",
     "Jump to specific date in list" : "Ir para uma data específica na lista",
     "Jump to {date}" : "Ir para {data}",
-    "Add to {destination}" : "Adicionar a {destionation}",
+    "Add to {destination}" : "Adicionar a {destination}",
+    "The destination folder is owned by {owner}" : "A pasta de destino pertence a {owner}",
     "There are no photos or videos yet!" : "Ainda não há fotos ou vídeos!",
     "_{years} year ago_::_{years} years ago_" : ["{anos} ano atrás","{anos} anos atrás","{anos} anos atrás"],
     "Enable squared photos view" : "Ativar exibição de fotos quadradas",
@@ -127,7 +128,7 @@ OC.L10N.register(
     "Photos with tags will show up here" : "Fotos com marcações serão mostradas aqui",
     "Popular tags" : "Etiquetas populares",
     "All tags" : "Todas as etiquetas",
-    "One of the source folders does not exists" : "Uma das pastas de origem não existe",
+    "One of the source folders does not exist" : "Um dos arquivos da fonte não existe",
     "Add" : "Adicionar",
     "Add to album" : "Adicionar a álbum",
     "Delete selection" : "Excluir seleção",
@@ -157,6 +158,7 @@ OC.L10N.register(
     "Default Photos upload and Albums location" : "Localização padrão de upload para fotos e álbuns",
     "Select the default location for your media" : "Selecione o local padrão para sua mídia",
     "Invalid location selected" : "Invalidar localização selecionada",
-    "Photos directory" : "Diretório de fotos"
+    "Photos directory" : "Diretório de fotos",
+    "One of the source folders does not exists" : "Uma das pastas de origem não existe"
 },
 "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

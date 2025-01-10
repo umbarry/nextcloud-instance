@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
 namespace OCA\Richdocuments\Reference;
 
 use Exception;
@@ -63,8 +66,7 @@ class OfficeTargetReferenceProvider extends ADiscoverableReferenceProvider {
 
 		try {
 			$userFolder = $this->rootFolder->getUserFolder($this->userId);
-			$files = $userFolder->getById($fileId);
-			$file = array_shift($files);
+			$file = $userFolder->getFirstNodeById($fileId);
 		} catch (Exception $e) {
 			$this->logger->info('Failed to get file for office target reference: ' . $fileId, ['exception' => $e]);
 			return null;

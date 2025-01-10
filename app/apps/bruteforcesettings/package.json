@@ -1,6 +1,6 @@
 {
   "name": "bruteforcesettings",
-  "version": "2.9.0",
+  "version": "3.0.0",
   "description": "Bruteforce settings app",
   "author": "Roeland Jago Douma <roeland@famdouma.nl>",
   "license": "AGPL-3.0-or-later",
@@ -19,11 +19,11 @@
     "stylelint:fix": "stylelint src --fix"
   },
   "dependencies": {
-    "@nextcloud/axios": "^2.4.0",
-    "@nextcloud/dialogs": "^5.2.1",
-    "@nextcloud/initial-state": "^2.1.0",
+    "@nextcloud/axios": "^2.5.1",
+    "@nextcloud/dialogs": "^5.3.7",
+    "@nextcloud/initial-state": "^2.2.0",
     "@nextcloud/router": "^3.0.1",
-    "@nextcloud/vue": "^8.11.3",
+    "@nextcloud/vue": "^8.16.0",
     "vue": "^2.7.14",
     "vue-material-design-icons": "^5.3.0"
   },
@@ -32,10 +32,10 @@
     "npm": "^10.0.0"
   },
   "devDependencies": {
-    "@nextcloud/babel-config": "^1.0.0",
+    "@nextcloud/babel-config": "^1.2.0",
     "@nextcloud/browserslist-config": "^3.0.1",
-    "@nextcloud/eslint-config": "^8.3.0",
-    "@nextcloud/stylelint-config": "^2.4.0",
+    "@nextcloud/eslint-config": "^8.4.1",
+    "@nextcloud/stylelint-config": "^3.0.1",
     "@nextcloud/webpack-vue-config": "^6.0.1"
   }
 }

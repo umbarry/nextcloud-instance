@@ -1,14 +1,8 @@
 <?php
 /**
- * ownCloud - Richdocuments App
- *
- * @author Victor Dubiniuk
- * @copyright 2015 Victor Dubiniuk victor.dubiniuk@gmail.com
- *
- * This file is licensed under the Affero General Public License version 3 or
- * later.
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 namespace OCA\Richdocuments;
 
 use OCA\Richdocuments\AppInfo\Application;
@@ -52,6 +46,11 @@ class AppConfig {
 		'watermark_allGroupsList' => 'array',
 		'watermark_allTagsList' => 'array',
 		'watermark_linkTagsList' => 'array'
+	];
+
+	private const INTEGER_LIST_KEYS = [
+		'watermark_allTagsList' => true,
+		'watermark_linkTagsList' => true,
 	];
 
 	public function __construct(
@@ -123,7 +122,11 @@ class AppConfig {
 				$value = $value === 'yes' ? true : $value;
 				$result[$key] = $value === 'no' ? false : $value;
 			}
+			if (!empty(self::INTEGER_LIST_KEYS[$key])) {
+				$result[$key] = array_map('intval', $result[$key] ?? []);
+			}
 		}
+
 		return $result;
 	}
 

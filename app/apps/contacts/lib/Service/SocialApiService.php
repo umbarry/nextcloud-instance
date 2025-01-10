@@ -3,25 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @copyright Copyright (c) 2020 Matthias Heinisch <nextcloud@matthiasheinisch.de>
- *
- * @author Matthias Heinisch <nextcloud@matthiasheinisch.de>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2020 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Contacts\Service;
@@ -64,15 +47,15 @@ class SocialApiService {
 	private $imageResizer;
 
 	public function __construct(
-					CompositeSocialProvider $socialProvider,
-					IManager $manager,
-					IConfig $config,
-					IClientService $clientService,
-					IL10N $l10n,
-					IURLGenerator $urlGen,
-					CardDavBackend $davBackend,
-					ITimeFactory $timeFactory,
-					ImageResizer $imageResizer) {
+		CompositeSocialProvider $socialProvider,
+		IManager $manager,
+		IConfig $config,
+		IClientService $clientService,
+		IL10N $l10n,
+		IURLGenerator $urlGen,
+		CardDavBackend $davBackend,
+		ITimeFactory $timeFactory,
+		ImageResizer $imageResizer) {
 		$this->appName = Application::APP_ID;
 		$this->socialProvider = $socialProvider;
 		$this->manager = $manager;
@@ -136,7 +119,7 @@ class SocialApiService {
 	 *
 	 * @returns {IAddressBook} the corresponding addressbook or null
 	 */
-	protected function getAddressBook(string $addressbookId, IManager $manager = null) : ?IAddressBook {
+	protected function getAddressBook(string $addressbookId, ?IManager $manager = null) : ?IAddressBook {
 		$addressBook = null;
 		if ($manager === null) {
 			$manager = $this->manager;
@@ -367,7 +350,7 @@ class SocialApiService {
 	 *
 	 * @returns {JSONResponse} JSONResponse with the list of changed and failed contacts
 	 */
-	public function updateAddressbooks(string $userId, string $offsetBook = null, string $offsetContact = null, string $network = null) : JSONResponse {
+	public function updateAddressbooks(string $userId, ?string $offsetBook = null, ?string $offsetContact = null, ?string $network = null) : JSONResponse {
 		// double check!
 		$syncAllowedByAdmin = $this->config->getAppValue($this->appName, 'allowSocialSync', 'yes');
 		$bgSyncEnabledByUser = $this->config->getUserValue($userId, $this->appName, 'enableSocialSync', 'no');

@@ -1,37 +1,10 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Bjoern Schiessle <bjoern@schiessle.org>
- * @author Björn Schießle <bjoern@schiessle.org>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Daniel Kesselberg <mail@danielkesselberg.de>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Vincent Petry <vincent@nextcloud.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OCA\Files_Sharing\External;
 
@@ -384,14 +357,21 @@ class Storage extends DAV implements ISharedStorage, IDisableEncryptionStorage, 
 
 	public function getPermissions($path): int {
 		$response = $this->propfind($path);
+		if ($response === false) {
+			return 0;
+		}
+
+		$ocsPermissions = $response['{http://open-collaboration-services.org/ns}share-permissions'] ?? null;
+		$ocmPermissions = $response['{http://open-cloud-mesh.org/ns}share-permissions'] ?? null;
+		$ocPermissions = $response['{http://owncloud.org/ns}permissions'] ?? null;
 		// old federated sharing permissions
-		if (isset($response['{http://open-collaboration-services.org/ns}share-permissions'])) {
-			$permissions = (int)$response['{http://open-collaboration-services.org/ns}share-permissions'];
-		} elseif (isset($response['{http://open-cloud-mesh.org/ns}share-permissions'])) {
+		if ($ocsPermissions !== null) {
+			$permissions = (int)$ocsPermissions;
+		} elseif ($ocmPermissions !== null) {
 			// permissions provided by the OCM API
-			$permissions = $this->ocmPermissions2ncPermissions($response['{http://open-collaboration-services.org/ns}share-permissions'], $path);
-		} elseif (isset($response['{http://owncloud.org/ns}permissions'])) {
-			return $this->parsePermissions($response['{http://owncloud.org/ns}permissions']);
+			$permissions = $this->ocmPermissions2ncPermissions($ocmPermissions, $path);
+		} elseif ($ocPermissions !== null) {
+			return $this->parsePermissions($ocPermissions);
 		} else {
 			// use default permission if remote server doesn't provide the share permissions
 			$permissions = $this->getDefaultPermissions($path);

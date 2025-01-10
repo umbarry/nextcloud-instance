@@ -2,23 +2,8 @@
 
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2020 Robin Appelman <robin@icewind.nl>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2020 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Activity;
@@ -29,6 +14,7 @@ use OCP\Defaults;
 use OCP\IConfig;
 use OCP\IDateTimeFormatter;
 use OCP\IURLGenerator;
+use OCP\IUser;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use OCP\Mail\IMailer;
@@ -83,9 +69,15 @@ class DigestSender {
 				// User got todays digest already
 				continue;
 			}
+			$userObject = $this->userManager->get($user);
+			if (!$userObject->isEnabled()) {
+				// User is disabled so do not send the email but update last sent since after enabling avoid flooding
+				$this->updateLastSentForUser($userObject, $now);
+				continue;
+			}
 
 			try {
-				$this->sendDigestForUser($user, $now, $timezone, $language);
+				$this->sendDigestForUser($userObject, $now, $timezone, $language);
 			} catch (\Throwable $e) {
 				$this->logger->error('Exception occurred while sending user digest email', [
 					'exception' => $e,
@@ -93,7 +85,7 @@ class DigestSender {
 			}
 			// We still update the digest time after an failed email,
 			// so it hopefully works tomorrow
-			$this->config->setUserValue($user, 'activity', 'digest', $timezoneDigestDay[$timezone]);
+			$this->config->setUserValue($userObject->getUID(), 'activity', 'digest', $timezoneDigestDay[$timezone]);
 		}
 
 		$this->activityManager->setRequirePNG(false);
@@ -118,21 +110,37 @@ class DigestSender {
 		return $this->data->getFirstActivitySince($user, $now - (24 * 60 * 60));
 	}
 
-	public function sendDigestForUser(string $uid, int $now, string $timezone, string $language) {
+	private function updateLastSentForUser(IUser $user, int $now): void {
+		$uid = $user->getUID();
+		$lastSend = $this->getLastSendActivity($uid, $now);
+
+		['max' => $lastActivityId] = $this->data->getActivitySince($uid, $lastSend, true);
+		$lastActivityId = (int)$lastActivityId;
+
+		$this->config->setUserValue($uid, 'activity', 'activity_digest_last_send', (string)$lastActivityId);
+	}
+
+	public function sendDigestForUser(IUser $user, int $now, string $timezone, string $language) {
+		$uid = $user->getUID();
 		$l10n = $this->l10nFactory->get('activity', $language);
 		$this->groupHelper->setL10n($l10n);
 		$lastSend = $this->getLastSendActivity($uid, $now);
-		$user = $this->userManager->get($uid);
 		if ($lastSend === 0) {
 			return;
 		}
 		$this->activityManager->setCurrentUserId($uid);
 
 		['count' => $count, 'max' => $lastActivityId] = $this->data->getActivitySince($uid, $lastSend, true);
-		$count = (int) $count;
-		$lastActivityId = (int) $lastActivityId;
+		$count = (int)$count;
+		$lastActivityId = (int)$lastActivityId;
 		if ($count === 0) {
 			return;
+		}
+
+		$activitiesLimit = self::ACTIVITY_LIMIT;
+		if ($count === $activitiesLimit + 1) {
+			// it makes no sense to have a "and 1 more" entry as it takes exactly the same space as the one entry more
+			$activitiesLimit += 1;
 		}
 
 		/** @var IEvent[] $activities */
@@ -141,14 +149,14 @@ class DigestSender {
 			$this->userSettings,
 			$uid,
 			$lastSend,
-			self::ACTIVITY_LIMIT,
+			$activitiesLimit,
 			'asc',
 			'by',
 			'',
 			0,
 			true
 		);
-		$skippedCount = max(0, $count - self::ACTIVITY_LIMIT);
+		$skippedCount = max(0, $count - $activitiesLimit);
 
 		$template = $this->mailer->createEMailTemplate('activity.Notification', [
 			'displayname' => $user->getDisplayName(),
@@ -172,7 +180,12 @@ class DigestSender {
 		}
 
 		if ($skippedCount) {
-			$template->addBodyListItem($l10n->n('and %n more ', 'and %n more ', $skippedCount));
+			$andMoreText = $l10n->n('and %n more…', 'and %n more…', $skippedCount);
+			$url = $this->urlGenerator->linkToRouteAbsolute('activity.Activities.showList', [ 'filter' => 'all' ]);
+			$template->addBodyListItem(
+				'<a href="' . $url . '">' . htmlspecialchars($andMoreText) . '</a>',
+				plainText: $andMoreText,
+			);
 		}
 
 		$template->addFooter('', $language);
@@ -185,7 +198,7 @@ class DigestSender {
 		$this->activityManager->setCurrentUserId(null);
 		try {
 			$this->mailer->send($message);
-			$this->config->setUserValue($user->getUID(), 'activity', 'activity_digest_last_send', (string) $lastActivityId);
+			$this->config->setUserValue($uid, 'activity', 'activity_digest_last_send', (string)$lastActivityId);
 		} catch (\Exception $e) {
 			$this->logger->error($e->getMessage());
 			return;
@@ -206,9 +219,9 @@ class DigestSender {
 			$placeholders[] = '{' . $placeholder . '}';
 
 			if ($parameter['type'] === 'file') {
-				$replacement = (string) $parameter['path'];
+				$replacement = (string)$parameter['path'];
 			} else {
-				$replacement = (string) $parameter['name'];
+				$replacement = (string)$parameter['name'];
 			}
 
 			if (isset($parameter['link'])) {

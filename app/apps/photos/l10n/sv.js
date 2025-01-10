@@ -65,6 +65,7 @@ OC.L10N.register(
     "Jump to specific date in list" : "Hoppa till specifikt datum i listan",
     "Jump to {date}" : "Gå till {date}",
     "Add to {destination}" : "Lägg till i {destination}",
+    "The destination folder is owned by {owner}" : "Målmappen ägs av {owner}",
     "There are no photos or videos yet!" : "Det finns inga bilder eller videor än!",
     "_{years} year ago_::_{years} years ago_" : ["{years} år sedan","{years} år sedan"],
     "Enable squared photos view" : "Aktivera kvadratiska bild-vyn",
@@ -127,7 +128,7 @@ OC.L10N.register(
     "Photos with tags will show up here" : "Bilder med taggar visas här",
     "Popular tags" : "Populära taggar",
     "All tags" : "Alla taggar",
-    "One of the source folders does not exists" : "En av källmapparna finns inte",
+    "One of the source folders does not exist" : "En av källmapparna finns inte",
     "Add" : "Lägg till",
     "Add to album" : "Lägg till i album",
     "Delete selection" : "Ta bort urval",
@@ -157,6 +158,7 @@ OC.L10N.register(
     "Default Photos upload and Albums location" : "Standardplats för album och bilder",
     "Select the default location for your media" : "Välj standardplats för din media",
     "Invalid location selected" : "Ogiltig plats vald",
-    "Photos directory" : "Bildmapp"
+    "Photos directory" : "Bildmapp",
+    "One of the source folders does not exists" : "En av källmapparna finns inte"
 },
 "nplurals=2; plural=(n != 1);");

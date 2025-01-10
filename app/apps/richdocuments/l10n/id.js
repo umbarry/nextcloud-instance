@@ -25,9 +25,9 @@ OC.L10N.register(
     "No results" : "Tidak ada hasil",
     "Select file or folder to link to" : "Pilih berkas atau folder untuk ditautkan",
     "Close" : "Tutup",
+    "Edit" : "Sunting",
     "Error" : "Kesalahan",
     "An error occurred" : "Terjadi kesalahan",
-    "Nickname" : "Nama panggilan",
     "Saving …" : "Menyimpan ...",
     "Remove from favorites" : "Remove from favorites",
     "Add to favorites" : "Tambah ke favorit",
@@ -38,6 +38,7 @@ OC.L10N.register(
     "Create" : "Buat",
     "Could not create file" : "Tidak dapat membuat berkas",
     "Select template" : "Pilih template",
+    "Nickname" : "Nama panggilan",
     "Saving…" : "Menyimpan..."
 },
 "nplurals=1; plural=0;");

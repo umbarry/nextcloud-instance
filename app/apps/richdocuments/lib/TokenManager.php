@@ -1,35 +1,20 @@
 <?php
 /**
- * @copyright Copyright (c) 2016 Lukas Reschke <lukas@statuscode.ch>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Richdocuments;
 
 use Exception;
-use OC\Files\Filesystem;
 use OCA\Files_Sharing\SharedStorage;
 use OCA\Richdocuments\Db\Direct;
 use OCA\Richdocuments\Db\Wopi;
 use OCA\Richdocuments\Db\WopiMapper;
-use OCA\Richdocuments\Service\CapabilitiesService;
 use OCA\Richdocuments\WOPI\Parser;
 use OCP\Constants;
+use OCP\EventDispatcher\IEventDispatcher;
+use OCP\Files\Events\Node\BeforeNodeReadEvent;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
@@ -41,51 +26,22 @@ use OCP\Share\Exceptions\ShareNotFound;
 use OCP\Share\IManager;
 use OCP\Share\IShare;
 use OCP\Util;
+use Psr\Log\LoggerInterface;
 
 class TokenManager {
-	/** @var IRootFolder */
-	private $rootFolder;
-	/** @var IManager */
-	private $shareManager;
-	/** @var IURLGenerator */
-	private $urlGenerator;
-	/** @var Parser */
-	private $wopiParser;
-	/** @var string */
-	private $userId;
-	/** @var WopiMapper */
-	private $wopiMapper;
-	/** @var IL10N */
-	private $trans;
-	/** @var CapabilitiesService */
-	private $capabilitiesService;
-	/** @var Helper */
-	private $helper;
-	/** @var PermissionManager */
-	private $permissionManager;
-
 	public function __construct(
-		IRootFolder $rootFolder,
-		IManager $shareManager,
-		IURLGenerator $urlGenerator,
-		Parser $wopiParser,
-		CapabilitiesService $capabilitiesService,
-		$UserId,
-		WopiMapper $wopiMapper,
-		IL10N $trans,
-		Helper $helper,
-		PermissionManager $permissionManager
+		private IRootFolder $rootFolder,
+		private IManager $shareManager,
+		private IURLGenerator $urlGenerator,
+		private Parser $wopiParser,
+		private ?string $userId,
+		private WopiMapper $wopiMapper,
+		private IL10N $trans,
+		private Helper $helper,
+		private PermissionManager $permissionManager,
+		private IEventDispatcher $eventDispatcher,
+		private LoggerInterface $logger,
 	) {
-		$this->rootFolder = $rootFolder;
-		$this->shareManager = $shareManager;
-		$this->urlGenerator = $urlGenerator;
-		$this->wopiParser = $wopiParser;
-		$this->capabilitiesService = $capabilitiesService;
-		$this->trans = $trans;
-		$this->userId = $UserId;
-		$this->wopiMapper = $wopiMapper;
-		$this->helper = $helper;
-		$this->permissionManager = $permissionManager;
 	}
 
 	/**
@@ -151,7 +107,7 @@ class TokenManager {
 			// no active user login while generating the token
 			// this is required during WopiPutRelativeFile
 			if (is_null($editoruid)) {
-				\OC::$server->getLogger()->warning('Generating token for SaveAs without editoruid');
+				$this->logger->warning('Generating token for SaveAs without editoruid');
 				$updatable = true;
 			} else {
 				// Make sure we use the user folder if available since fetching all files by id from the root might be expensive
@@ -169,7 +125,13 @@ class TokenManager {
 			}
 		}
 		/** @var File $file */
-		$file = $rootFolder->getById($fileId)[0];
+		$file = $rootFolder->getFirstNodeById($fileId);
+
+		// Check node readability (for storage wrapper overwrites like terms of services)
+		if ($file === null || !$file->isReadable()) {
+			throw new NotPermittedException();
+		}
+
 		// If its a public share, use the owner from the share, otherwise check the file object
 		if (is_null($owneruid)) {
 			$owner = $file->getOwner();
@@ -181,26 +143,17 @@ class TokenManager {
 			}
 		}
 
-		// Check node readability (for storage wrapper overwrites like terms of services)
-		if (!$file->isReadable()) {
-			throw new NotPermittedException();
-		}
-
 		// Safeguard that users without required group permissions cannot create a token
 		if (!$this->permissionManager->isEnabledForUser($owneruid) && !$this->permissionManager->isEnabledForUser($editoruid)) {
 			throw new NotPermittedException();
 		}
 
 		// force read operation to trigger possible audit logging
-		\OC_Hook::emit(
-			Filesystem::CLASSNAME,
-			Filesystem::signal_read,
-			[Filesystem::signal_param_path => $file->getPath()]
-		);
+		$this->eventDispatcher->dispatchTyped(new BeforeNodeReadEvent($file));
 
 		$serverHost = $this->urlGenerator->getAbsoluteURL('/');
-		$guestName = $this->userId === null ? $this->prepareGuestName($this->helper->getGuestNameFromCookie()) : null;
-		return $this->wopiMapper->generateFileToken($fileId, $owneruid, $editoruid, $version, $updatable, $serverHost, $guestName, 0, $hideDownload, $direct, 0, $shareToken);
+		$guestName = $editoruid === null ? $this->prepareGuestName($this->helper->getGuestNameFromCookie()) : null;
+		return $this->wopiMapper->generateFileToken($fileId, $owneruid, $editoruid, $version, $updatable, $serverHost, $guestName, $hideDownload, $direct, 0, $shareToken);
 	}
 
 	/**
@@ -237,12 +190,18 @@ class TokenManager {
 		return $wopi;
 	}
 
-	public function generateWopiTokenForTemplate(File $templateFile, ?string $userId, int $targetFileId, bool $direct = false): Wopi {
-		$owneruid = $userId;
-		$editoruid = $userId;
-		$rootFolder = $this->rootFolder->getUserFolder($editoruid);
-		$targetFile = $rootFolder->getById($targetFileId);
-		$targetFile = array_shift($targetFile);
+	public function generateWopiTokenForTemplate(
+		File $templateFile,
+		int $targetFileId,
+		string $owneruid,
+		bool $isGuest,
+		bool $direct = false,
+		?int $sharePermissions = null,
+	): Wopi {
+		$editoruid = $isGuest ? null : $owneruid;
+
+		$rootFolder = $this->rootFolder->getUserFolder($owneruid);
+		$targetFile = $rootFolder->getFirstNodeById($targetFileId);
 		if (!$targetFile instanceof File) {
 			throw new NotFoundException();
 		}
@@ -252,16 +211,26 @@ class TokenManager {
 			throw new NotPermittedException();
 		}
 
-		$updatable = $targetFile->isUpdateable() && $this->permissionManager->userCanEdit($editoruid);
+		$updatable = $targetFile->isUpdateable();
+		if (!is_null($sharePermissions)) {
+			$shareUpdatable = (bool)($sharePermissions & \OCP\Constants::PERMISSION_UPDATE);
+			$updatable = $updatable && $shareUpdatable;
+		}
 
 		$serverHost = $this->urlGenerator->getAbsoluteURL('/');
 
-		if ($this->capabilitiesService->hasTemplateSource()) {
-			return $this->wopiMapper->generateFileToken($targetFile->getId(), $owneruid, $editoruid, 0, $updatable, $serverHost, null, 0, false, $direct, $templateFile->getId());
-		}
-
-		// Legacy way of creating new documents from a template
-		return $this->wopiMapper->generateFileToken($templateFile->getId(), $owneruid, $editoruid, 0, $updatable, $serverHost, null, $targetFile->getId(), $direct);
+		return $this->wopiMapper->generateFileToken(
+			$targetFile->getId(),
+			$owneruid,
+			$editoruid,
+			0,
+			$updatable,
+			$serverHost,
+			$isGuest ? '' : null,
+			false,
+			$direct,
+			$templateFile->getId()
+		);
 	}
 
 	public function newInitiatorToken($sourceServer, ?Node $node = null, $shareToken = null, bool $direct = false, $userId = null): Wopi {

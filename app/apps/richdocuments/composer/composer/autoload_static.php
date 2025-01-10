@@ -7,6 +7,12 @@ namespace Composer\Autoload;
 class ComposerStaticInitRichdocuments
 {
     public static $prefixLengthsPsr4 = array (
+        'm' => 
+        array (
+            'mikehaertl\\tmp\\' => 15,
+            'mikehaertl\\shellcommand\\' => 24,
+            'mikehaertl\\pdftk\\' => 17,
+        ),
         'O' => 
         array (
             'OCA\\Richdocuments\\' => 18,
@@ -14,6 +20,18 @@ class ComposerStaticInitRichdocuments
     );
 
     public static $prefixDirsPsr4 = array (
+        'mikehaertl\\tmp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mikehaertl/php-tmpfile/src',
+        ),
+        'mikehaertl\\shellcommand\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mikehaertl/php-shellcommand/src',
+        ),
+        'mikehaertl\\pdftk\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mikehaertl/php-pdftk/src',
+        ),
         'OCA\\Richdocuments\\' => 
         array (
             0 => __DIR__ . '/..' . '/../lib',
@@ -38,9 +56,11 @@ class ComposerStaticInitRichdocuments
         'OCA\\Richdocuments\\Controller\\DocumentController' => __DIR__ . '/..' . '/../lib/Controller/DocumentController.php',
         'OCA\\Richdocuments\\Controller\\DocumentTrait' => __DIR__ . '/..' . '/../lib/Controller/DocumentTrait.php',
         'OCA\\Richdocuments\\Controller\\FederationController' => __DIR__ . '/..' . '/../lib/Controller/FederationController.php',
+        'OCA\\Richdocuments\\Controller\\MentionController' => __DIR__ . '/..' . '/../lib/Controller/MentionController.php',
         'OCA\\Richdocuments\\Controller\\OCSController' => __DIR__ . '/..' . '/../lib/Controller/OCSController.php',
         'OCA\\Richdocuments\\Controller\\SettingsController' => __DIR__ . '/..' . '/../lib/Controller/SettingsController.php',
         'OCA\\Richdocuments\\Controller\\TargetController' => __DIR__ . '/..' . '/../lib/Controller/TargetController.php',
+        'OCA\\Richdocuments\\Controller\\TemplateFieldController' => __DIR__ . '/..' . '/../lib/Controller/TemplateFieldController.php',
         'OCA\\Richdocuments\\Controller\\TemplatesController' => __DIR__ . '/..' . '/../lib/Controller/TemplatesController.php',
         'OCA\\Richdocuments\\Controller\\WopiController' => __DIR__ . '/..' . '/../lib/Controller/WopiController.php',
         'OCA\\Richdocuments\\Db\\Asset' => __DIR__ . '/..' . '/../lib/Db/Asset.php',
@@ -57,11 +77,13 @@ class ComposerStaticInitRichdocuments
         'OCA\\Richdocuments\\Listener\\AddContentSecurityPolicyListener' => __DIR__ . '/..' . '/../lib/Listener/AddContentSecurityPolicyListener.php',
         'OCA\\Richdocuments\\Listener\\AddFeaturePolicyListener' => __DIR__ . '/..' . '/../lib/Listener/AddFeaturePolicyListener.php',
         'OCA\\Richdocuments\\Listener\\BeforeFetchPreviewListener' => __DIR__ . '/..' . '/../lib/Listener/BeforeFetchPreviewListener.php',
+        'OCA\\Richdocuments\\Listener\\BeforeGetTemplatesListener' => __DIR__ . '/..' . '/../lib/Listener/BeforeGetTemplatesListener.php',
         'OCA\\Richdocuments\\Listener\\BeforeTemplateRenderedListener' => __DIR__ . '/..' . '/../lib/Listener/BeforeTemplateRenderedListener.php',
         'OCA\\Richdocuments\\Listener\\FileCreatedFromTemplateListener' => __DIR__ . '/..' . '/../lib/Listener/FileCreatedFromTemplateListener.php',
         'OCA\\Richdocuments\\Listener\\LoadAdditionalListener' => __DIR__ . '/..' . '/../lib/Listener/LoadAdditionalListener.php',
         'OCA\\Richdocuments\\Listener\\LoadViewerListener' => __DIR__ . '/..' . '/../lib/Listener/LoadViewerListener.php',
         'OCA\\Richdocuments\\Listener\\ReferenceListener' => __DIR__ . '/..' . '/../lib/Listener/ReferenceListener.php',
+        'OCA\\Richdocuments\\Listener\\RegisterTemplateFileCreatorListener' => __DIR__ . '/..' . '/../lib/Listener/RegisterTemplateFileCreatorListener.php',
         'OCA\\Richdocuments\\Listener\\ShareLinkListener' => __DIR__ . '/..' . '/../lib/Listener/ShareLinkListener.php',
         'OCA\\Richdocuments\\Middleware\\WOPIMiddleware' => __DIR__ . '/..' . '/../lib/Middleware/WOPIMiddleware.php',
         'OCA\\Richdocuments\\Migration\\InstallDefaultFonts' => __DIR__ . '/..' . '/../lib/Migration/InstallDefaultFonts.php',
@@ -71,6 +93,7 @@ class ComposerStaticInitRichdocuments
         'OCA\\Richdocuments\\Migration\\Version30709Date20201111104147' => __DIR__ . '/..' . '/../lib/Migration/Version30709Date20201111104147.php',
         'OCA\\Richdocuments\\Migration\\Version30717Date20210310164901' => __DIR__ . '/..' . '/../lib/Migration/Version30717Date20210310164901.php',
         'OCA\\Richdocuments\\Migration\\Version50200Date20211220212457' => __DIR__ . '/..' . '/../lib/Migration/Version50200Date20211220212457.php',
+        'OCA\\Richdocuments\\Notification\\Notifier' => __DIR__ . '/..' . '/../lib/Notification/Notifier.php',
         'OCA\\Richdocuments\\PermissionManager' => __DIR__ . '/..' . '/../lib/PermissionManager.php',
         'OCA\\Richdocuments\\Preview\\EMF' => __DIR__ . '/..' . '/../lib/Preview/EMF.php',
         'OCA\\Richdocuments\\Preview\\MSExcel' => __DIR__ . '/..' . '/../lib/Preview/MSExcel.php',
@@ -89,8 +112,10 @@ class ComposerStaticInitRichdocuments
         'OCA\\Richdocuments\\Service\\FileTargetService' => __DIR__ . '/..' . '/../lib/Service/FileTargetService.php',
         'OCA\\Richdocuments\\Service\\FontService' => __DIR__ . '/..' . '/../lib/Service/FontService.php',
         'OCA\\Richdocuments\\Service\\InitialStateService' => __DIR__ . '/..' . '/../lib/Service/InitialStateService.php',
+        'OCA\\Richdocuments\\Service\\PdfService' => __DIR__ . '/..' . '/../lib/Service/PdfService.php',
         'OCA\\Richdocuments\\Service\\RemoteOptionsService' => __DIR__ . '/..' . '/../lib/Service/RemoteOptionsService.php',
         'OCA\\Richdocuments\\Service\\RemoteService' => __DIR__ . '/..' . '/../lib/Service/RemoteService.php',
+        'OCA\\Richdocuments\\Service\\TemplateFieldService' => __DIR__ . '/..' . '/../lib/Service/TemplateFieldService.php',
         'OCA\\Richdocuments\\Service\\UserScopeService' => __DIR__ . '/..' . '/../lib/Service/UserScopeService.php',
         'OCA\\Richdocuments\\Settings\\Admin' => __DIR__ . '/..' . '/../lib/Settings/Admin.php',
         'OCA\\Richdocuments\\Settings\\Personal' => __DIR__ . '/..' . '/../lib/Settings/Personal.php',
@@ -100,6 +125,15 @@ class ComposerStaticInitRichdocuments
         'OCA\\Richdocuments\\TokenManager' => __DIR__ . '/..' . '/../lib/TokenManager.php',
         'OCA\\Richdocuments\\UploadException' => __DIR__ . '/..' . '/../lib/UploadException.php',
         'OCA\\Richdocuments\\WOPI\\Parser' => __DIR__ . '/..' . '/../lib/WOPI/Parser.php',
+        'mikehaertl\\pdftk\\Command' => __DIR__ . '/..' . '/mikehaertl/php-pdftk/src/Command.php',
+        'mikehaertl\\pdftk\\DataFields' => __DIR__ . '/..' . '/mikehaertl/php-pdftk/src/DataFields.php',
+        'mikehaertl\\pdftk\\FdfFile' => __DIR__ . '/..' . '/mikehaertl/php-pdftk/src/FdfFile.php',
+        'mikehaertl\\pdftk\\InfoFields' => __DIR__ . '/..' . '/mikehaertl/php-pdftk/src/InfoFields.php',
+        'mikehaertl\\pdftk\\InfoFile' => __DIR__ . '/..' . '/mikehaertl/php-pdftk/src/InfoFile.php',
+        'mikehaertl\\pdftk\\Pdf' => __DIR__ . '/..' . '/mikehaertl/php-pdftk/src/Pdf.php',
+        'mikehaertl\\pdftk\\XfdfFile' => __DIR__ . '/..' . '/mikehaertl/php-pdftk/src/XfdfFile.php',
+        'mikehaertl\\shellcommand\\Command' => __DIR__ . '/..' . '/mikehaertl/php-shellcommand/src/Command.php',
+        'mikehaertl\\tmp\\File' => __DIR__ . '/..' . '/mikehaertl/php-tmpfile/src/File.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

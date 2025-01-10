@@ -1,24 +1,8 @@
 <?php
 /**
- * @copyright Copyright (c) 2016-2017 Lukas Reschke <lukas@statuscode.ch>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 namespace OCA\Richdocuments\Controller;
 
 use OCA\Files_Versions\Versions\IVersionManager;
@@ -121,12 +105,7 @@ class WopiController extends Controller {
 			[$fileId, , $version] = Helper::parseFileId($fileId);
 
 			$wopi = $this->wopiMapper->getWopiForToken($access_token);
-			if ($wopi->isTemplateToken()) {
-				$this->templateManager->setUserId($wopi->getOwnerUid());
-				$file = $this->templateManager->get($wopi->getFileid());
-			} else {
-				$file = $this->getFileForWopiToken($wopi);
-			}
+			$file = $this->getFileForWopiToken($wopi);
 			if (!($file instanceof File)) {
 				throw new NotFoundException('No valid file found for ' . $fileId);
 			}
@@ -168,12 +147,13 @@ class WopiController extends Controller {
 			'UserExtraInfo' => [],
 			'UserPrivateInfo' => [],
 			'UserCanWrite' => $canWriteThroughLock && (bool)$wopi->getCanwrite(),
-			'UserCanNotWriteRelative' => $isPublic || $this->encryptionManager->isEnabled() || $wopi->getHideDownload(),
+			'UserCanNotWriteRelative' => $isPublic || $this->encryptionManager->isEnabled() || $wopi->getHideDownload() || $wopi->isRemoteToken(),
 			'PostMessageOrigin' => $wopi->getServerHost(),
 			'LastModifiedTime' => Helper::toISO8601($file->getMTime()),
-			'SupportsRename' => !$isVersion,
-			'UserCanRename' => !$isPublic && !$isVersion,
+			'SupportsRename' => !$isVersion && !$wopi->isRemoteToken(),
+			'UserCanRename' => !$isPublic && !$isVersion && !$wopi->isRemoteToken(),
 			'EnableInsertRemoteImage' => !$isPublic,
+			'EnableInsertRemoteFile' => !$isPublic,
 			'EnableShare' => $file->isShareable() && !$isVersion && !$isPublic,
 			'HideUserList' => '',
 			'EnableOwnerTermination' => $wopi->getCanwrite() && !$isPublic,
@@ -194,18 +174,22 @@ class WopiController extends Controller {
 			$zoteroAPIKey = $this->config->getUserValue($wopi->getEditorUid(), 'richdocuments', 'zoteroAPIKey', '');
 			$response['UserPrivateInfo']['ZoteroAPIKey'] = $zoteroAPIKey;
 		}
+		$enableDocumentSigning = $this->config->getAppValue(Application::APPNAME, 'documentSigningEnabled', 'yes') === 'yes';
+		if (!$isPublic && $enableDocumentSigning) {
+			$documentSigningCert = $this->config->getUserValue($wopi->getEditorUid(), 'richdocuments', 'documentSigningCert', '');
+			$response['UserPrivateInfo']['SignatureCert'] = $documentSigningCert;
+			$documentSigningKey = $this->config->getUserValue($wopi->getEditorUid(), 'richdocuments', 'documentSigningKey', '');
+			$response['UserPrivateInfo']['SignatureKey'] = $documentSigningKey;
+			$documentSigningCa = $this->config->getUserValue($wopi->getEditorUid(), 'richdocuments', 'documentSigningCa', '');
+			$response['UserPrivateInfo']['SignatureCa'] = $documentSigningCa;
+		}
 		if ($wopi->hasTemplateId()) {
 			$response['TemplateSource'] = $this->getWopiUrlForTemplate($wopi);
-		} elseif ($wopi->isTemplateToken()) {
-			// FIXME: Remove backward compatibility layer once TemplateSource is available in all supported Collabora versions
-			$userFolder = $this->rootFolder->getUserFolder($wopi->getOwnerUid());
-			$file = $userFolder->getById($wopi->getTemplateDestination())[0];
-			$response['TemplateSaveAs'] = $file->getName();
 		}
 
 		$share = $this->getShareForWopiToken($wopi);
 		if ($this->permissionManager->shouldWatermark($file, $wopi->getEditorUid(), $share)) {
-			$email = $user !== null && !$isPublic ? $user->getEMailAddress() : "";
+			$email = $user !== null && !$isPublic ? $user->getEMailAddress() : '';
 			$replacements = [
 				'userId' => $wopi->getEditorUid(),
 				'date' => (new \DateTime())->format('Y-m-d H:i:s'),
@@ -332,16 +316,6 @@ class WopiController extends Controller {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
 
-		// Template is just returned as there is no version logic
-		if ($wopi->isTemplateToken()) {
-			$this->templateManager->setUserId($wopi->getOwnerUid());
-			$file = $this->templateManager->get($wopi->getFileid());
-			$response = new StreamResponse($file->fopen('rb'));
-			$response->addHeader('Content-Disposition', 'attachment');
-			$response->addHeader('Content-Type', 'application/octet-stream');
-			return $response;
-		}
-
 		try {
 			/** @var File $file */
 			$file = $this->getFileForWopiToken($wopi);
@@ -371,7 +345,7 @@ class WopiController extends Controller {
 						}
 
 						$fp = $file->fopen('rb');
-						$rangeStream = fopen("php://temp", "w+b");
+						$rangeStream = fopen('php://temp', 'w+b');
 						stream_copy_to_stream($fp, $rangeStream, $length, $offset);
 						fclose($fp);
 
@@ -445,11 +419,10 @@ class WopiController extends Controller {
 			if ($isPutRelative) {
 				// the new file needs to be installed in the current user dir
 				$userFolder = $this->rootFolder->getUserFolder($wopi->getEditorUid());
-				$file = $userFolder->getById($fileId);
-				if (count($file) === 0) {
+				$file = $userFolder->getFirstNodeById($fileId);
+				if ($file === null) {
 					return new JSONResponse([], Http::STATUS_NOT_FOUND);
 				}
-				$file = $file[0];
 				$suggested = $this->request->getHeader('X-WOPI-SuggestedTarget');
 				$suggested = mb_convert_encoding($suggested, 'utf-8', 'utf-7');
 
@@ -493,7 +466,7 @@ class WopiController extends Controller {
 
 			$content = fopen('php://input', 'rb');
 
-			$freespace = $file->getParent()->getFreeSpace();
+			$freespace = (int)$file->getStorage()->free_space($file->getInternalPath());
 			$contentLength = (int)$this->request->getHeader('Content-Length');
 
 			try {
@@ -549,7 +522,7 @@ class WopiController extends Controller {
 			$wopiLock = $this->request->getHeader('X-WOPI-Lock');
 			[$fileId, , ] = Helper::parseFileId($fileId);
 			$wopi = $this->wopiMapper->getWopiForToken($access_token);
-			if ((int) $fileId !== $wopi->getFileid()) {
+			if ((int)$fileId !== $wopi->getFileid()) {
 				return new JSONResponse([], Http::STATUS_FORBIDDEN);
 			}
 		} catch (UnknownTokenException $e) {
@@ -587,7 +560,8 @@ class WopiController extends Controller {
 
 		// Unless the editor is empty (public link) we modify the files as the current editor
 		$editor = $wopi->getEditorUid();
-		if ($editor === null && !$wopi->isRemoteToken()) {
+		$isPublic = $editor === null && !$wopi->isRemoteToken();
+		if ($isPublic) {
 			$editor = $wopi->getOwnerUid();
 		}
 
@@ -595,24 +569,15 @@ class WopiController extends Controller {
 			// the new file needs to be installed in the current user dir
 			$userFolder = $this->rootFolder->getUserFolder($editor);
 
-			if ($wopi->isTemplateToken()) {
-				$this->templateManager->setUserId($wopi->getOwnerUid());
-				$file = $userFolder->getById($wopi->getTemplateDestination())[0];
-			} elseif ($isRenameFile) {
+			if ($isRenameFile) {
 				// the new file needs to be installed in the current user dir
 				$file = $this->getFileForWopiToken($wopi);
 
 				$suggested = $this->request->getHeader('X-WOPI-RequestedName');
-
 				$suggested = mb_convert_encoding($suggested, 'utf-8', 'utf-7') . '.' . $file->getExtension();
 
-				if (strpos($suggested, '.') === 0) {
-					$path = dirname($file->getPath()) . '/New File' . $suggested;
-				} elseif (strpos($suggested, '/') !== 0) {
-					$path = dirname($file->getPath()) . '/' . $suggested;
-				} else {
-					$path = $userFolder->getPath() . $suggested;
-				}
+				$parent = $isPublic ? dirname($file->getPath()) : $userFolder->getPath();
+				$path = $this->normalizePath($suggested, $parent);
 
 				if ($path === '') {
 					return new JSONResponse([
@@ -641,20 +606,8 @@ class WopiController extends Controller {
 				$suggested = $this->request->getHeader('X-WOPI-SuggestedTarget');
 				$suggested = mb_convert_encoding($suggested, 'utf-8', 'utf-7');
 
-				if ($suggested[0] === '.') {
-					$path = dirname($file->getPath()) . '/New File' . $suggested;
-				} elseif ($suggested[0] !== '/') {
-					$path = dirname($file->getPath()) . '/' . $suggested;
-				} else {
-					$path = $userFolder->getPath() . $suggested;
-				}
-
-				if ($path === '') {
-					return new JSONResponse([
-						'status' => 'error',
-						'message' => 'Cannot create the file'
-					]);
-				}
+				$parent = $isPublic ? dirname($file->getPath()) : $userFolder->getPath();
+				$path = $this->normalizePath($suggested, $parent);
 
 				// create the folder first
 				if (!$this->rootFolder->nodeExists(dirname($path))) {
@@ -668,8 +621,8 @@ class WopiController extends Controller {
 
 			$content = fopen('php://input', 'rb');
 			// Set the user to register the change under his name
-			$this->userScopeService->setUserScope($wopi->getEditorUid());
-			$this->userScopeService->setFilesystemScope($wopi->getEditorUid());
+			$this->userScopeService->setUserScope($editor);
+			$this->userScopeService->setFilesystemScope($editor);
 
 			try {
 				$this->wrappedFilesystemOperation($wopi, function () use ($file, $content) {
@@ -696,6 +649,13 @@ class WopiController extends Controller {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			return new JSONResponse([], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	private function normalizePath(string $path, ?string $parent = null): string {
+		$path = str_starts_with($path, '/') ? $path : '/' . $path;
+		$parent = is_null($parent) ? '' : rtrim($parent, '/');
+
+		return $parent . $path;
 	}
 
 	private function lock(Wopi $wopi, string $lock): JSONResponse {
@@ -821,8 +781,7 @@ class WopiController extends Controller {
 				return $node;
 			}
 
-			$nodes = $node->getById($wopi->getFileid());
-			return array_shift($nodes);
+			return $node->getFirstNodeById($wopi->getFileid());
 		}
 
 		// Group folders requires an active user to be set in order to apply the proper acl permissions as for anonymous requests it requires share permissions for read access

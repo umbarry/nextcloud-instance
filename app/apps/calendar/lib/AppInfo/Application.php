@@ -2,30 +2,12 @@
 
 declare(strict_types=1);
 /**
- * Calendar App
- *
- * @author Georg Ehrke
- * @author Richard Steinmetz <richard@steinmetz.cloud>
- * @copyright 2019 Georg Ehrke <oc.list@georgehrke.com>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
- *
- * You should have received a copy of the GNU Affero General Public
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2019 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 namespace OCA\Calendar\AppInfo;
 
 use OCA\Calendar\Dashboard\CalendarWidget;
-use OCA\Calendar\Dashboard\CalendarWidgetV2;
 use OCA\Calendar\Events\BeforeAppointmentBookedEvent;
 use OCA\Calendar\Listener\AppointmentBookedListener;
 use OCA\Calendar\Listener\CalendarReferenceListener;
@@ -38,7 +20,6 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Collaboration\Reference\RenderReferenceEvent;
-use OCP\Dashboard\IAPIWidgetV2;
 use OCP\User\Events\UserDeletedEvent;
 use function method_exists;
 
@@ -57,12 +38,7 @@ class Application extends App implements IBootstrap {
 	 * @inheritDoc
 	 */
 	public function register(IRegistrationContext $context): void {
-		// TODO: drop conditional code when the app is 27.1+
-		if (interface_exists(IAPIWidgetV2::class)) {
-			$context->registerDashboardWidget(CalendarWidgetV2::class);
-		} else {
-			$context->registerDashboardWidget(CalendarWidget::class);
-		}
+		$context->registerDashboardWidget(CalendarWidget::class);
 
 		// TODO: drop conditional code when the app is 23+
 		if (method_exists($context, 'registerProfileLinkAction')) {

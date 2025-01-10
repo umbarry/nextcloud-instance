@@ -50,7 +50,7 @@ OC.L10N.register(
     "This collection does not exist" : "Cette collection n’existe pas",
     "An error occurred" : "Une erreur est survenue",
     "No picture for this day" : "Aucune image ce jour",
-    "Picture taken on this day will show up here." : "Les photos prises ce jour s’afficheront ici.",
+    "Picture taken on this day will show up here." : "Les photos prises ce jour apparaîtront ici.",
     "More photos from this day" : "Plus de photos de cette journée",
     "_%n unassigned photo_::_%n unassigned photos_" : ["%n photo non assignée","%n photos non assignées","%n photos non assignées"],
     "Favorite" : "Favoris",
@@ -65,6 +65,7 @@ OC.L10N.register(
     "Jump to specific date in list" : "Sauter à une date spécifique dans la liste",
     "Jump to {date}" : "Aller au {date}",
     "Add to {destination}" : "Ajouter à {destination}",
+    "The destination folder is owned by {owner}" : "La destination du dossier appartient à {owner}",
     "There are no photos or videos yet!" : "Il n’y a pas encore de photos ou de vidéos !",
     "_{years} year ago_::_{years} years ago_" : ["Il y a {years} ans","Il y a {years} ans","Il y a {years} an(s)"],
     "Enable squared photos view" : "Activer l’affichage en miniatures carrées",
@@ -127,7 +128,7 @@ OC.L10N.register(
     "Photos with tags will show up here" : "Les photos étiquetées apparaîtront ici",
     "Popular tags" : "Étiquettes populaires",
     "All tags" : "Toutes les étiquettes",
-    "One of the source folders does not exists" : "L’un des dossiers source n’existe pas",
+    "One of the source folders does not exist" : "L'un des dossiers source n'existe pas",
     "Add" : "Ajouter",
     "Add to album" : "Ajouter à l’album",
     "Delete selection" : "Supprimer la sélection",
@@ -157,6 +158,7 @@ OC.L10N.register(
     "Default Photos upload and Albums location" : "Emplacement par défaut du téléversement des photos et des albums",
     "Select the default location for your media" : "Sélectionnez l’emplacement par défaut de vos médias",
     "Invalid location selected" : "Emplacement sélectionné non valide",
-    "Photos directory" : "Dossier des photos"
+    "Photos directory" : "Dossier des photos",
+    "One of the source folders does not exists" : "L’un des dossiers source n’existe pas"
 },
 "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

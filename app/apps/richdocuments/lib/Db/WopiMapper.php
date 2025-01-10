@@ -1,24 +1,7 @@
 <?php
 /**
- * @copyright 2018, Roeland Jago Douma <roeland@famdouma.nl>
- *
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 namespace OCA\Richdocuments\Db;
 
@@ -70,7 +53,7 @@ class WopiMapper extends QBMapper {
 	 * @param int $templateDestination
 	 * @return Wopi
 	 */
-	public function generateFileToken($fileId, $owner, $editor, $version, $updatable, $serverHost, $guestDisplayname = null, $templateDestination = 0, $hideDownload = false, $direct = false, $templateId = 0, $share = null) {
+	public function generateFileToken($fileId, $owner, $editor, $version, $updatable, $serverHost, ?string $guestDisplayname = null, $hideDownload = false, $direct = false, $templateId = 0, $share = null) {
 		$token = $this->random->generate(32, ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS);
 
 		$wopi = Wopi::fromParams([
@@ -83,7 +66,6 @@ class WopiMapper extends QBMapper {
 			'token' => $token,
 			'expiry' => $this->calculateNewTokenExpiry(),
 			'guestDisplayname' => $guestDisplayname,
-			'templateDestination' => $templateDestination,
 			'hideDownload' => $hideDownload,
 			'direct' => $direct,
 			'templateId' => $templateId,
@@ -176,7 +158,7 @@ class WopiMapper extends QBMapper {
 	 * @return int
 	 */
 	private function calculateNewTokenExpiry(): int {
-		return $this->timeFactory->getTime() + (int) $this->appConfig->getAppValue('token_ttl');
+		return $this->timeFactory->getTime() + (int)$this->appConfig->getAppValue('token_ttl');
 	}
 
 	/**

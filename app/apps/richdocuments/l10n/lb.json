@@ -8,18 +8,20 @@
     "Missing a temporary folder" : "Et feelt en temporären Dossier",
     "Advanced settings" : "Erweidert Astellungen",
     "Select groups" : "Wiel Gruppen äus",
+    "Confirm" : "Konfirméieren",
     "Cancel" : "Ofbriechen",
     "Save" : "Späicheren",
     "Description" : "Beschreiwung",
     "Close" : "Zoumaachen",
+    "Edit" : "Änneren",
     "Error" : "Fehler",
-    "Nickname" : "Spëtznumm",
     "Remove from favorites" : "Remove from favorites",
     "Add to favorites" : "Add to favorites",
     "Details" : "Detailer",
     "Download" : "Eroflueden",
     "Create" : "Erstellen",
     "Could not create file" : "De Fichier konnt net erstallt ginn",
+    "Nickname" : "Spëtznumm",
     "Collabora Online" : "Collabora Online"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

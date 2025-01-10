@@ -1,24 +1,6 @@
-/**
- * Calendar App
- *
- * @copyright 2020 Georg Ehrke <oc.list@georgehrke.com>
- *
- * @author Georg Ehrke
- * @author René Gieling <github@dartcafe.de>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
- *
- * You should have received a copy of the GNU Affero General Public
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
+/*!
+ * SPDX-FileCopyrightText: 2020 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 /** Override some FullCalendar CSS vars: */
@@ -87,7 +69,7 @@
 			font-weight: bold;
 			background-color: var(--color-primary-element);
 			color: var(--color-primary-element-text) !important;
-			border-radius: var(--border-radius-pill);
+			border-radius: var(--border-radius-small);
 		}
 	}
 
@@ -105,7 +87,7 @@
 			padding: 0 !important;
 			background: var(--color-primary-element);
 			color: var(--color-primary-element-text);
-			border-radius: 50%;
+			border-radius: var(--border-radius-small);
 		}
 	}
 }
@@ -152,6 +134,7 @@
 
 	&.fc-event-nc-task-completed,
 	&.fc-event-nc-tentative,
+	&.fc-event-past,
 	&.fc-event-nc-cancelled {
 		opacity: .5;
 	}
@@ -250,6 +233,10 @@
 	.fc-event-main {
 		flex-wrap: wrap;
 	}
+}
+
+.fc-timegrid-col-events{
+	margin: 0 !important;
 }
 
 .fc-v-event {

@@ -1,50 +1,14 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author adrien <adrien.waksberg@believedigital.com>
- * @author Aldo "xoen" Giambelluca <xoen@xoen.org>
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bart Visscher <bartv@thisnet.nl>
- * @author Bjoern Schiessle <bjoern@schiessle.org>
- * @author Björn Schießle <bjoern@schiessle.org>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Daniel Calviño Sánchez <danxuliu@gmail.com>
- * @author fabian <fabian@web2.0-apps.de>
- * @author Georg Ehrke <oc.list@georgehrke.com>
- * @author Jakob Sack <mail@jakobsack.de>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Jörn Friedrich Dreyer <jfd@butonic.de>
- * @author Loki3000 <github@labcms.ru>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author nishiki <nishiki@yaegashi.fr>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Robin McCorkell <robin@mccorkell.me.uk>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Vincent Petry <vincent@nextcloud.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC\User;
 
+use InvalidArgumentException;
 use OCP\AppFramework\Db\TTransactional;
 use OCP\Cache\CappedMemoryCache;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -58,6 +22,7 @@ use OCP\User\Backend\ICreateUserBackend;
 use OCP\User\Backend\IGetDisplayNameBackend;
 use OCP\User\Backend\IGetHomeBackend;
 use OCP\User\Backend\IGetRealUIDBackend;
+use OCP\User\Backend\IPasswordHashBackend;
 use OCP\User\Backend\ISearchKnownUsersBackend;
 use OCP\User\Backend\ISetDisplayNameBackend;
 use OCP\User\Backend\ISetPasswordBackend;
@@ -74,7 +39,8 @@ class Database extends ABackend implements
 	IGetHomeBackend,
 	ICountUsersBackend,
 	ISearchKnownUsersBackend,
-	IGetRealUIDBackend {
+	IGetRealUIDBackend,
+	IPasswordHashBackend {
 	/** @var CappedMemoryCache */
 	private $cache;
 
@@ -211,6 +177,40 @@ class Database extends ABackend implements
 		}
 
 		return false;
+	}
+
+	public function getPasswordHash(string $userId): ?string {
+		$this->fixDI();
+		if (!$this->userExists($userId)) {
+			return null;
+		}
+		if (!empty($this->cache[$userId]['password'])) {
+			return $this->cache[$userId]['password'];
+		}
+		$qb = $this->dbConn->getQueryBuilder();
+		$qb->select('password')
+			->from($this->table)
+			->where($qb->expr()->eq('uid_lower', $qb->createNamedParameter(mb_strtolower($userId))));
+		/** @var false|string $hash */
+		$hash = $qb->executeQuery()->fetchOne();
+		if ($hash === false) {
+			return null;
+		}
+		$this->cache[$userId]['password'] = $hash;
+		return $hash;
+	}
+
+	public function setPasswordHash(string $userId, string $passwordHash): bool {
+		if (!\OCP\Server::get(IHasher::class)->validate($passwordHash)) {
+			throw new InvalidArgumentException();
+		}
+		$this->fixDI();
+		$result = $this->updatePassword($userId, $passwordHash);
+		if (!$result) {
+			return false;
+		}
+		$this->cache[$userId]['password'] = $passwordHash;
+		return true;
 	}
 
 	/**

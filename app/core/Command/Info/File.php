@@ -1,13 +1,17 @@
 <?php
 
 declare(strict_types=1);
-
+/**
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
 namespace OC\Core\Command\Info;
 
 use OC\Files\ObjectStore\ObjectStoreStorage;
 use OC\Files\View;
 use OCA\Files_External\Config\ExternalMountPoint;
 use OCA\GroupFolders\Mount\GroupMountPoint;
+use OCP\Files\File as OCPFile;
 use OCP\Files\Folder;
 use OCP\Files\IHomeStorage;
 use OCP\Files\Mount\IMountPoint;
@@ -41,7 +45,8 @@ class File extends Command {
 			->setName('info:file')
 			->setDescription('get information for a file')
 			->addArgument('file', InputArgument::REQUIRED, "File id or path")
-			->addOption('children', 'c', InputOption::VALUE_NONE, "List children of folders");
+			->addOption('children', 'c', InputOption::VALUE_NONE, "List children of folders")
+			->addOption('storage-tree', null, InputOption::VALUE_NONE, "Show storage and cache wrapping tree");
 	}
 
 	public function execute(InputInterface $input, OutputInterface $output): int {
@@ -57,8 +62,9 @@ class File extends Command {
 		$output->writeln("  fileid: " . $node->getId());
 		$output->writeln("  mimetype: " . $node->getMimetype());
 		$output->writeln("  modified: " . (string)$this->l10n->l("datetime", $node->getMTime()));
-		$output->writeln("  " . ($node->isEncrypted() ? "encrypted" : "not encrypted"));
-		if ($node->isEncrypted()) {
+
+		if ($node instanceof OCPFile && $node->isEncrypted()) {
+			$output->writeln('  ' . 'server-side encrypted: yes');
 			$keyPath = $this->encryptionUtil->getFileKeyDir('', $node->getPath());
 			if ($this->rootView->file_exists($keyPath)) {
 				$output->writeln("    encryption key at: " . $keyPath);
@@ -66,6 +72,11 @@ class File extends Command {
 				$output->writeln("    <error>encryption key not found</error> should be located at: " . $keyPath);
 			}
 		}
+
+		if ($node instanceof Folder && $node->isEncrypted() || $node instanceof OCPFile && $node->getParent()->isEncrypted()) {
+			$output->writeln('  ' . 'end-to-end encrypted: yes');
+		}
+
 		$output->writeln("  size: " . Util::humanFileSize($node->getSize()));
 		$output->writeln("  etag: " . $node->getEtag());
 		if ($node instanceof Folder) {
@@ -86,7 +97,7 @@ class File extends Command {
 				$output->writeln("  children: " . count($children) . " (use <info>--children</info> option to list)");
 			}
 		}
-		$this->outputStorageDetails($node->getMountPoint(), $node, $output);
+		$this->outputStorageDetails($node->getMountPoint(), $node, $input, $output);
 
 		$filesPerUser = $this->fileUtils->getFilesByUser($node);
 		$output->writeln("");
@@ -108,7 +119,7 @@ class File extends Command {
 	 * @psalm-suppress UndefinedClass
 	 * @psalm-suppress UndefinedInterfaceMethod
 	 */
-	private function outputStorageDetails(IMountPoint $mountPoint, Node $node, OutputInterface $output): void {
+	private function outputStorageDetails(IMountPoint $mountPoint, Node $node, InputInterface $input, OutputInterface $output): void {
 		$storage = $mountPoint->getStorage();
 		if (!$storage) {
 			return;
@@ -151,5 +162,15 @@ class File extends Command {
 		} elseif ($mountPoint instanceof GroupMountPoint) {
 			$output->writeln("  groupfolder id: " . $mountPoint->getFolderId());
 		}
+		if ($input->getOption('storage-tree')) {
+			$storageTmp = $storage;
+			$storageClass = get_class($storageTmp).' (cache:'.get_class($storageTmp->getCache()).')';
+			while ($storageTmp instanceof \OC\Files\Storage\Wrapper\Wrapper) {
+				$storageTmp = $storageTmp->getWrapperStorage();
+				$storageClass .= "\n\t".'> '.get_class($storageTmp).' (cache:'.get_class($storageTmp->getCache()).')';
+			}
+			$output->writeln("  storage wrapping: " . $storageClass);
+		}
+
 	}
 }

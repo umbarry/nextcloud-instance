@@ -2,36 +2,9 @@
 
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2017, Joas Schilling <coding@schilljs.com>
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bart Visscher <bartv@thisnet.nl>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Jakob Sack <mail@jakobsack.de>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Jörn Friedrich Dreyer <jfd@butonic.de>
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @author michaelletzgus <michaelletzgus@users.noreply.github.com>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Robin McCorkell <robin@mccorkell.me.uk>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2017 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 
 namespace OC;
@@ -850,11 +823,10 @@ class AppConfig implements IAppConfig {
 
 		// update local cache
 		if ($lazy) {
-			$cache = &$this->lazyCache;
+			$this->lazyCache[$app][$key] = $value;
 		} else {
-			$cache = &$this->fastCache;
+			$this->fastCache[$app][$key] = $value;
 		}
-		$cache[$app][$key] = $value;
 		$this->valueTypes[$app][$key] = $type;
 
 		return true;
@@ -1264,11 +1236,10 @@ class AppConfig implements IAppConfig {
 		foreach ($rows as $row) {
 			// most of the time, 'lazy' is not in the select because its value is already known
 			if (($row['lazy'] ?? ($lazy ?? 0) ? 1 : 0) === 1) {
-				$cache = &$this->lazyCache;
+				$this->lazyCache[$row['appid']][$row['configkey']] = $row['configvalue'] ?? '';
 			} else {
-				$cache = &$this->fastCache;
+				$this->fastCache[$row['appid']][$row['configkey']] = $row['configvalue'] ?? '';
 			}
-			$cache[$row['appid']][$row['configkey']] = $row['configvalue'] ?? '';
 			$this->valueTypes[$row['appid']][$row['configkey']] = (int)($row['type'] ?? 0);
 		}
 		$result->closeCursor();
@@ -1459,8 +1430,15 @@ class AppConfig implements IAppConfig {
 				'/^key_pairs$/',
 				'/^local_gskey$/',
 			],
+			'call_summary_bot' => [
+				'/^secret_(.*)$/',
+			],
 			'external' => [
 				'/^sites$/',
+				'/^jwt_token_privkey_(.*)$/',
+			],
+			'globalsiteselector' => [
+				'/^gss\.jwt\.key$/',
 			],
 			'integration_discourse' => [
 				'/^private_key$/',
@@ -1519,6 +1497,12 @@ class AppConfig implements IAppConfig {
 			'notify_push' => [
 				'/^cookie$/',
 			],
+			'onlyoffice' => [
+				'/^jwt_secret$/',
+			],
+			'passwords' => [
+				'/^SSEv1ServerKey$/',
+			],
 			'serverinfo' => [
 				'/^token$/',
 			],
@@ -1550,8 +1534,14 @@ class AppConfig implements IAppConfig {
 			'user_ldap' => [
 				'/^(s..)?ldap_agent_password$/',
 			],
+			'twofactor_gateway' => [
+				'/^.*token$/',
+			],
 			'user_saml' => [
 				'/^idp-x509cert$/',
+			],
+			'whiteboard' => [
+				'/^jwt_secret_key$/',
 			],
 		];
 

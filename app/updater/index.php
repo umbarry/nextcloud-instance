@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2016-2017 Lukas Reschke <lukas@statuscode.ch>
  * @copyright Copyright (c) 2016 Morris Jobke <hey@morrisjobke.de>
@@ -250,6 +253,7 @@ class Updater {
 			'.',
 			'..',
 			// Folders
+			'.reuse',
 			'.well-known',
 			'3rdparty',
 			'apps',
@@ -259,6 +263,7 @@ class Updater {
 			'dist',
 			'l10n',
 			'lib',
+			'LICENSES',
 			'ocs',
 			'ocs-provider',
 			'ocm-provider',
@@ -748,6 +753,13 @@ EOF;
 	public function extractDownload(): void {
 		$this->silentLog('[info] extractDownload()');
 		$downloadedFilePath = $this->getDownloadedFilePath();
+
+		if (!extension_loaded('zip')) {
+			throw new \Exception('Required PHP extension missing: zip');
+		}
+
+		$libzip_version = defined("ZipArchive::LIBZIP_VERSION") ? \ZipArchive::LIBZIP_VERSION : "Unknown (but old)";
+		$this->silentLog('[info] Libzip version detected: ' . $libzip_version);
 
 		$zip = new \ZipArchive;
 		$zipState = $zip->open($downloadedFilePath);
@@ -1946,7 +1958,7 @@ $updater->logVersion();
 						text += '<br><details><summary>Show detailed response</summary><pre><code>' +
 							escapeHTML(response['detailedResponseText']) + '</code></pre></details>';
 					} else {
-						text = 'The following extra files have been found:<ul>';
+						text = 'Unknown files detected within the installation folder. This can be fixed by manually removing (or moving) these files. The following extra files have been found:<ul>';
 						response['response'].forEach(function(file) {
 							text += '<li>' + escapeHTML(file) + '</li>';
 						});

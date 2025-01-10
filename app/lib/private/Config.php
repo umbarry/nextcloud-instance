@@ -1,40 +1,9 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Adam Williamson <awilliam@redhat.com>
- * @author Aldo "xoen" Giambelluca <xoen@xoen.org>
- * @author Bart Visscher <bartv@thisnet.nl>
- * @author Brice Maron <brice@bmaron.net>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Daniel Kesselberg <mail@danielkesselberg.de>
- * @author Frank Karlitschek <frank@karlitschek.de>
- * @author Jakob Sack <mail@jakobsack.de>
- * @author Jan-Christoph Borchardt <hey@jancborchardt.net>
- * @author Joas Schilling <coding@schilljs.com>
- * @author John Molakvoæ <skjnldsv@protonmail.com>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Michael Gapczynski <GapczynskiM@gmail.com>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Philipp Schaffrath <github@philipp.schaffrath.email>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Robin McCorkell <robin@mccorkell.me.uk>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC;
 
@@ -80,7 +49,7 @@ class Config {
 	 * @return array an array of key names
 	 */
 	public function getKeys() {
-		return array_keys($this->cache);
+		return array_merge(array_keys($this->cache), array_keys($this->envCache));
 	}
 
 	/**
@@ -95,9 +64,8 @@ class Config {
 	 * @return mixed the value or $default
 	 */
 	public function getValue($key, $default = null) {
-		$envKey = self::ENV_PREFIX . $key;
-		if (isset($this->envCache[$envKey])) {
-			return $this->envCache[$envKey];
+		if (isset($this->envCache[$key])) {
+			return $this->envCache[$key];
 		}
 
 		if (isset($this->cache[$key])) {
@@ -215,10 +183,11 @@ class Config {
 
 			// Invalidate opcache (only if the timestamp changed)
 			if (function_exists('opcache_invalidate')) {
-				opcache_invalidate($file, false);
+				@opcache_invalidate($file, false);
 			}
 
-			$filePointer = @fopen($file, 'r');
+			// suppressor doesn't work here at boot time since it'll go via our onError custom error handler
+			$filePointer = file_exists($file) ? @fopen($file, 'r') : false;
 			if ($filePointer === false) {
 				// e.g. wrong permissions are set
 				if ($file === $this->configFilePath) {
@@ -257,7 +226,16 @@ class Config {
 			}
 		}
 
-		$this->envCache = getenv();
+		// grab any "NC_" environment variables
+		$envRaw = getenv();
+		// only save environment variables prefixed with "NC_" in the cache
+		$envPrefixLen = strlen(self::ENV_PREFIX);
+		foreach ($envRaw as $rawEnvKey => $rawEnvValue) {
+			if (str_starts_with($rawEnvKey, self::ENV_PREFIX)) {
+				$realKey = substr($rawEnvKey, $envPrefixLen);
+				$this->envCache[$realKey] = $rawEnvValue;
+			}
+		}
 	}
 
 	/**

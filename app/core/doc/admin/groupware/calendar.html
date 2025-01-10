@@ -65,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../file_workflows/index.html">Flow</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Groupware</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Calendar / CalDAV</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calendar-server-settings">Calendar server settings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#events">Events</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#hide-export-buttons">Hide export buttons</a></li>
 </ul>
@@ -99,6 +100,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../office/index.html">Office</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ai/index.html">Artificial Intelligence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../webhook_listeners/index.html">Webhook Listeners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../windmill_workflows/index.html">Windmill Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration_database/index.html">Database configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration_mimetypes/index.html">Mimetypes management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../maintenance/index.html">Maintenance</a></li>
@@ -133,6 +136,23 @@
              
   <section id="calendar-caldav">
 <h1>Calendar / CalDAV<a class="headerlink" href="#calendar-caldav" title="Link to this heading"></a></h1>
+<section id="calendar-server-settings">
+<h2>Calendar server settings<a class="headerlink" href="#calendar-server-settings" title="Link to this heading"></a></h2>
+<p>The calendar server can be configured on the Groupware admin settings page.
+You can globally disable sending invitation emails for events, generating the built-in birthday
+calendar, and sending email notifications about upcoming events.</p>
+<figure class="align-default">
+<img alt="../_images/settings_calendar-server.png" src="../_images/settings_calendar-server.png" />
+</figure>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 30: </span>The section will be hidden if no app makes use of the CalDAV backend.</p>
+</div>
+<p>Starting from Nextcloud 30, the calendar server settings section will be hidden if no app uses the
+CalDAV backend.
+Install and enable an appropriate app to show the section again, e.g.
+<a class="reference external" href="https://apps.nextcloud.com/apps/calendar">Calendar</a> or
+<a class="reference external" href="https://apps.nextcloud.com/apps/tasks">Tasks</a>.</p>
+</section>
 <section id="events">
 <h2>Events<a class="headerlink" href="#events" title="Link to this heading"></a></h2>
 <p>You can customize the events user interface.</p>
@@ -161,7 +181,7 @@ by a background task. See <a class="reference internal" href="../configuration_s
 <section id="reminder-notifications">
 <h2>Reminder notifications<a class="headerlink" href="#reminder-notifications" title="Link to this heading"></a></h2>
 <p>Nextcloud handles sending notifications for events.</p>
-<p>Nextcloud currently handles two types of reminder notifications: Build-in Nextcloud notifications and
+<p>Nextcloud currently handles two types of reminder notifications: Built-in Nextcloud notifications and
 email notifications. For the emails to be send, you’ll need a configured email server.
 See <a class="reference internal" href="../configuration_server/email_configuration.html"><span class="doc">Email</span></a>.</p>
 <p>Make sure the “Send notifications for events” and the “Enable notifications for events via push” are activated in the admin setting groupware section for this feature to work.</p>
@@ -315,11 +335,9 @@ If you need to allow this, change the following parameter to:</p>
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://docs.nextcloud.com/server/26/admin_manual">26</a></dd>
-        
-          <dd><a href="https://docs.nextcloud.com/server/27/admin_manual">27</a></dd>
-        
           <dd><a href="https://docs.nextcloud.com/server/28/admin_manual">28</a></dd>
+        
+          <dd><a href="https://docs.nextcloud.com/server/29/admin_manual">29</a></dd>
         
           <dd><a href="https://docs.nextcloud.com/server/stable/admin_manual">stable</a></dd>
         

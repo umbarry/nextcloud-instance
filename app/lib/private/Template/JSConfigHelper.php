@@ -2,46 +2,23 @@
 
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2016, Roeland Jago Douma <roeland@famdouma.nl>
- *
- * @author Abijeet <abijeetpatro@gmail.com>
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bjoern Schiessle <bjoern@schiessle.org>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Julius Härtl <jus@bitgrid.net>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Vincent Petry <vincent@nextcloud.com>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 namespace OC\Template;
 
 use bantu\IniGetWrapper\IniGetWrapper;
 use OC\Authentication\Token\IProvider;
 use OC\CapabilitiesManager;
+use OC\Files\FilenameValidator;
 use OC\Share\Share;
+use OCA\Provisioning_API\Controller\AUserData;
 use OCP\App\AppPathNotFoundException;
 use OCP\App\IAppManager;
 use OCP\Authentication\Exceptions\ExpiredTokenException;
 use OCP\Authentication\Exceptions\InvalidTokenException;
 use OCP\Authentication\Exceptions\WipeTokenException;
+use OCP\Authentication\Token\IToken;
 use OCP\Constants;
 use OCP\Defaults;
 use OCP\Files\FileInfo;
@@ -76,6 +53,7 @@ class JSConfigHelper {
 		protected CapabilitiesManager  $capabilitiesManager,
 		protected IInitialStateService $initialStateService,
 		protected IProvider            $tokenProvider,
+		protected FilenameValidator   $filenameValidator,
 	) {
 	}
 
@@ -156,10 +134,16 @@ class JSConfigHelper {
 
 		$capabilities = $this->capabilitiesManager->getCapabilities(false, true);
 
+		$userFirstDay = $this->config->getUserValue($uid, 'core', AUserData::USER_FIELD_FIRST_DAY_OF_WEEK, null);
+		$firstDay = (int)($userFirstDay ?? $this->l->l('firstday', null));
+
 		$config = [
-			'auto_logout' => $this->config->getSystemValue('auto_logout', false),
+			/** @deprecated 30.0.0 - use files capabilities instead */
 			'blacklist_files_regex' => FileInfo::BLACKLIST_FILES_REGEX,
-			'forbidden_filename_characters' => Util::getForbiddenFileNameChars(),
+			/** @deprecated 30.0.0 - use files capabilities instead */
+			'forbidden_filename_characters' => $this->filenameValidator->getForbiddenCharacters(),
+
+			'auto_logout' => $this->config->getSystemValue('auto_logout', false),
 			'loglevel' => $this->config->getSystemValue('loglevel_frontend',
 				$this->config->getSystemValue('loglevel', ILogger::WARN)
 			),
@@ -240,7 +224,7 @@ class JSConfigHelper {
 				$this->l->t('Nov.'),
 				$this->l->t('Dec.')
 			]),
-			"firstDay" => json_encode($this->l->l('firstday', null)),
+			"firstDay" => json_encode($firstDay),
 			"_oc_config" => json_encode($config),
 			"oc_appconfig" => json_encode([
 				'core' => [
@@ -312,6 +296,6 @@ class JSConfigHelper {
 			return true;
 		}
 		$scope = $token->getScopeAsArray();
-		return !isset($scope['password-unconfirmable']) || $scope['password-unconfirmable'] === false;
+		return !isset($scope[IToken::SCOPE_SKIP_PASSWORD_VALIDATION]) || $scope[IToken::SCOPE_SKIP_PASSWORD_VALIDATION] === false;
 	}
 }

@@ -1,6 +1,11 @@
 <?php
 
 
+/**
+ * SPDX-FileCopyrightText: 2019 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\Text\Service;
 
 use OCP\Files\File;
@@ -24,15 +29,13 @@ class WorkspaceService {
 
 	public function getFile(Folder $folder): ?File {
 		foreach ($this->getSupportedFilenames() as $filename) {
-			if ($folder->nodeExists($filename)) {
-				try {
-					$file = $folder->get($filename);
-					if ($file instanceof File) {
-						return $file;
-					}
-				} catch (NotFoundException|StorageInvalidException) {
-					return null;
+			try {
+				$file = $folder->get($filename);
+				if ($file instanceof File) {
+					return $file;
 				}
+			} catch (NotFoundException|StorageInvalidException) {
+				continue;
 			}
 		}
 		return null;

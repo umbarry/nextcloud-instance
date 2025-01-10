@@ -24,6 +24,7 @@ OC.L10N.register(
     "Replace" : "Reemplazar",
     "Edit" : "Editar",
     "Source code" : "Código fuente",
+    "Details" : "Detalles",
     "Info" : "Info",
     "Success" : "Éxito",
     "Warning" : "Advertencia"

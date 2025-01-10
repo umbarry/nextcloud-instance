@@ -11,6 +11,7 @@ OC.L10N.register(
     "URL" : "URL",
     "to" : "bis",
     "Edit" : "Änneren",
+    "Details" : "Detailer",
     "Info" : "Info",
     "Warning" : "Warnung"
 },

@@ -15,6 +15,7 @@ OC.L10N.register(
     "to" : "at",
     "Edit" : "Golygu",
     "Source code" : "Cod ffynhonnell",
+    "Details" : "Manylion",
     "Info" : "Info",
     "Warning" : "Rhybudd"
 },

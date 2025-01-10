@@ -15,6 +15,7 @@ OC.L10N.register(
     "to" : "til",
     "Replace" : "Erstatt",
     "Edit" : "Endra",
+    "Details" : "Detaljar",
     "Info" : "Info",
     "Warning" : "Åtvaring"
 },

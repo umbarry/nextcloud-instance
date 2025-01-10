@@ -3,25 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @copyright Copyright (c) 2019 Julius Härtl <jus@bitgrid.net>
- *
- * @author Julius Härtl <jus@bitgrid.net>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2019 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Text\Service;
@@ -140,7 +123,7 @@ class DocumentService {
 			// Do not hard reset if changed from outside since this will throw away possible steps
 			// This way the user can still resolve conflicts in the editor view
 			$stepsVersion = $this->stepMapper->getLatestVersion($document->getId());
-			if ($stepsVersion && ($document->getLastSavedVersion() !== $stepsVersion)) {
+			if ($stepsVersion !== null && ($document->getLastSavedVersion() !== $stepsVersion)) {
 				$this->logger->debug('Unsaved steps, continue collaborative editing');
 				return $document;
 			}
@@ -225,7 +208,8 @@ class DocumentService {
 		$documentId = $session->getDocumentId();
 		$readOnly = $this->isReadOnly($this->getFileForSession($session, $shareToken), $shareToken);
 		$stepsToInsert = [];
-		$querySteps = [];
+		$stepsIncludeQuery = false;
+		$documentState = null;
 		$newVersion = $version;
 		foreach ($steps as $step) {
 			$message = YjsMessage::fromBase64($step);
@@ -234,7 +218,7 @@ class DocumentService {
 			}
 			// Filter out query steps as they would just trigger clients to send their steps again
 			if ($message->getYjsMessageType() === YjsMessage::YJS_MESSAGE_SYNC && $message->getYjsSyncType() === YjsMessage::YJS_MESSAGE_SYNC_STEP1) {
-				$querySteps[] = $step;
+				$stepsIncludeQuery = true;
 			} else {
 				$stepsToInsert[] = $step;
 			}
@@ -245,8 +229,24 @@ class DocumentService {
 			}
 			$newVersion = $this->insertSteps($document, $session, $stepsToInsert);
 		}
-		// If there were any queries in the steps send the entire history
-		$getStepsSinceVersion = count($querySteps) > 0 ? 0 : $version;
+
+		// By default send all steps the user has not received yet.
+		$getStepsSinceVersion = $version;
+		if ($stepsIncludeQuery) {
+			$this->logger->debug('Loading document state for ' . $documentId);
+			try {
+				$stateFile = $this->getStateFile($documentId);
+				$documentState = $stateFile->getContent();
+				$this->logger->debug('Existing document, state file loaded ' . $documentId);
+				// If there were any queries in the steps send all steps since last save.
+				$getStepsSinceVersion = $document->getLastSavedVersion();
+			} catch (NotFoundException $e) {
+				$this->logger->debug('Existing document, but no state file found for ' . $documentId);
+				// If there is no state file include all the steps.
+				$getStepsSinceVersion = 0;
+			}
+		}
+
 		$allSteps = $this->getSteps($documentId, $getStepsSinceVersion);
 		$stepsToReturn = [];
 		foreach ($allSteps as $step) {
@@ -255,9 +255,11 @@ class DocumentService {
 				$stepsToReturn[] = $step;
 			}
 		}
+
 		return [
 			'steps' => $stepsToReturn,
-			'version' => $newVersion
+			'version' => $newVersion,
+			'documentState' => $documentState
 		];
 	}
 
@@ -283,6 +285,7 @@ class DocumentService {
 			$step->setSessionId($session->getId());
 			$step->setDocumentId($document->getId());
 			$step->setVersion(Step::VERSION_STORED_IN_ID);
+			$step->setTimestamp(time());
 			$step = $this->stepMapper->insert($step);
 			$newVersion = $step->getId();
 			$this->logger->debug("Adding steps to " . $document->getId() . ": bumping version from $stepsVersion to $newVersion");
@@ -354,7 +357,7 @@ class DocumentService {
 		// Do not save if newer version already saved
 		// Note that $version is the version of the steps the client has fetched.
 		// It may have added steps on top of that - so if the versions match we still save.
-		$stepsVersion = $this->stepMapper->getLatestVersion($documentId)?: 0;
+		$stepsVersion = $this->stepMapper->getLatestVersion($documentId) ?? 0;
 		$savedVersion = $document->getLastSavedVersion();
 		$outdated = $savedVersion > 0 && $savedVersion > $version;
 		if (!$force && ($outdated || $version > (string)$stepsVersion)) {
@@ -385,7 +388,7 @@ class DocumentService {
 
 		// Version changed but the content remains the same
 		if ($autoSaveDocument === $file->getContent()) {
-			if ($documentState) {
+			if ($documentState !== null) {
 				$this->writeDocumentState($file->getId(), $documentState);
 			}
 			$document->setLastSavedVersion($stepsVersion);
@@ -404,7 +407,7 @@ class DocumentService {
 			), function () use ($file, $autoSaveDocument, $documentState) {
 				$this->saveFromText = true;
 				$file->putContent($autoSaveDocument);
-				if ($documentState) {
+				if ($documentState !== null) {
 					$this->writeDocumentState($file->getId(), $documentState);
 				}
 			});
@@ -476,7 +479,7 @@ class DocumentService {
 
 		$node = $share->getNode();
 		if ($node instanceof Folder) {
-			$node = $node->getById($session->getDocumentId())[0];
+			$node = $node->getFirstNodeById($session->getDocumentId());
 		}
 		if ($node instanceof File) {
 			return $node;
@@ -509,6 +512,14 @@ class DocumentService {
 			throw new NotFoundException();
 		}
 
+		// We currently don't know the path nor care about which file mount it is when getting by id
+		// therefore we can take a shortcut on the cached node if we have edit permissions on that
+		$file = $userFolder->getFirstNodeById($fileId);
+		if ($file instanceof File && $file->getPermissions() & Constants::PERMISSION_UPDATE) {
+			return $file;
+		}
+
+		// Ideally we'd optimize this part in the future by storing the path and getting the acutal target directly
 		$files = $userFolder->getById($fileId);
 		if (count($files) === 0) {
 			throw new NotFoundException();
@@ -554,9 +565,9 @@ class DocumentService {
 	}
 
 
-	public function isReadOnly(File $file, string|null $token): bool {
+	public function isReadOnly(File $file, ?string $token): bool {
 		$readOnly = true;
-		if ($token) {
+		if ($token !== null) {
 			try {
 				$this->checkSharePermissions($token, Constants::PERMISSION_UPDATE);
 				$readOnly = false;
@@ -634,7 +645,7 @@ class DocumentService {
 		}
 
 		try {
-			$file = $this->getFileById($fileId);
+			$file = $this->getFileById($fileId, $this->userId);
 			$this->lockManager->lock(new LockContext(
 				$file,
 				ILock::TYPE_APP,
@@ -653,7 +664,7 @@ class DocumentService {
 		}
 
 		try {
-			$file = $this->getFileById($fileId);
+			$file = $this->getFileById($fileId, $this->userId);
 			$this->lockManager->unlock(new LockContext(
 				$file,
 				ILock::TYPE_APP,

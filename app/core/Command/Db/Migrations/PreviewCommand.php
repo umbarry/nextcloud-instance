@@ -26,8 +26,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PreviewCommand extends Command {
 	private bool $initiated = false;
 	public function __construct(
-		private MetadataManager $metadataManager,
-		private ReleaseMetadata $releaseMetadata,
+		private readonly MetadataManager $metadataManager,
+		private readonly ReleaseMetadata $releaseMetadata,
 	) {
 		parent::__construct();
 	}

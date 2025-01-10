@@ -60,14 +60,15 @@ OC.L10N.register(
     "Heading 3" : "Títol 3",
     "Heading 4" : "Títol 4",
     "Heading 5" : "Títol 5",
+    "Table" : "Tablèu",
+    "Details" : "Per lo Menut",
     "Insert link" : "Inserir un ligam",
+    "Insert attachment" : "Inserir una pèça junta",
+    "Command" : "Comanda",
+    "Show author colors" : "Afichar las colors dels utilizaires",
     "Info" : "Info",
     "Success" : "Succès",
     "Warning" : "Avertiment",
-    "Table" : "Tablèu",
-    "Insert attachment" : "Inserir una pèça junta",
-    "Command" : "Comanda",
-    "Add notes, lists or links …" : "Apondre nòtas, listas o ligams…",
-    "Show author colors" : "Afichar las colors dels utilizaires"
+    "Add notes, lists or links …" : "Apondre nòtas, listas o ligams…"
 },
 "nplurals=2; plural=(n > 1);");

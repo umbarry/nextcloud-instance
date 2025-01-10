@@ -1,33 +1,10 @@
 <?php
-/**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Bjoern Schiessle <bjoern@schiessle.org>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Jörn Friedrich Dreyer <jfd@butonic.de>
- * @author Marcel Klehr <mklehr@gmx.net>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Tigran Mkrtchyan <tigran.mkrtchyan@desy.de>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
- */
 
+/**
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
 namespace OC\Files\ObjectStore;
 
 use Aws\S3\Exception\S3Exception;
@@ -485,13 +462,10 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common implements IChunkedFil
 	}
 
 	public function file_put_contents($path, $data) {
-		$handle = $this->fopen($path, 'w+');
-		if (!$handle) {
-			return false;
-		}
-		$result = fwrite($handle, $data);
-		fclose($handle);
-		return $result;
+		$fh = fopen('php://temp', 'w+');
+		fwrite($fh, $data);
+		rewind($fh);
+		return $this->writeStream($path, $fh, strlen($data));
 	}
 
 	public function writeStream(string $path, $stream, ?int $size = null): int {
@@ -521,6 +495,10 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common implements IChunkedFil
 		if ($exists) {
 			$fileId = $stat['fileid'];
 		} else {
+			$parent = $this->normalizePath(dirname($path));
+			if (!$this->is_dir($parent)) {
+				throw new \InvalidArgumentException("trying to upload a file ($path) inside a non-directory ($parent)");
+			}
 			$fileId = $this->getCache()->put($uploadPath, $stat);
 		}
 
@@ -615,6 +593,41 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common implements IChunkedFil
 		}
 
 		return parent::copyFromStorage($sourceStorage, $sourceInternalPath, $targetInternalPath);
+	}
+
+	public function moveFromStorage(IStorage $sourceStorage, $sourceInternalPath, $targetInternalPath, ?ICacheEntry $sourceCacheEntry = null): bool {
+		$sourceCache = $sourceStorage->getCache();
+		if ($sourceStorage->instanceOfStorage(ObjectStoreStorage::class) && $sourceStorage->getObjectStore()->getStorageId() === $this->getObjectStore()->getStorageId()) {
+			$this->getCache()->moveFromCache($sourceCache, $sourceInternalPath, $targetInternalPath);
+			// Do not import any data when source and target bucket are identical.
+			return true;
+		}
+		if (!$sourceCacheEntry) {
+			$sourceCacheEntry = $sourceCache->get($sourceInternalPath);
+		}
+		if ($sourceCacheEntry->getMimeType() === FileInfo::MIMETYPE_FOLDER) {
+			$this->mkdir($targetInternalPath);
+			foreach ($sourceCache->getFolderContentsById($sourceCacheEntry->getId()) as $child) {
+				$this->moveFromStorage($sourceStorage, $child->getPath(), $targetInternalPath . '/' . $child->getName(), $child);
+			}
+			$sourceStorage->rmdir($sourceInternalPath);
+		} else {
+			$sourceStream = $sourceStorage->fopen($sourceInternalPath, 'r');
+			if (!$sourceStream) {
+				return false;
+			}
+			// move the cache entry before the contents so that we have the correct fileid/urn for the target
+			$this->getCache()->moveFromCache($sourceCache, $sourceInternalPath, $targetInternalPath);
+			try {
+				$this->writeStream($targetInternalPath, $sourceStream, $sourceCacheEntry->getSize());
+			} catch (\Exception $e) {
+				// restore the cache entry
+				$sourceCache->moveFromCache($this->getCache(), $targetInternalPath, $sourceInternalPath);
+				throw $e;
+			}
+			$sourceStorage->unlink($sourceInternalPath);
+		}
+		return true;
 	}
 
 	public function copy($source, $target) {

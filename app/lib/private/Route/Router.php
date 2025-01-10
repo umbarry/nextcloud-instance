@@ -1,40 +1,16 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Bart Visscher <bartv@thisnet.nl>
- * @author Bernhard Posselt <dev@bernhard-posselt.com>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Jörn Friedrich Dreyer <jfd@butonic.de>
- * @author Julius Härtl <jus@bitgrid.net>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Robin McCorkell <robin@mccorkell.me.uk>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Kate Döen <kate.doeen@nextcloud.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC\Route;
 
 use DirectoryIterator;
 use OC\AppFramework\Routing\RouteParser;
+use OCP\App\AppPathNotFoundException;
+use OCP\App\IAppManager;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Http\Attribute\Route as RouteAttribute;
 use OCP\Diagnostics\IEventLogger;
@@ -71,22 +47,17 @@ class Router implements IRouter {
 	protected $loaded = false;
 	/** @var array */
 	protected $loadedApps = [];
-	protected LoggerInterface $logger;
 	/** @var RequestContext */
 	protected $context;
-	private IEventLogger $eventLogger;
-	private IConfig $config;
-	private ContainerInterface $container;
 
 	public function __construct(
-		LoggerInterface $logger,
+		protected LoggerInterface $logger,
 		IRequest $request,
-		IConfig $config,
-		IEventLogger $eventLogger,
-		ContainerInterface $container
+		private IConfig $config,
+		private IEventLogger $eventLogger,
+		private ContainerInterface $container,
+		private IAppManager $appManager,
 	) {
-		$this->logger = $logger;
-		$this->config = $config;
 		$baseUrl = \OC::$WEBROOT;
 		if (!($config->getSystemValue('htaccess.IgnoreFrontController', false) === true || getenv('front_controller_active') === 'true')) {
 			$baseUrl .= '/index.php';
@@ -101,8 +72,6 @@ class Router implements IRouter {
 		$this->context = new RequestContext($baseUrl, $method, $host, $schema);
 		// TODO cache
 		$this->root = $this->getCollection('root');
-		$this->eventLogger = $eventLogger;
-		$this->container = $container;
 	}
 
 	/**
@@ -114,12 +83,14 @@ class Router implements IRouter {
 		if ($this->routingFiles === null) {
 			$this->routingFiles = [];
 			foreach (\OC_APP::getEnabledApps() as $app) {
-				$appPath = \OC_App::getAppPath($app);
-				if ($appPath !== false) {
+				try {
+					$appPath = $this->appManager->getAppPath($app);
 					$file = $appPath . '/appinfo/routes.php';
 					if (file_exists($file)) {
 						$this->routingFiles[$app] = $file;
 					}
+				} catch (AppPathNotFoundException) {
+					/* ignore */
 				}
 			}
 		}
@@ -140,9 +111,14 @@ class Router implements IRouter {
 		if ($this->loaded) {
 			return;
 		}
+		$this->eventLogger->start('route:load:' . $requestedApp, 'Loading Routes for ' . $requestedApp);
 		if (is_null($app)) {
 			$this->loaded = true;
 			$routingFiles = $this->getRoutingFiles();
+
+			foreach (\OC_App::getEnabledApps() as $enabledApp) {
+				$this->loadAttributeRoutes($enabledApp);
+			}
 		} else {
 			if (isset($this->loadedApps[$app])) {
 				return;
@@ -154,21 +130,9 @@ class Router implements IRouter {
 			} else {
 				$routingFiles = [];
 			}
-		}
-		$this->eventLogger->start('route:load:' . $requestedApp, 'Loading Routes for ' . $requestedApp);
 
-		if ($requestedApp !== null && in_array($requestedApp, \OC_App::getEnabledApps())) {
-			$routes = $this->getAttributeRoutes($requestedApp);
-			if (count($routes) > 0) {
-				$this->useCollection($requestedApp);
-				$this->setupRoutes($routes, $requestedApp);
-				$collection = $this->getCollection($requestedApp);
-				$this->root->addCollection($collection);
-
-				// Also add the OCS collection
-				$collection = $this->getCollection($requestedApp . '.ocs');
-				$collection->addPrefix('/ocsapp');
-				$this->root->addCollection($collection);
+			if ($this->appManager->isEnabledForUser($app)) {
+				$this->loadAttributeRoutes($app);
 			}
 		}
 
@@ -440,6 +404,23 @@ class Router implements IRouter {
 			return 'cloud_federation_api.requesthandler.receivenotification';
 		}
 		return $routeName;
+	}
+
+	private function loadAttributeRoutes(string $app): void {
+		$routes = $this->getAttributeRoutes($app);
+		if (count($routes) === 0) {
+			return;
+		}
+
+		$this->useCollection($app);
+		$this->setupRoutes($routes, $app);
+		$collection = $this->getCollection($app);
+		$this->root->addCollection($collection);
+
+		// Also add the OCS collection
+		$collection = $this->getCollection($app . '.ocs');
+		$collection->addPrefix('/ocsapp');
+		$this->root->addCollection($collection);
 	}
 
 	/**

@@ -1,22 +1,7 @@
 <?php
 /**
- * @copyright 2021 Louis Chemineau <louis@chmn.me>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 namespace OC\Repair\Owncloud;
 
@@ -51,8 +36,7 @@ class MigrateOauthTables implements IRepairStep {
 			return;
 		}
 
-		$output->info("Update the oauth2_access_tokens table schema.");
-		$schema = new SchemaWrapper($this->db);
+		$output->info('Update the oauth2_access_tokens table schema.');
 		$table = $schema->getTable('oauth2_access_tokens');
 		if (!$table->hasColumn('hashed_code')) {
 			$table->addColumn('hashed_code', 'string', [
@@ -73,8 +57,7 @@ class MigrateOauthTables implements IRepairStep {
 			$table->addIndex(['client_id'], 'oauth2_access_client_id_idx');
 		}
 
-		$output->info("Update the oauth2_clients table schema.");
-		$schema = new SchemaWrapper($this->db);
+		$output->info('Update the oauth2_clients table schema.');
 		$table = $schema->getTable('oauth2_clients');
 		if ($table->getColumn('name')->getLength() !== 64) {
 			// shorten existing values before resizing the column
@@ -118,7 +101,8 @@ class MigrateOauthTables implements IRepairStep {
 
 		$this->db->migrateToSchema($schema->getWrappedSchema());
 
-
+		// Regenerate schema after migrating to it
+		$schema = new SchemaWrapper($this->db);
 		if ($schema->getTable('oauth2_clients')->hasColumn('identifier')) {
 			$output->info("Move identifier column's data to the new client_identifier column.");
 			// 1. Fetch all [id, identifier] couple.
@@ -137,8 +121,7 @@ class MigrateOauthTables implements IRepairStep {
 					->executeStatement();
 			}
 
-			$output->info("Drop the identifier column.");
-			$schema = new SchemaWrapper($this->db);
+			$output->info('Drop the identifier column.');
 			$table = $schema->getTable('oauth2_clients');
 			$table->dropColumn('identifier');
 			$this->db->migrateToSchema($schema->getWrappedSchema());

@@ -17,6 +17,7 @@ OC.L10N.register(
     "Use the saved version" : "Folosește versiuna salvată",
     "Reload" : "Reîncarcă",
     "Guest" : "Invitat",
+    "Remove link" : "Șterge link-ul",
     "guest" : "invitat",
     "Offline" : "Offline",
     "Saving …" : "Se salvează",
@@ -30,15 +31,18 @@ OC.L10N.register(
     "Edit link" : "Editare link",
     "Cancel" : "Anulare",
     "URL" : "URL",
+    "Cannot copy, please copy the link manually" : "Nu s-a putut copia, vă rugăm să copiați link-ul manual",
     "Formatting help" : "Ajutor pentru formatare",
     "Select file or folder to link to" : "Selectați fișierul sau folderul țintă a link-ului",
     "to" : "către",
     "Replace" : "Înlocuiește",
     "Edit" : "Editează",
     "Source code" : "Cod sursă",
+    "Lists" : "Liste",
+    "Details" : "Detalii",
+    "Formatting" : "Formatare",
     "Info" : "Info",
     "Success" : "Succes",
-    "Warning" : "Atenție",
-    "Formatting" : "Formatare"
+    "Warning" : "Atenție"
 },
 "nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));");

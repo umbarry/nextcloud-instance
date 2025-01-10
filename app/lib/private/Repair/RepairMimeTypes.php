@@ -1,35 +1,8 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Julius Härtl <jus@bitgrid.net>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author nik gaffney <nik@fo.am>
- * @author Olivier Paroz <github@oparoz.com>
- * @author Rello <Rello@users.noreply.github.com>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Stefan Weil <sw@weilnetz.de>
- * @author Thomas Ebert <thomas.ebert@usability.de>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Vincent Petry <vincent@nextcloud.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC\Repair;
 
@@ -85,6 +58,7 @@ class RepairMimeTypes implements IRepairStep {
 
 		$update = $this->connection->getQueryBuilder();
 		$update->update('filecache')
+			->runAcrossAllShards()
 			->set('mimetype', $update->createParameter('mimetype'))
 			->where($update->expr()->neq('mimetype', $update->createParameter('mimetype'), IQueryBuilder::PARAM_INT))
 			->andWhere($update->expr()->neq('mimetype', $update->createParameter('folder'), IQueryBuilder::PARAM_INT))
@@ -341,11 +315,13 @@ class RepairMimeTypes implements IRepairStep {
 	}
 
 	private function getMimeTypeVersion(): string {
-		$mimeVersion = $this->config->getAppValue('files', 'mimetype_version', '');
-		if ($mimeVersion) {
-			return $mimeVersion;
+		$serverVersion = $this->config->getSystemValueString('version', '0.0.0');
+		// 29.0.0.10 is the last version with a mimetype migration before it was moved to a separate version number
+		if (version_compare($serverVersion, '29.0.0.10', '>')) {
+			return $this->config->getAppValue('files', 'mimetype_version', '29.0.0.10');
 		}
-		return $this->config->getSystemValueString('version', '0.0.0');
+
+		return $serverVersion;
 	}
 
 	/**

@@ -33,10 +33,12 @@ OC.L10N.register(
     "Edit" : "Sunting",
     "Source code" : "Kode sumber",
     "Both" : "Keduanya",
-    "Info" : "Info",
-    "Warning" : "Peringatan",
+    "Lists" : "Daftar",
+    "Details" : "Detail",
     "Control" : "Kendali",
     "Formatting" : "Pemformatan",
+    "Info" : "Info",
+    "Warning" : "Peringatan",
     "Add notes, lists or links …" : "Tambahkan catatan, daftar, atau tautan..."
 },
 "nplurals=1; plural=0;");

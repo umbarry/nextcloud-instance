@@ -78,14 +78,16 @@
     "Heading 3" : "Overskrift 3",
     "Heading 4" : "Overskrift 4",
     "Heading 5" : "Overskrift 5",
+    "Lists" : "Lister",
+    "Table" : "Tabel",
+    "Details" : "Detaljer",
+    "Command" : "Kommando",
+    "Formatting" : "Formatering",
+    "Show author colors" : "Vis forfatterens farver",
+    "Author colors are only shown until everyone has closed the document." : "Forfatterfarver vises kun, indtil alle har lukket dokumentet.",
     "Info" : "Info",
     "Success" : "Succes",
     "Warning" : "Advarsler",
-    "Table" : "Tabel",
-    "Command" : "Kommando",
-    "Formatting" : "Formatering",
-    "Add notes, lists or links …" : "Tilføj noter, lister eller links ...",
-    "Show author colors" : "Vis forfatterens farver",
-    "Author colors are only shown until everyone has closed the document." : "Forfatterfarver vises kun, indtil alle har lukket dokumentet."
+    "Add notes, lists or links …" : "Tilføj noter, lister eller links ..."
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

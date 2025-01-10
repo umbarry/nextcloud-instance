@@ -25,6 +25,7 @@ OC.L10N.register(
     "Replace" : "ჩანაცვლება",
     "Edit" : "ცვლილება",
     "Source code" : "კოდი",
+    "Details" : "დეტალები",
     "Info" : "ინფორმაცია",
     "Success" : "წარმატება",
     "Warning" : "გაფრთხილება"

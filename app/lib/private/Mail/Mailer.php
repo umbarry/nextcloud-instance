@@ -1,37 +1,10 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Arne Hamann <kontakt+github@arne.email>
- * @author Branko Kokanovic <branko@kokanovic.org>
- * @author Carsten Wiedmann <carsten_sttgt@gmx.de>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Jared Boone <jared.boone@gmail.com>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Julius Härtl <jus@bitgrid.net>
- * @author kevin147147 <kevintamool@gmail.com>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Tekhnee <info@tekhnee.org>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC\Mail;
 
@@ -66,7 +39,7 @@ use Symfony\Component\Mime\Exception\RfcComplianceException;
  *
  * Example usage:
  *
- * 	$mailer = \OC::$server->getMailer();
+ * 	$mailer = \OC::$server->get(\OCP\Mail\IMailer::class);
  * 	$message = $mailer->createMessage();
  * 	$message->setSubject('Your Subject');
  * 	$message->setFrom(array('cloud@domain.org' => 'ownCloud Notifier'));
@@ -130,18 +103,6 @@ class Mailer implements IMailer {
 	 * @since 12.0.0
 	 */
 	public function createEMailTemplate(string $emailId, array $data = []): IEMailTemplate {
-		$class = $this->config->getSystemValueString('mail_template_class', '');
-
-		if ($class !== '' && class_exists($class) && is_a($class, EMailTemplate::class, true)) {
-			return new $class(
-				$this->defaults,
-				$this->urlGenerator,
-				$this->l10nFactory,
-				$emailId,
-				$data
-			);
-		}
-
 		$logoDimensions = $this->config->getAppValue('theming', 'logoDimensions', self::DEFAULT_DIMENSIONS);
 		if (str_contains($logoDimensions, 'x')) {
 			[$width, $height] = explode('x', $logoDimensions);
@@ -165,6 +126,20 @@ class Mailer implements IMailer {
 			}
 		} else {
 			$logoWidth = $logoHeight = null;
+		}
+
+		$class = $this->config->getSystemValueString('mail_template_class', '');
+
+		if ($class !== '' && class_exists($class) && is_a($class, EMailTemplate::class, true)) {
+			return new $class(
+				$this->defaults,
+				$this->urlGenerator,
+				$this->l10nFactory,
+				$logoWidth,
+				$logoHeight,
+				$emailId,
+				$data
+			);
 		}
 
 		return new EMailTemplate(
@@ -268,7 +243,7 @@ class Mailer implements IMailer {
 			return false;
 		}
 
-		$strictMailCheck = $this->config->getAppValue('core', 'enforce_strict_email_check', 'no') === 'yes';
+		$strictMailCheck = $this->config->getAppValue('core', 'enforce_strict_email_check', 'yes') === 'yes';
 		$validator = new EmailValidator();
 		$validation = $strictMailCheck ? new NoRFCWarningsValidation() : new RFCValidation();
 

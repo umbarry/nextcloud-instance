@@ -1,27 +1,9 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Daniel Kesselberg <mail@danielkesselberg.de>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC\Core\Command;
 
@@ -55,17 +37,19 @@ class Base extends Command implements CompletionAwareInterface {
 		;
 	}
 
-	protected function writeArrayInOutputFormat(InputInterface $input, OutputInterface $output, array $items, string $prefix = '  - '): void {
+	protected function writeArrayInOutputFormat(InputInterface $input, OutputInterface $output, iterable $items, string $prefix = '  - '): void {
 		switch ($input->getOption('output')) {
 			case self::OUTPUT_FORMAT_JSON:
+				$items = (is_array($items) ? $items : iterator_to_array($items));
 				$output->writeln(json_encode($items));
 				break;
 			case self::OUTPUT_FORMAT_JSON_PRETTY:
+				$items = (is_array($items) ? $items : iterator_to_array($items));
 				$output->writeln(json_encode($items, JSON_PRETTY_PRINT));
 				break;
 			default:
 				foreach ($items as $key => $item) {
-					if (is_array($item)) {
+					if (is_iterable($item)) {
 						$output->writeln($prefix . $key . ':');
 						$this->writeArrayInOutputFormat($input, $output, $item, '  ' . $prefix);
 						continue;
@@ -165,7 +149,7 @@ class Base extends Command implements CompletionAwareInterface {
 		$this->interrupted = true;
 	}
 
-	public function run(InputInterface $input, OutputInterface $output) {
+	public function run(InputInterface $input, OutputInterface $output): int {
 		// check if the php pcntl_signal functions are accessible
 		$this->php_pcntl_signal = function_exists('pcntl_signal');
 		if ($this->php_pcntl_signal) {

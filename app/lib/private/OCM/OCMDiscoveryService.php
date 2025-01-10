@@ -3,25 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @copyright 2023, Maxence Lange <maxence@artificial-owl.com>
- *
- * @author Maxence Lange <maxence@artificial-owl.com>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OC\OCM;
@@ -72,7 +55,12 @@ class OCMDiscoveryService implements IOCMDiscoveryService {
 
 		if (!$skipCache) {
 			try {
-				$this->provider->import(json_decode($this->cache->get($remote) ?? '', true, 8, JSON_THROW_ON_ERROR) ?? []);
+				$cached = $this->cache->get($remote);
+				if ($cached === false) {
+					throw new OCMProviderException('Previous discovery failed.');
+				}
+
+				$this->provider->import(json_decode($cached ?? '', true, 8, JSON_THROW_ON_ERROR) ?? []);
 				if ($this->supportedAPIVersion($this->provider->getApiVersion())) {
 					return $this->provider; // if cache looks valid, we use it
 				}
@@ -99,8 +87,10 @@ class OCMDiscoveryService implements IOCMDiscoveryService {
 				$this->cache->set($remote, $body, 60 * 60 * 24);
 			}
 		} catch (JsonException|OCMProviderException $e) {
+			$this->cache->set($remote, false, 5 * 60);
 			throw new OCMProviderException('data returned by remote seems invalid - ' . ($body ?? ''));
 		} catch (\Exception $e) {
+			$this->cache->set($remote, false, 5 * 60);
 			$this->logger->warning('error while discovering ocm provider', [
 				'exception' => $e,
 				'remote' => $remote
@@ -109,6 +99,7 @@ class OCMDiscoveryService implements IOCMDiscoveryService {
 		}
 
 		if (!$this->supportedAPIVersion($this->provider->getApiVersion())) {
+			$this->cache->set($remote, false, 5 * 60);
 			throw new OCMProviderException('API version not supported');
 		}
 

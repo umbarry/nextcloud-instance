@@ -27,6 +27,7 @@ OC.L10N.register(
     "Action" : "Darbība",
     "Undo" : "Atsaukt",
     "Redo" : "Atcelt atsaukšanu",
+    "Cancel" : "Atcelt",
     "URL" : "URL",
     "Update link" : "Atjaunināt saiti",
     "Select language" : "Izvēlies valodu",
@@ -34,10 +35,12 @@ OC.L10N.register(
     "Replace" : "Aizvietot",
     "Edit" : "Labot",
     "Source code" : "Izejas kods",
+    "Details" : "Detaļas",
     "Insert link" : "Ievietojiet saiti",
+    "Command" : "Komanda",
+    "Add folder description" : "Pievienot mapes aprakstu",
     "Info" : "Info",
     "Warning" : "Brīdinājums",
-    "Command" : "Komanda",
-    "Add folder description" : "Pievienot mapes aprakstu"
+    "Add description" : "Pievienot aprakstu"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);");

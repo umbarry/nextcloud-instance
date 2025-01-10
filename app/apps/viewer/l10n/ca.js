@@ -29,7 +29,10 @@ OC.L10N.register(
     "All changes will be lost." : "Tots els canvis es perdran.",
     "Are you sure you want to continue?" : "Segur que voleu continuar?",
     "Cancel" : "Cancel·la",
-    "Continue" : "Continua",
+    "Apply" : "Aplica",
+    "Warning" : "Avís",
+    "Confirm" : "Confirma",
+    "Discard changes" : "Descarta els canvis",
     "Undo" : "Desfés",
     "Redo" : "Refés",
     "Show original image" : "Mostra la imatge original",
@@ -108,6 +111,8 @@ OC.L10N.register(
     "Saved image size (width x height)" : "Mida de la imatge desada (amplada x alçada)",
     "Note that the selected crop area is lower than the applied resize which might cause quality decrease" : "Tingueu en compte que l'àrea de retall seleccionada és inferior al canvi de mida aplicat, fet que pot provocar una disminució de la qualitat",
     "Actual size (100%)" : "Mida real (100%)",
-    "Fit size" : "Mida ajustada"
+    "Fit size" : "Mida ajustada",
+    "Menu" : "Menú",
+    "Height" : "Alçada"
 },
 "nplurals=2; plural=(n != 1);");

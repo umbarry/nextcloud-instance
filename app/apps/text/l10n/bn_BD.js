@@ -14,6 +14,7 @@ OC.L10N.register(
     "URL" : "URL",
     "to" : "প্রতি",
     "Edit" : "সম্পাদনা",
+    "Details" : "বিসতারিত",
     "Info" : "Info",
     "Warning" : "সতর্কবাণী"
 },

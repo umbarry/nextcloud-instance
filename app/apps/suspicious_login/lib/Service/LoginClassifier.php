@@ -3,43 +3,27 @@
 declare(strict_types=1);
 
 /**
- * @copyright 2018 Christoph Wurst <christoph@winzerhof-wurst.at>
- *
- * @author 2018 Christoph Wurst <christoph@winzerhof-wurst.at>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\SuspiciousLogin\Service;
 
-use function base64_decode;
-use function explode;
+use OCA\SuspiciousLogin\Db\SuspiciousLogin;
+use OCA\SuspiciousLogin\Db\SuspiciousLoginMapper;
 use OCA\SuspiciousLogin\Event\SuspiciousLoginEvent;
 use OCA\SuspiciousLogin\Exception\ServiceException;
 use OCA\SuspiciousLogin\Util\AddressClassifier;
-use OCP\EventDispatcher\IEventDispatcher;
-use function preg_match;
-use function strlen;
-use function substr;
-use OCA\SuspiciousLogin\Db\SuspiciousLogin;
-use OCA\SuspiciousLogin\Db\SuspiciousLoginMapper;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\ILogger;
 use OCP\IRequest;
 use Throwable;
+use function base64_decode;
+use function explode;
+use function preg_match;
+use function strlen;
+use function substr;
 
 class LoginClassifier {
 
@@ -62,11 +46,11 @@ class LoginClassifier {
 	private $dispatcher;
 
 	public function __construct(EstimatorService $estimator,
-								IRequest $request,
-								ILogger $logger,
-								SuspiciousLoginMapper $mapper,
-								ITimeFactory $timeFactory,
-								IEventDispatcher $dispatcher) {
+		IRequest $request,
+		ILogger $logger,
+		SuspiciousLoginMapper $mapper,
+		ITimeFactory $timeFactory,
+		IEventDispatcher $dispatcher) {
 		$this->estimator = $estimator;
 		$this->request = $request;
 		$this->logger = $logger;
@@ -95,9 +79,9 @@ class LoginClassifier {
 		}
 
 		return preg_match(
-				"/^([0-9A-Za-z]{5})-([0-9A-Za-z]{5})-([0-9A-Za-z]{5})-([0-9A-Za-z]{5})-([0-9A-Za-z]{5})$/",
-				$pwd[1]
-			) === 1;
+			"/^([0-9A-Za-z]{5})-([0-9A-Za-z]{5})-([0-9A-Za-z]{5})-([0-9A-Za-z]{5})-([0-9A-Za-z]{5})$/",
+			$pwd[1]
+		) === 1;
 	}
 
 	public function process(string $uid, string $ip) {

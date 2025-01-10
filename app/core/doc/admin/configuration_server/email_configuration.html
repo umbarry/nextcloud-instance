@@ -115,6 +115,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../office/index.html">Office</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ai/index.html">Artificial Intelligence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../webhook_listeners/index.html">Webhook Listeners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../windmill_workflows/index.html">Windmill Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration_database/index.html">Database configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration_mimetypes/index.html">Mimetypes management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../maintenance/index.html">Maintenance</a></li>
@@ -184,6 +186,7 @@ connect Nextcloud to a remote SMTP server:</p>
 <ul class="simple">
 <li><p>STARTTLS cannot be enforced. It will be used automatically if the mail server supports it. The encryption type should be set to ‘None/STARTTLS’ in this case. See <a class="reference internal" href="#tlspeerverification"><span class="std std-ref">here</span></a> for an example on how to configure self signed certificates.</p></li>
 <li><p>NTLM authentication for Microsoft Exchange is not supported by the new mailer library. Try using <a class="reference external" href="https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#basic-authentication">basic authentication</a> instead.</p></li>
+<li><p>Outlook and Microsoft Exchange have discontinued support for Basic authentication. It is no longer possible to use their services as your default email handler.</p></li>
 </ul>
 </div>
 <ul>
@@ -546,11 +549,9 @@ This is expected behavior and can be ignored.</p>
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://docs.nextcloud.com/server/26/admin_manual">26</a></dd>
-        
-          <dd><a href="https://docs.nextcloud.com/server/27/admin_manual">27</a></dd>
-        
           <dd><a href="https://docs.nextcloud.com/server/28/admin_manual">28</a></dd>
+        
+          <dd><a href="https://docs.nextcloud.com/server/29/admin_manual">29</a></dd>
         
           <dd><a href="https://docs.nextcloud.com/server/stable/admin_manual">stable</a></dd>
         

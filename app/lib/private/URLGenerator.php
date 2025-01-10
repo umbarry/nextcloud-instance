@@ -1,42 +1,10 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bart Visscher <bartv@thisnet.nl>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Daniel Rudolf <github.com@daniel-rudolf.de>
- * @author Felix Epp <work@felixepp.de>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Jörn Friedrich Dreyer <jfd@butonic.de>
- * @author Julius Haertl <jus@bitgrid.net>
- * @author Julius Härtl <jus@bitgrid.net>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author mmccarn <mmccarn-github@mmsionline.us>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Robin McCorkell <robin@mccorkell.me.uk>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Thomas Tanghus <thomas@tanghus.net>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC;
 
@@ -277,7 +245,7 @@ class URLGenerator implements IURLGenerator {
 
 	/**
 	 * Makes an URL absolute
-	 * @param string $url the url in the ownCloud host
+	 * @param string $url the url in the Nextcloud host
 	 * @return string the absolute version of the url
 	 */
 	public function getAbsoluteURL(string $url): string {
@@ -286,7 +254,7 @@ class URLGenerator implements IURLGenerator {
 		if (\OC::$CLI && !\defined('PHPUNIT_RUN')) {
 			return rtrim($this->config->getSystemValueString('overwrite.cli.url'), '/') . '/' . ltrim($url, '/');
 		}
-		// The ownCloud web root can already be prepended.
+		// The Nextcloud web root could already be prepended.
 		if (\OC::$WEBROOT !== '' && str_starts_with($url, \OC::$WEBROOT)) {
 			$url = substr($url, \strlen(\OC::$WEBROOT));
 		}

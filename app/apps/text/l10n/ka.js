@@ -38,14 +38,17 @@ OC.L10N.register(
     "Translate from" : "Translate from",
     "Select language" : "Select language",
     "to" : "to",
+    "Translate to" : "Translate to",
     "Replace" : "Replace",
     "Edit" : "Edit",
     "Copy code block" : "Copy code block",
     "Source code" : "Source code",
     "Headings" : "Headings",
-    "Info" : "Info",
-    "Warning" : "Warning",
+    "Lists" : "Lists",
+    "Details" : "Details",
     "Command" : "Command",
-    "Formatting" : "Formatting"
+    "Formatting" : "Formatting",
+    "Info" : "Info",
+    "Warning" : "Warning"
 },
 "nplurals=2; plural=(n!=1);");

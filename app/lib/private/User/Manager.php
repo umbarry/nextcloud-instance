@@ -1,38 +1,13 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bjoern Schiessle <bjoern@schiessle.org>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Georg Ehrke <oc.list@georgehrke.com>
- * @author Joas Schilling <coding@schilljs.com>
- * @author John Molakvoæ <skjnldsv@protonmail.com>
- * @author Jörn Friedrich Dreyer <jfd@butonic.de>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Vincent Chan <plus.vincchan@gmail.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC\User;
 
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use OC\Hooks\PublicEmitter;
 use OC\Memcache\WithLocalCache;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -79,35 +54,27 @@ class Manager extends PublicEmitter implements IUserManager {
 	/**
 	 * @var \OCP\UserInterface[] $backends
 	 */
-	private $backends = [];
+	private array $backends = [];
 
 	/**
-	 * @var \OC\User\User[] $cachedUsers
+	 * @var array<string,\OC\User\User> $cachedUsers
 	 */
-	private $cachedUsers = [];
+	private array $cachedUsers = [];
 
-	/** @var IConfig */
-	private $config;
-
-	/** @var ICache */
-	private $cache;
-
-	/** @var IEventDispatcher */
-	private $eventDispatcher;
+	private ICache $cache;
 
 	private DisplayNameCache $displayNameCache;
 
-	public function __construct(IConfig $config,
+	public function __construct(
+		private IConfig $config,
 		ICacheFactory $cacheFactory,
-		IEventDispatcher $eventDispatcher) {
-		$this->config = $config;
+		private IEventDispatcher $eventDispatcher,
+		private LoggerInterface $logger,
+	) {
 		$this->cache = new WithLocalCache($cacheFactory->createDistributed('user_backend_map'));
-		$cachedUsers = &$this->cachedUsers;
-		$this->listen('\OC\User', 'postDelete', function ($user) use (&$cachedUsers) {
-			/** @var \OC\User\User $user */
-			unset($cachedUsers[$user->getUID()]);
+		$this->listen('\OC\User', 'postDelete', function (IUser $user): void {
+			unset($this->cachedUsers[$user->getUID()]);
 		});
-		$this->eventDispatcher = $eventDispatcher;
 		$this->displayNameCache = new DisplayNameCache($cacheFactory, $this);
 	}
 
@@ -236,7 +203,7 @@ class Manager extends PublicEmitter implements IUserManager {
 		$result = $this->checkPasswordNoLogging($loginName, $password);
 
 		if ($result === false) {
-			\OCP\Server::get(LoggerInterface::class)->warning('Login failed: \''. $loginName .'\' (Remote IP: \''. \OC::$server->getRequest()->getRemoteAddress(). '\')', ['app' => 'core']);
+			$this->logger->warning('Login failed: \''. $loginName .'\' (Remote IP: \''. \OC::$server->getRequest()->getRemoteAddress(). '\')', ['app' => 'core']);
 		}
 
 		return $result;
@@ -354,11 +321,16 @@ class Manager extends PublicEmitter implements IUserManager {
 		if ($search !== '') {
 			$users = array_filter(
 				$users,
-				fn (IUser $user): bool =>
-					mb_stripos($user->getUID(), $search) !== false ||
-					mb_stripos($user->getDisplayName(), $search) !== false ||
-					mb_stripos($user->getEMailAddress() ?? '', $search) !== false,
-			);
+				function (IUser $user) use ($search): bool {
+					try {
+						return mb_stripos($user->getUID(), $search) !== false ||
+						mb_stripos($user->getDisplayName(), $search) !== false ||
+						mb_stripos($user->getEMailAddress() ?? '', $search) !== false;
+					} catch (NoUserException $ex) {
+						$this->logger->error('Error while filtering disabled users', ['exception' => $ex, 'userUID' => $user->getUID()]);
+						return false;
+					}
+				});
 		}
 
 		$tempLimit = ($limit === null ? null : $limit + $offset);
@@ -768,6 +740,57 @@ class Manager extends PublicEmitter implements IUserManager {
 		}
 	}
 
+	/**
+	 * Gets the list of user ids sorted by lastLogin, from most recent to least recent
+	 *
+	 * @param int|null $limit how many users to fetch (default: 25, max: 100)
+	 * @param int $offset from which offset to fetch
+	 * @param string $search search users based on search params
+	 * @return list<string> list of user IDs
+	 */
+	public function getLastLoggedInUsers(?int $limit = null, int $offset = 0, string $search = ''): array {
+		// We can't load all users who already logged in
+		$limit = min(100, $limit ?: 25);
+
+		$connection = \OC::$server->getDatabaseConnection();
+		$queryBuilder = $connection->getQueryBuilder();
+		$queryBuilder->select('pref_login.userid')
+			->from('preferences', 'pref_login')
+			->where($queryBuilder->expr()->eq('pref_login.appid', $queryBuilder->expr()->literal('login')))
+			->andWhere($queryBuilder->expr()->eq('pref_login.configkey', $queryBuilder->expr()->literal('lastLogin')))
+			->setFirstResult($offset)
+			->setMaxResults($limit)
+		;
+
+		// Oracle don't want to run ORDER BY on CLOB column
+		$loginOrder = $connection->getDatabasePlatform() instanceof OraclePlatform
+			? $queryBuilder->expr()->castColumn('pref_login.configvalue', IQueryBuilder::PARAM_INT)
+			: 'pref_login.configvalue';
+		$queryBuilder
+			->orderBy($loginOrder, 'DESC')
+			->addOrderBy($queryBuilder->func()->lower('pref_login.userid'), 'ASC');
+
+		if ($search !== '') {
+			$displayNameMatches = $this->searchDisplayName($search);
+			$matchedUids = array_map(static fn (IUser $u): string => $u->getUID(), $displayNameMatches);
+
+			$queryBuilder
+				->leftJoin('pref_login', 'preferences', 'pref_email', $queryBuilder->expr()->andX(
+					$queryBuilder->expr()->eq('pref_login.userid', 'pref_email.userid'),
+					$queryBuilder->expr()->eq('pref_email.appid', $queryBuilder->expr()->literal('settings')),
+					$queryBuilder->expr()->eq('pref_email.configkey', $queryBuilder->expr()->literal('email')),
+				))
+				->andWhere($queryBuilder->expr()->orX(
+					$queryBuilder->expr()->in('pref_login.userid', $queryBuilder->createNamedParameter($matchedUids, IQueryBuilder::PARAM_STR_ARRAY)),
+				));
+		}
+
+		/** @var list<string> */
+		$list = $queryBuilder->executeQuery()->fetchAll(\PDO::FETCH_COLUMN);
+
+		return $list;
+	}
+
 	private function verifyUid(string $uid, bool $checkDataDirectory = false): bool {
 		$appdata = 'appdata_' . $this->config->getSystemValueString('instanceid');
 
@@ -775,7 +798,7 @@ class Manager extends PublicEmitter implements IUserManager {
 			'.htaccess',
 			'files_external',
 			'__groupfolders',
-			'.ocdata',
+			'.ncdata',
 			'owncloud.log',
 			'nextcloud.log',
 			'updater.log',

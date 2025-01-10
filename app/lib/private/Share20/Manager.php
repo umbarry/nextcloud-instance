@@ -1,43 +1,9 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bjoern Schiessle <bjoern@schiessle.org>
- * @author Björn Schießle <bjoern@schiessle.org>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author Daniel Calviño Sánchez <danxuliu@gmail.com>
- * @author Daniel Kesselberg <mail@danielkesselberg.de>
- * @author Jan-Christoph Borchardt <hey@jancborchardt.net>
- * @author Joas Schilling <coding@schilljs.com>
- * @author John Molakvoæ <skjnldsv@protonmail.com>
- * @author Julius Härtl <jus@bitgrid.net>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @author Maxence Lange <maxence@nextcloud.com>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Pauli Järvinen <pauli.jarvinen@gmail.com>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Samuel <faust64@gmail.com>
- * @author szaimen <szaimen@e.mail.de>
- * @author Valdnet <47037905+Valdnet@users.noreply.github.com>
- * @author Vincent Petry <vincent@nextcloud.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC\Share20;
 
@@ -45,6 +11,7 @@ use OC\Files\Mount\MoveableMount;
 use OC\KnownUser\KnownUserService;
 use OC\Share20\Exception\ProviderException;
 use OCA\Files_Sharing\AppInfo\Application;
+use OCA\Files_Sharing\SharedStorage;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\File;
 use OCP\Files\Folder;
@@ -78,6 +45,8 @@ use OCP\Share\IManager;
 use OCP\Share\IProviderFactory;
 use OCP\Share\IShare;
 use OCP\Share\IShareProvider;
+use OCP\Share\IShareProviderSupportsAccept;
+use OCP\Share\IShareProviderWithNotification;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -602,7 +571,7 @@ class Manager implements IManager {
 		// No sense in checking if the method is not there.
 		if (method_exists($share, 'setParent')) {
 			$storage = $share->getNode()->getStorage();
-			if ($storage->instanceOfStorage('\OCA\Files_Sharing\ISharedStorage')) {
+			if ($storage->instanceOfStorage(SharedStorage::class)) {
 				/** @var \OCA\Files_Sharing\SharedStorage $storage */
 				$share->setParent($storage->getShareId());
 			}
@@ -689,20 +658,32 @@ class Manager implements IManager {
 				// Verify the expiration date
 				$share = $this->validateExpirationDateInternal($share);
 			} elseif ($share->getShareType() === IShare::TYPE_REMOTE || $share->getShareType() === IShare::TYPE_REMOTE_GROUP) {
-				//Verify the expiration date
+				// Verify the expiration date
 				$share = $this->validateExpirationDateInternal($share);
 			} elseif ($share->getShareType() === IShare::TYPE_LINK
 				|| $share->getShareType() === IShare::TYPE_EMAIL) {
 				$this->linkCreateChecks($share);
 				$this->setLinkParent($share);
 
-				// For now ignore a set token.
-				$share->setToken(
-					$this->secureRandom->generate(
+				for ($i = 0; $i <= 3; $i++) {
+					$token = $this->secureRandom->generate(
 						\OC\Share\Constants::TOKEN_LENGTH,
 						\OCP\Security\ISecureRandom::CHAR_HUMAN_READABLE
-					)
-				);
+					);
+
+					try {
+						$this->getShareByToken($token);
+					} catch (\OCP\Share\Exceptions\ShareNotFound $e) {
+						// Set the unique token
+						$share->setToken($token);
+						break;
+					}
+
+					// Abort after 3 failed attempts
+					if ($i >= 3) {
+						throw new \Exception('Unable to generate a unique share token after 3 attempts.');
+					}
+				}
 
 				// Verify the expiration date
 				$share = $this->validateExpirationDateLink($share);
@@ -766,123 +747,23 @@ class Manager implements IManager {
 		// Post share event
 		$this->dispatcher->dispatchTyped(new ShareCreatedEvent($share));
 
-		if ($this->config->getSystemValueBool('sharing.enable_share_mail', true)
-			&& $share->getShareType() === IShare::TYPE_USER) {
-			$mailSend = $share->getMailSend();
-			if ($mailSend === true) {
-				$user = $this->userManager->get($share->getSharedWith());
-				if ($user !== null) {
-					$emailAddress = $user->getEMailAddress();
-					if ($emailAddress !== null && $emailAddress !== '') {
-						$userLang = $this->l10nFactory->getUserLanguage($user);
-						$l = $this->l10nFactory->get('lib', $userLang);
-						$this->sendMailNotification(
-							$l,
-							$share->getNode()->getName(),
-							$this->urlGenerator->linkToRouteAbsolute('files_sharing.Accept.accept', ['shareId' => $share->getFullId()]),
-							$share->getSharedBy(),
-							$emailAddress,
-							$share->getExpirationDate(),
-							$share->getNote()
-						);
-						$this->logger->debug('Sent share notification to ' . $emailAddress . ' for share with ID ' . $share->getId(), ['app' => 'share']);
-					} else {
-						$this->logger->debug('Share notification not sent to ' . $share->getSharedWith() . ' because email address is not set.', ['app' => 'share']);
-					}
+		// Send email if needed
+		if ($this->config->getSystemValueBool('sharing.enable_share_mail', true)) {
+			if ($share->getMailSend()) {
+				$provider = $this->factory->getProviderForType($share->getShareType());
+				if ($provider instanceof IShareProviderWithNotification) {
+					$provider->sendMailNotification($share);
 				} else {
-					$this->logger->debug('Share notification not sent to ' . $share->getSharedWith() . ' because user could not be found.', ['app' => 'share']);
+					$this->logger->debug('Share notification not sent because the provider does not support it.', ['app' => 'share']);
 				}
 			} else {
 				$this->logger->debug('Share notification not sent because mailsend is false.', ['app' => 'share']);
 			}
+		} else {
+			$this->logger->debug('Share notification not sent because sharing notification emails is disabled.', ['app' => 'share']);
 		}
 
 		return $share;
-	}
-
-	/**
-	 * Send mail notifications
-	 *
-	 * This method will catch and log mail transmission errors
-	 *
-	 * @param IL10N $l Language of the recipient
-	 * @param string $filename file/folder name
-	 * @param string $link link to the file/folder
-	 * @param string $initiator user ID of share sender
-	 * @param string $shareWith email address of share receiver
-	 * @param \DateTime|null $expiration
-	 */
-	protected function sendMailNotification(IL10N $l,
-		$filename,
-		$link,
-		$initiator,
-		$shareWith,
-		?\DateTime $expiration = null,
-		$note = '') {
-		$initiatorUser = $this->userManager->get($initiator);
-		$initiatorDisplayName = ($initiatorUser instanceof IUser) ? $initiatorUser->getDisplayName() : $initiator;
-
-		$message = $this->mailer->createMessage();
-
-		$emailTemplate = $this->mailer->createEMailTemplate('files_sharing.RecipientNotification', [
-			'filename' => $filename,
-			'link' => $link,
-			'initiator' => $initiatorDisplayName,
-			'expiration' => $expiration,
-			'shareWith' => $shareWith,
-		]);
-
-		$emailTemplate->setSubject($l->t('%1$s shared »%2$s« with you', [$initiatorDisplayName, $filename]));
-		$emailTemplate->addHeader();
-		$emailTemplate->addHeading($l->t('%1$s shared »%2$s« with you', [$initiatorDisplayName, $filename]), false);
-		$text = $l->t('%1$s shared »%2$s« with you.', [$initiatorDisplayName, $filename]);
-
-		if ($note !== '') {
-			$emailTemplate->addBodyText(htmlspecialchars($note), $note);
-		}
-
-		$emailTemplate->addBodyText(
-			htmlspecialchars($text . ' ' . $l->t('Click the button below to open it.')),
-			$text
-		);
-		$emailTemplate->addBodyButton(
-			$l->t('Open »%s«', [$filename]),
-			$link
-		);
-
-		$message->setTo([$shareWith]);
-
-		// The "From" contains the sharers name
-		$instanceName = $this->defaults->getName();
-		$senderName = $l->t(
-			'%1$s via %2$s',
-			[
-				$initiatorDisplayName,
-				$instanceName,
-			]
-		);
-		$message->setFrom([\OCP\Util::getDefaultEmailAddress('noreply') => $senderName]);
-
-		// The "Reply-To" is set to the sharer if an mail address is configured
-		// also the default footer contains a "Do not reply" which needs to be adjusted.
-		$initiatorEmail = $initiatorUser->getEMailAddress();
-		if ($initiatorEmail !== null) {
-			$message->setReplyTo([$initiatorEmail => $initiatorDisplayName]);
-			$emailTemplate->addFooter($instanceName . ($this->defaults->getSlogan($l->getLanguageCode()) !== '' ? ' - ' . $this->defaults->getSlogan($l->getLanguageCode()) : ''));
-		} else {
-			$emailTemplate->addFooter('', $l->getLanguageCode());
-		}
-
-		$message->useTemplate($emailTemplate);
-		try {
-			$failedRecipients = $this->mailer->send($message);
-			if (!empty($failedRecipients)) {
-				$this->logger->error('Share notification mail could not be sent to: ' . implode(', ', $failedRecipients));
-				return;
-			}
-		} catch (\Exception $e) {
-			$this->logger->error('Share notification mail could not be sent', ['exception' => $e]);
-		}
 	}
 
 	/**
@@ -1038,17 +919,17 @@ class Manager implements IManager {
 	 * @param IShare $share
 	 * @param string $recipientId
 	 * @return IShare The share object
-	 * @throws \InvalidArgumentException
+	 * @throws \InvalidArgumentException Thrown if the provider does not implement `IShareProviderSupportsAccept`
 	 * @since 9.0.0
 	 */
 	public function acceptShare(IShare $share, string $recipientId): IShare {
 		[$providerId,] = $this->splitFullId($share->getFullId());
 		$provider = $this->factory->getProvider($providerId);
 
-		if (!method_exists($provider, 'acceptShare')) {
-			// TODO FIX ME
+		if (!($provider instanceof IShareProviderSupportsAccept)) {
 			throw new \InvalidArgumentException('Share provider does not support accepting');
 		}
+		/** @var IShareProvider&IShareProviderSupportsAccept $provider */
 		$provider->acceptShare($share, $recipientId);
 
 		$event = new ShareAcceptedEvent($share);
@@ -1232,9 +1113,12 @@ class Manager implements IManager {
 
 	public function getSharesInFolder($userId, Folder $node, $reshares = false, $shallow = true) {
 		$providers = $this->factory->getAllProviders();
+		if (!$shallow) {
+			throw new \Exception("non-shallow getSharesInFolder is no longer supported");
+		}
 
-		return array_reduce($providers, function ($shares, IShareProvider $provider) use ($userId, $node, $reshares, $shallow) {
-			$newShares = $provider->getSharesInFolder($userId, $node, $reshares, $shallow);
+		return array_reduce($providers, function ($shares, IShareProvider $provider) use ($userId, $node, $reshares) {
+			$newShares = $provider->getSharesInFolder($userId, $node, $reshares);
 			foreach ($newShares as $fid => $data) {
 				if (!isset($shares[$fid])) {
 					$shares[$fid] = [];

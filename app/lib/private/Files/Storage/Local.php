@@ -1,45 +1,9 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2016, ownCloud, Inc.
- *
- * @author aler9 <46489434+aler9@users.noreply.github.com>
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- * @author Bart Visscher <bartv@thisnet.nl>
- * @author Boris Rybalkin <ribalkin@gmail.com>
- * @author Brice Maron <brice@bmaron.net>
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- * @author J0WI <J0WI@users.noreply.github.com>
- * @author Jakob Sack <mail@jakobsack.de>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Johannes Leuker <j.leuker@hosting.de>
- * @author Jörn Friedrich Dreyer <jfd@butonic.de>
- * @author Klaas Freitag <freitag@owncloud.com>
- * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Martin Brugnara <martin@0x6d62.eu>
- * @author Michael Gapczynski <GapczynskiM@gmail.com>
- * @author Morris Jobke <hey@morrisjobke.de>
- * @author Robin Appelman <robin@icewind.nl>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Sjors van der Pluijm <sjors@desjors.nl>
- * @author Stefan Weil <sw@weilnetz.de>
- * @author Thomas Müller <thomas.mueller@tmit.eu>
- * @author Tigran Mkrtchyan <tigran.mkrtchyan@desy.de>
- * @author Vincent Petry <vincent@nextcloud.com>
- *
- * @license AGPL-3.0
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program. If not, see <http://www.gnu.org/licenses/>
- *
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 namespace OC\Files\Storage;
 
@@ -142,7 +106,7 @@ class Local extends \OC\Files\Storage\Common {
 				 * @var \SplFileInfo $file
 				 */
 				$file = $it->current();
-				clearstatcache(true, $this->getSourcePath($file));
+				clearstatcache(true, $file->getRealPath());
 				if (in_array($file->getBasename(), ['.', '..'])) {
 					$it->next();
 					continue;
@@ -153,6 +117,7 @@ class Local extends \OC\Files\Storage\Common {
 				}
 				$it->next();
 			}
+			unset($it);  // Release iterator and thereby its potential directory lock (e.g. in case of VirtualBox shared folders)
 			clearstatcache(true, $this->getSourcePath($path));
 			return rmdir($this->getSourcePath($path));
 		} catch (\UnexpectedValueException $e) {
@@ -380,10 +345,12 @@ class Local extends \OC\Files\Storage\Common {
 			return false;
 		}
 
-		if ($this->is_dir($target)) {
-			$this->rmdir($target);
-		} elseif ($this->is_file($target)) {
-			$this->unlink($target);
+		if ($this->file_exists($target)) {
+			if ($this->is_dir($target)) {
+				$this->rmdir($target);
+			} elseif ($this->is_file($target)) {
+				$this->unlink($target);
+			}
 		}
 
 		if ($this->is_dir($source)) {
@@ -435,7 +402,7 @@ class Local extends \OC\Files\Storage\Common {
 		return $result;
 	}
 
-	public function hash($type, $path, $raw = false) {
+	public function hash($type, $path, $raw = false): string|false {
 		return hash_file($type, $this->getSourcePath($path), $raw);
 	}
 
@@ -524,6 +491,7 @@ class Local extends \OC\Files\Storage\Common {
 		$realPath = realpath($pathToResolve);
 		while ($realPath === false) { // for non existing files check the parent directory
 			$currentPath = dirname($currentPath);
+			/** @psalm-suppress TypeDoesNotContainType Let's be extra cautious and still check for empty string */
 			if ($currentPath === '' || $currentPath === '.') {
 				return $fullPath;
 			}
@@ -605,11 +573,13 @@ class Local extends \OC\Files\Storage\Common {
 	 */
 	public function copyFromStorage(IStorage $sourceStorage, $sourceInternalPath, $targetInternalPath, $preserveMtime = false) {
 		if ($this->canDoCrossStorageMove($sourceStorage)) {
-			if ($sourceStorage->instanceOfStorage(Jail::class)) {
+			// resolve any jailed paths
+			while ($sourceStorage->instanceOfStorage(Jail::class)) {
 				/**
 				 * @var \OC\Files\Storage\Wrapper\Jail $sourceStorage
 				 */
 				$sourceInternalPath = $sourceStorage->getUnjailedPath($sourceInternalPath);
+				$sourceStorage = $sourceStorage->getUnjailedStorage();
 			}
 			/**
 			 * @var \OC\Files\Storage\Local $sourceStorage
@@ -629,11 +599,13 @@ class Local extends \OC\Files\Storage\Common {
 	 */
 	public function moveFromStorage(IStorage $sourceStorage, $sourceInternalPath, $targetInternalPath) {
 		if ($this->canDoCrossStorageMove($sourceStorage)) {
-			if ($sourceStorage->instanceOfStorage(Jail::class)) {
+			// resolve any jailed paths
+			while ($sourceStorage->instanceOfStorage(Jail::class)) {
 				/**
 				 * @var \OC\Files\Storage\Wrapper\Jail $sourceStorage
 				 */
 				$sourceInternalPath = $sourceStorage->getUnjailedPath($sourceInternalPath);
+				$sourceStorage = $sourceStorage->getUnjailedStorage();
 			}
 			/**
 			 * @var \OC\Files\Storage\Local $sourceStorage

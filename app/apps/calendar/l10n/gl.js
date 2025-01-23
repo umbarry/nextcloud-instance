@@ -258,6 +258,8 @@ OC.L10N.register(
     "Could not book the appointment. Please try again later or contact the organizer." : "Non foi posíbel reservar a cita. Ténteo de novo máis tarde ou póñase en contacto co organizador.",
     "Back" : "Atras",
     "Book appointment" : "Concertar cita",
+    "Create a new conversation" : "Crear unha nova conversa",
+    "Select conversation" : "Seleccionar conversa",
     "Reminder" : "Lembrete",
     "before at" : "antes dás",
     "Notification" : "Notificación",
@@ -531,7 +533,6 @@ OC.L10N.register(
     "When shared hide this event" : "Agochar este evento ao compartir",
     "The visibility of this event in shared calendars." : "A visibilidade deste evento nos calendarios compartidos.",
     "Add a location" : "Engadir unha localización",
-    "Add a description" : "Engadir unha descrición",
     "Status" : "Estado",
     "Confirmed" : "Confirmado",
     "Canceled" : "Cancelada",
@@ -568,6 +569,7 @@ OC.L10N.register(
     "[Today]" : "[Hoxe]",
     "[Tomorrow]" : "[Mañá]",
     "[Yesterday]" : "[Onte]",
-    "[Last] dddd" : "[Último] dddd"
+    "[Last] dddd" : "[Último] dddd",
+    "Add a description" : "Engadir unha descrición"
 },
 "nplurals=2; plural=(n != 1);");

@@ -251,6 +251,8 @@ OC.L10N.register(
     "Please share anything that will help prepare for our meeting" : "会議の準備に役立つことがあれば教えてください。",
     "Could not book the appointment. Please try again later or contact the organizer." : "予約できませんでした。後でもう一度試してみるか、主催者に連絡してください。",
     "Back" : "戻る",
+    "Create a new conversation" : "新しい会話を作成する",
+    "Select conversation" : "会話を選択",
     "Reminder" : "リマインダー",
     "before at" : "次の時間分早めに通知",
     "Notification" : "通知",
@@ -521,7 +523,6 @@ OC.L10N.register(
     "When shared hide this event" : "共有時にこのイベントを隠す",
     "The visibility of this event in shared calendars." : "共有カレンダーでのこのイベントの表示。",
     "Add a location" : "住所を追加",
-    "Add a description" : "説明を追加",
     "Status" : "ステータス",
     "Confirmed" : "確認済み",
     "Canceled" : "キャンセル済み",
@@ -557,6 +558,7 @@ OC.L10N.register(
     "[Today]" : "[今日]",
     "[Tomorrow]" : "[明日]",
     "[Yesterday]" : "[昨日]",
-    "[Last] dddd" : "[Last]dddd"
+    "[Last] dddd" : "[Last]dddd",
+    "Add a description" : "説明を追加"
 },
 "nplurals=1; plural=0;");

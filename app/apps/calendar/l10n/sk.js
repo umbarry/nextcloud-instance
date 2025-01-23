@@ -246,6 +246,8 @@ OC.L10N.register(
     "Please share anything that will help prepare for our meeting" : "Zdieľajte čokoľvek, čo vám pomôže pripraviť sa na naše stretnutie",
     "Could not book the appointment. Please try again later or contact the organizer." : "Termín sa nepodarilo zarezervovať. Skúste to znova neskôr alebo kontaktujte organizátora.",
     "Back" : "Späť",
+    "Create a new conversation" : "Vytvoriť novú konverzáciu",
+    "Select conversation" : "Vybrať konveráciu",
     "Reminder" : "Pripomienka",
     "before at" : "pred o",
     "Notification" : "Hlásenie",
@@ -513,7 +515,6 @@ OC.L10N.register(
     "When shared hide this event" : "Pri zdieľaní skryť udalosť",
     "The visibility of this event in shared calendars." : "Viditeľnosť tejto udalosti v zdieľaných kalendároch.",
     "Add a location" : "Zadajte umiestnenie",
-    "Add a description" : "Zadajte popis",
     "Status" : "Stav",
     "Confirmed" : "Potvrdené",
     "Canceled" : "Zrušené",
@@ -550,6 +551,7 @@ OC.L10N.register(
     "[Today]" : "[Dnes]",
     "[Tomorrow]" : "[Zajtra]",
     "[Yesterday]" : "[Včera]",
-    "[Last] dddd" : "[Posledné] dddd"
+    "[Last] dddd" : "[Posledné] dddd",
+    "Add a description" : "Zadajte popis"
 },
 "nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);");

@@ -236,6 +236,8 @@ OC.L10N.register(
     "Your email address" : "پست الکترونیکی شما",
     "Could not book the appointment. Please try again later or contact the organizer." : "Could not book the appointment. Please try again later or contact the organizer.",
     "Back" : "Back",
+    "Create a new conversation" : "Create a new conversation",
+    "Select conversation" : "مکالمه را انتخاب کنید",
     "Reminder" : "Reminder",
     "before at" : "قبل از در",
     "Notification" : "اطلاع",
@@ -473,7 +475,6 @@ OC.L10N.register(
     "When shared hide this event" : "هنگام اشتراک گذاری این رویداد را پنهان کنید",
     "The visibility of this event in shared calendars." : "قابلیت مشاهده این رویداد در تقویمهای مشترک.",
     "Add a location" : "افزودن یک محل",
-    "Add a description" : "یک توضیح بنویسید",
     "Status" : "وضعیت",
     "Confirmed" : "تایید شده",
     "Canceled" : "لغو شد",
@@ -506,6 +507,7 @@ OC.L10N.register(
     "[Today]" : "[امروز]",
     "[Tomorrow]" : "[فردا]",
     "[Yesterday]" : "[دیروز]",
-    "[Last] dddd" : "[Last] dddd"
+    "[Last] dddd" : "[Last] dddd",
+    "Add a description" : "یک توضیح بنویسید"
 },
 "nplurals=2; plural=(n > 1);");

@@ -228,6 +228,7 @@ OC.L10N.register(
     "Your email address" : "Вашият имейл адрес",
     "Please share anything that will help prepare for our meeting" : "Моля, споделете всичко, което ще помогне да се подготвим за нашата среща",
     "Could not book the appointment. Please try again later or contact the organizer." : "Срещата не можа да резервира. Моля, опитайте отново по-късно или се свържете с организатора.",
+    "Select conversation" : "Избор на разговор",
     "Reminder" : "Напомняне",
     "before at" : "преди в",
     "Notification" : "Известие",
@@ -459,7 +460,6 @@ OC.L10N.register(
     "When shared hide this event" : "При споделяне, скривай това събитие",
     "The visibility of this event in shared calendars." : "Видимостта на това събитие в споделени календари.",
     "Add a location" : "Добавяне на местоположение",
-    "Add a description" : "Добави описание",
     "Status" : "Състояние",
     "Confirmed" : "Потвърдено",
     "Canceled" : "Отказано",
@@ -492,6 +492,7 @@ OC.L10N.register(
     "[Today]" : "[днес]",
     "[Tomorrow]" : "[утре]",
     "[Yesterday]" : "[вчера]",
-    "[Last] dddd" : "[Последен] dddd"
+    "[Last] dddd" : "[Последен] dddd",
+    "Add a description" : "Добави описание"
 },
 "nplurals=2; plural=(n != 1);");

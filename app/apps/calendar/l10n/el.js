@@ -243,6 +243,7 @@ OC.L10N.register(
     "Please share anything that will help prepare for our meeting" : "Παρακαλούμε να μοιραστείτε οτιδήποτε θα βοηθούσε στην προετοιμασία της συνάντησης",
     "Could not book the appointment. Please try again later or contact the organizer." : "Δεν μπορέσαμε να κανουμε την κράτηση του ραντεβού. Παρακαλώ δοκιμάστε ξανά αργότερα ή επικοινωνήστε με τον διοργανωτή",
     "Back" : "Επιστροφή",
+    "Select conversation" : "Επιλέξτε συνομιλία",
     "Reminder" : "Υπενθύμιση",
     "before at" : "πριν από το",
     "Notification" : "Ειδοποίηση",
@@ -501,7 +502,6 @@ OC.L10N.register(
     "When shared hide this event" : "Απόκρυψη αυτού του συμβάντος, όταν κοινοποιείται",
     "The visibility of this event in shared calendars." : "Η ορατότητα του γεγονότος στα ημερολόγια κοινής χρήσης.",
     "Add a location" : "Προσθήκη τοποθεσίας",
-    "Add a description" : "Προσθήκη περιγραφής",
     "Status" : "Κατάσταση",
     "Confirmed" : "Επιβεβαιώθηκε",
     "Canceled" : "Ακυρώθηκε",
@@ -536,6 +536,7 @@ OC.L10N.register(
     "[Today]" : "[Σήμερα]",
     "[Tomorrow]" : "[Αύριο]",
     "[Yesterday]" : "[Χθες]",
-    "[Last] dddd" : "[Last] ηηηη"
+    "[Last] dddd" : "[Last] ηηηη",
+    "Add a description" : "Προσθήκη περιγραφής"
 },
 "nplurals=2; plural=(n != 1);");

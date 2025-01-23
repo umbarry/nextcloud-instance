@@ -236,6 +236,7 @@ OC.L10N.register(
     "Your email address" : "Tu dirección de correo electrónico",
     "Please share anything that will help prepare for our meeting" : "Por favor, comparte cualquier información que ayude a prepararnos para nuestra reunión",
     "Could not book the appointment. Please try again later or contact the organizer." : "No se pudo reservar la cita. Inténtalo de nuevo más tarde o contacta al organizador.",
+    "Select conversation" : "Seleccionar conversación",
     "Reminder" : "Recordatorio",
     "before at" : "antes a las",
     "Notification" : "Notificación",
@@ -471,7 +472,6 @@ OC.L10N.register(
     "When shared hide this event" : "Al compartir, ocultar este evento ",
     "The visibility of this event in shared calendars." : "La visibilidad de este evento en calendarios compartidos.",
     "Add a location" : "Agregar una ubicación",
-    "Add a description" : "Agregar una descripción",
     "Status" : "Estatus",
     "Confirmed" : "Confirmado",
     "Canceled" : "Cancelada",
@@ -504,6 +504,7 @@ OC.L10N.register(
     "[Today]" : "[Hoy]",
     "[Tomorrow]" : "[Mañana]",
     "[Yesterday]" : "[Ayer]",
-    "[Last] dddd" : "[Último] dddd"
+    "[Last] dddd" : "[Último] dddd",
+    "Add a description" : "Agregar una descripción"
 },
 "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

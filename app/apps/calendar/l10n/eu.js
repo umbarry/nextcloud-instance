@@ -258,6 +258,8 @@ OC.L10N.register(
     "Could not book the appointment. Please try again later or contact the organizer." : "Ezin izan da hitzordua erreserbatu. Saiatu berriro geroago edo jarri harremanetan administratzalearekin.",
     "Back" : "Itzuli",
     "Book appointment" : "Erreserbatu hitzordua",
+    "Create a new conversation" : "Sortu elkarrizketa berri bat",
+    "Select conversation" : "Hautatu elkarrizketa",
     "Reminder" : "Gogorarazpena",
     "before at" : "lehenago hemen",
     "Notification" : "Jakinarazpena",
@@ -531,7 +533,6 @@ OC.L10N.register(
     "When shared hide this event" : "Partekatzean ezkutatu gertaera hau",
     "The visibility of this event in shared calendars." : "Gertaera honen ikusgarritasuna egutegi partekatuetan",
     "Add a location" : "Gehitu kokapen bat",
-    "Add a description" : "Gehitu deskribapena",
     "Status" : "Egoera",
     "Confirmed" : "Berretsita",
     "Canceled" : "Utzita",
@@ -568,6 +569,7 @@ OC.L10N.register(
     "[Today]" : "[Today]",
     "[Tomorrow]" : "[Tomorrow]",
     "[Yesterday]" : "[Yesterday]",
-    "[Last] dddd" : "[Last] dddd"
+    "[Last] dddd" : "[Last] dddd",
+    "Add a description" : "Gehitu deskribapena"
 },
 "nplurals=2; plural=(n != 1);");

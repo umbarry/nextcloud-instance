@@ -79,6 +79,8 @@ OC.L10N.register(
     "Update" : "Metre a jorn",
     "Your name" : "Vòstre nom",
     "Your email address" : "Vòstra adreça electronica",
+    "Create a new conversation" : "Crear una conversacion novèla",
+    "Select conversation" : "Seleccionar una conversacion",
     "Reminder" : "Recòrd",
     "Notification" : "Notificacion",
     "Email" : "Adreça corrièl",
@@ -162,7 +164,6 @@ OC.L10N.register(
     "Untitled task" : "Prètzfach sens nom",
     "Other" : "Autre",
     "Add a location" : "Apondre un lòc",
-    "Add a description" : "Apondre una descripcion",
     "Status" : "Estat",
     "Confirmed" : "Confirmat",
     "Canceled" : "Anullat",
@@ -174,6 +175,7 @@ OC.L10N.register(
     "[Today]" : "[Uèi]",
     "[Tomorrow]" : "[Deman]",
     "[Yesterday]" : "[Ièr]",
-    "[Last] dddd" : "dddd [passat]"
+    "[Last] dddd" : "dddd [passat]",
+    "Add a description" : "Apondre una descripcion"
 },
 "nplurals=2; plural=(n > 1);");

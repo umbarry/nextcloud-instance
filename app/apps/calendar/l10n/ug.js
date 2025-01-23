@@ -245,6 +245,8 @@ OC.L10N.register(
     "Please share anything that will help prepare for our meeting" : "ئۇچرىشىشىمىزغا تەييارلىق قىلىشقا ياردىمى بولىدىغان نەرسىلەرنى ئورتاقلىشىڭ",
     "Could not book the appointment. Please try again later or contact the organizer." : "ئۇچرىشىشنى زاكاز قىلالمىدى. كېيىن قايتا سىناڭ ياكى تەشكىللىگۈچى بىلەن ئالاقىلىشىڭ.",
     "Back" : "قايتىش",
+    "Create a new conversation" : "يېڭى سۆھبەت قۇر",
+    "Select conversation" : "سۆھبەتنى تاللاڭ",
     "Reminder" : "ئەسكەرتىش",
     "before at" : "before at",
     "Notification" : "ئۇقتۇرۇش",
@@ -493,7 +495,6 @@ OC.L10N.register(
     "When shared hide this event" : "ئورتاقلاشقاندا بۇ پائالىيەتنى يوشۇرۇڭ",
     "The visibility of this event in shared calendars." : "ئورتاق كالېنداردا بۇ پائالىيەتنىڭ كۆرۈنۈشچانلىقى.",
     "Add a location" : "ئورۇن قوشۇڭ",
-    "Add a description" : "چۈشەندۈرۈش قوشۇڭ",
     "Status" : "ھالەت",
     "Confirmed" : "جەزملەشتۈرۈلدى",
     "Canceled" : "ئەمەلدىن قالدۇرۇلدى",
@@ -521,6 +522,7 @@ OC.L10N.register(
     "Select date" : "چېسلانى تاللاڭ",
     "[Today]" : "[بۈگۈن]",
     "[Tomorrow]" : "[ئەتە]",
-    "[Yesterday]" : "[تۈنۈگۈن]"
+    "[Yesterday]" : "[تۈنۈگۈن]",
+    "Add a description" : "چۈشەندۈرۈش قوشۇڭ"
 },
 "nplurals=2; plural=(n != 1);");

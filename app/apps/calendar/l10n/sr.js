@@ -258,6 +258,8 @@ OC.L10N.register(
     "Could not book the appointment. Please try again later or contact the organizer." : "Састанак није могао да се закаже. Молимо вас покушајте касније поново, или се обратите организатору.",
     "Back" : "Назад",
     "Book appointment" : "Закажи састанак",
+    "Create a new conversation" : "Креирај нови разговор",
+    "Select conversation" : "Одаберите разговор",
     "Reminder" : "Подсетник",
     "before at" : "раније у",
     "Notification" : "Обавештење",
@@ -531,7 +533,6 @@ OC.L10N.register(
     "When shared hide this event" : "Сакриј догађај када је догађај дељен",
     "The visibility of this event in shared calendars." : "Видљивост овог догађаја у дељеним календарима.",
     "Add a location" : "Додај локацију",
-    "Add a description" : "Додај опис",
     "Status" : "Статус",
     "Confirmed" : "Потврђен",
     "Canceled" : "Отказано",
@@ -568,6 +569,7 @@ OC.L10N.register(
     "[Today]" : "[Данас]",
     "[Tomorrow]" : "[Сутра]",
     "[Yesterday]" : "[Јуче]",
-    "[Last] dddd" : "[Последњи] dddd"
+    "[Last] dddd" : "[Последњи] dddd",
+    "Add a description" : "Додај опис"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

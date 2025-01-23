@@ -242,6 +242,8 @@ OC.L10N.register(
     "Please share anything that will help prepare for our meeting" : "Jaa mitä tahansa, mikä auttaa valmistautumaan kokoukseen",
     "Could not book the appointment. Please try again later or contact the organizer." : "Tapaamista ei voitu kirjata. Ole hyvä ja yritä myöhemmin uudelleen tai ota yhteyttä järjestäjään.",
     "Back" : "Takaisin",
+    "Create a new conversation" : "Luo uusi keskustelu",
+    "Select conversation" : "Valitse keskustelu",
     "Reminder" : "Muistutus",
     "before at" : "ennen",
     "Notification" : "Ilmoitus",
@@ -497,7 +499,6 @@ OC.L10N.register(
     "When shared hide this event" : "Jaettaessa piilota tämä tapahtuma",
     "The visibility of this event in shared calendars." : "Tämän tapahtuman näkyvyys jaetuissa kalentereissa.",
     "Add a location" : "Lisää sijainti",
-    "Add a description" : "Lisää kuvaus",
     "Status" : "Tila",
     "Confirmed" : "Vahvistettu",
     "Canceled" : "Peruttu",
@@ -533,6 +534,7 @@ OC.L10N.register(
     "[Today]" : "[Tänään]",
     "[Tomorrow]" : "[Huomenna]",
     "[Yesterday]" : "[Eilen]",
-    "[Last] dddd" : "[Viimeinen] dddd"
+    "[Last] dddd" : "[Viimeinen] dddd",
+    "Add a description" : "Lisää kuvaus"
 },
 "nplurals=2; plural=(n != 1);");

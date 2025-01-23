@@ -258,6 +258,8 @@ OC.L10N.register(
     "Could not book the appointment. Please try again later or contact the organizer." : "Termin konnte nicht gebucht werden. Bitte versuche es später erneut oder wende dich an den Organisator.",
     "Back" : "Zurück",
     "Book appointment" : "Termin buchen",
+    "Create a new conversation" : "Neue Unterhaltung erstellen",
+    "Select conversation" : "Unterhaltung auswählen",
     "Reminder" : "Erinnerung",
     "before at" : "vorher um",
     "Notification" : "Benachrichtigung",
@@ -351,6 +353,7 @@ OC.L10N.register(
     "Search for emails, users, contacts, teams or groups" : "Nach E-Mails, Benutzern, Kontakten, Teams oder Gruppen suchen",
     "No match found" : "Keine Übereinstimmung gefunden",
     "Note that members of circles get invited but are not synced yet." : "Beachte, dass Mitglieder von Kreisen eingeladen werden, aber noch nicht synchronisiert sind.",
+    "Note that members of contact groups get invited but are not synced yet." : "Beachte, dass Mitglieder von Kontaktgruppen eingeladen werden, aber noch nicht synchronisiert sind.",
     "(organizer)" : "(Organisator)",
     "Make {label} the organizer" : "{label} zum Organisator ernennen",
     "Make {label} the organizer and attend" : "{label} zum Organisator ernennen und teilnehmen",
@@ -530,7 +533,7 @@ OC.L10N.register(
     "When shared hide this event" : "Wenn geteilt, zeige diesen Termin nicht an",
     "The visibility of this event in shared calendars." : "Sichtbarkeit dieses Termins in geteilten Kalendern.",
     "Add a location" : "Ort hinzufügen",
-    "Add a description" : "Beschreibung hinzufügen",
+    "Add a description\n\n- What is this meeting about\n- Agenda items\n- Anything participants need to prepare" : "Beschreibung hinzufügen\n\n- Thema des Treffens\n- Tagesordnungspunkte\n- Alles, was die Teilnehmer vorbereiten müssen",
     "Status" : "Status",
     "Confirmed" : "Bestätigt",
     "Canceled" : "Abgesagt",
@@ -567,6 +570,7 @@ OC.L10N.register(
     "[Today]" : "[Heute]",
     "[Tomorrow]" : "[Morgen]",
     "[Yesterday]" : "[Gestern]",
-    "[Last] dddd" : "[Letzten] dddd"
+    "[Last] dddd" : "[Letzten] dddd",
+    "Add a description" : "Beschreibung hinzufügen"
 },
 "nplurals=2; plural=(n != 1);");

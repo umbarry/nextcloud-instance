@@ -204,6 +204,7 @@ OC.L10N.register(
     "Your email address" : "Jūsų el. pašto adresas",
     "Please share anything that will help prepare for our meeting" : "Pasidalinkite informacija, kuri padės mums pasiruošti šiam susitikimui",
     "Back" : "Atgal",
+    "Create a new conversation" : "Sukurti naują pokalbį",
     "Reminder" : "Priminimas",
     "before at" : "prieš įvykį, ties",
     "Notification" : "Pranešimas",
@@ -236,6 +237,7 @@ OC.L10N.register(
     "Done" : "Atlikta",
     "chairperson" : "pirmininkas",
     "{organizer} (organizer)" : "{organizer} (organizatorius)",
+    "{attendee} ({role})" : "{attendee} ({role})",
     "Free" : "Laisvas laikas",
     "Busy (tentative)" : "Užimtas laikas (preliminariai)",
     "Busy" : "Užimtas laikas",
@@ -297,6 +299,7 @@ OC.L10N.register(
     "Has a whiteboard" : "Yra rašymo lenta",
     "Wheelchair accessible" : "Prieiga neįgaliųjų vežimėliu",
     "Remove resource" : "Šalinti išteklių",
+    "Show all rooms" : "Rodyti visus kambarius",
     "Projector" : "Projektorius",
     "Whiteboard" : "Rašymo lenta",
     "Search for resources or rooms" : "Ieškoti išteklių ar kambarių",
@@ -340,6 +343,7 @@ OC.L10N.register(
     "Untitled event" : "Įvykis be pavadinimo",
     "Subscribe to {name}" : "Prenumeruoti {name}",
     "Export {name}" : "Eksportuoti {name}",
+    "Show availability" : "Rodyti prieinamumą",
     "Anniversary" : "Metinės",
     "Appointment" : "Paskyrimas",
     "Business" : "Verslas",
@@ -401,7 +405,6 @@ OC.L10N.register(
     "When shared hide this event" : "Bendrinant, slėpti šį įvykį",
     "The visibility of this event in shared calendars." : "Šio įvykio matomumas bendrinamuose kalendoriuose.",
     "Add a location" : "Pridėti vietą",
-    "Add a description" : "Pridėti aprašą",
     "Status" : "Būsena",
     "Confirmed" : "Patvirtintas",
     "Canceled" : "Atsisakytas",
@@ -432,6 +435,7 @@ OC.L10N.register(
     "[Today]" : "[Šiandien]",
     "[Tomorrow]" : "[Rytoj]",
     "[Yesterday]" : "[Vakar]",
-    "[Last] dddd" : "[Paskutinis] dddd"
+    "[Last] dddd" : "[Paskutinis] dddd",
+    "Add a description" : "Pridėti aprašą"
 },
 "nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < 11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? 1 : n % 1 != 0 ? 2: 3);");

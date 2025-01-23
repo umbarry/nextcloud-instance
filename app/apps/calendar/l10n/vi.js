@@ -192,6 +192,7 @@ OC.L10N.register(
     "Please share anything that will help prepare for our meeting" : "Vui lòng chia sẻ bất cứ gì có thể giúp cho việc chuẩn bị cho cuộc hẹn  ",
     "Could not book the appointment. Please try again later or contact the organizer." : "Không thể đặt lịch hẹn. Vui lòng thử lại sau hoặc liên hệ với người tổ chức.",
     "Back" : "Trở lại",
+    "Select conversation" : "Chọn cuộc trò chuyện",
     "Reminder" : "Lịch nhắc hẹn",
     "before at" : "trước lúc",
     "Notification" : "Thông báo",
@@ -403,7 +404,6 @@ OC.L10N.register(
     "When shared hide this event" : "Khi được chia sẻ thì ẩn sự kiện này đi",
     "The visibility of this event in shared calendars." : "Khả năng nhìn thấy của sự kiện này trong các lịch được chia sẻ",
     "Add a location" : "Thêm vào một địa điểm",
-    "Add a description" : "Thêm vào một mô tả",
     "Status" : "Trạng thái",
     "Confirmed" : "Đã xác nhận",
     "Canceled" : "Đã bị hủy",
@@ -432,6 +432,7 @@ OC.L10N.register(
     "[Today]" : "[Hôm nay]",
     "[Tomorrow]" : "[Ngày mai]",
     "[Yesterday]" : "[Hôm qua]",
-    "[Last] dddd" : "[Trước] dddd"
+    "[Last] dddd" : "[Trước] dddd",
+    "Add a description" : "Thêm vào một mô tả"
 },
 "nplurals=1; plural=0;");

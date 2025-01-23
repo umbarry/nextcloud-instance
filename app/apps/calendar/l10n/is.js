@@ -240,6 +240,7 @@ OC.L10N.register(
     "Please share anything that will help prepare for our meeting" : "Deildu með okkur hverju því sem getur hjálpað við að undirbúa fundinn",
     "Could not book the appointment. Please try again later or contact the organizer." : "Gat ekki bókað stefnumótið. Reyndu aftur seinna eða hafðu samband við skipuleggjendurna.",
     "Back" : "Til baka",
+    "Select conversation" : "Veldu samtal",
     "Reminder" : "Áminning",
     "before at" : "á undan klukkan",
     "Notification" : "Tilkynning",
@@ -476,7 +477,6 @@ OC.L10N.register(
     "When shared hide this event" : "Þegar er deilt, fela þennan atburð",
     "The visibility of this event in shared calendars." : "Sýnileiki þessa atburðar í sameiginlegum dagatölum",
     "Add a location" : "Bæta við staðsetningu",
-    "Add a description" : "Settu inn lýsingu",
     "Status" : "Staða",
     "Confirmed" : "Staðfest",
     "Canceled" : "Hætt við",
@@ -510,6 +510,7 @@ OC.L10N.register(
     "[Today]" : "[Í dag]",
     "[Tomorrow]" : "[Á morgun]",
     "[Yesterday]" : "[Í gær]",
-    "[Last] dddd" : "[Síðasta] dddd"
+    "[Last] dddd" : "[Síðasta] dddd",
+    "Add a description" : "Settu inn lýsingu"
 },
 "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);");

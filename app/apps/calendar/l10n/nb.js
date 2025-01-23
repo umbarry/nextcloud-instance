@@ -251,6 +251,8 @@ OC.L10N.register(
     "Please share anything that will help prepare for our meeting" : "Vennligst del alt som vil hjelpe deg med å forberede møtet vårt",
     "Could not book the appointment. Please try again later or contact the organizer." : "Kunne ikke bestille time. Prøv igjen senere eller kontakt arrangøren.",
     "Back" : "Tilbake",
+    "Create a new conversation" : "Opprett en ny samtale",
+    "Select conversation" : "Velg samtale",
     "Reminder" : "Påminnelse",
     "before at" : "før ved",
     "Notification" : "Varsel",
@@ -523,7 +525,6 @@ OC.L10N.register(
     "When shared hide this event" : "Skjul denne hendelsen om den deles",
     "The visibility of this event in shared calendars." : "Synlighet for denne oppføringen i delte kalendere",
     "Add a location" : "Legg til et sted",
-    "Add a description" : "Legg til en beskrivelse",
     "Status" : "Status",
     "Confirmed" : "Bekreftet",
     "Canceled" : "Avbrutt",
@@ -560,6 +561,7 @@ OC.L10N.register(
     "[Today]" : "[Today]",
     "[Tomorrow]" : "[Tomorrow]",
     "[Yesterday]" : "[Yesterday]",
-    "[Last] dddd" : "[Last] dddd"
+    "[Last] dddd" : "[Last] dddd",
+    "Add a description" : "Legg til en beskrivelse"
 },
 "nplurals=2; plural=(n != 1);");

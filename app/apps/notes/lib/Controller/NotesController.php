@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2013 Bernhard Posselt <nukeawhale@gmail.com>
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\Notes\Controller;
 
 use OCA\Notes\Service\Note;
@@ -38,7 +44,7 @@ class NotesController extends Controller {
 		Helper $helper,
 		IConfig $settings,
 		IL10N $l10n,
-		IMimeTypeDetector $mimeTypeDetector
+		IMimeTypeDetector $mimeTypeDetector,
 	) {
 		parent::__construct($AppName, $request);
 		$this->notesService = $notesService;
@@ -71,7 +77,7 @@ class NotesController extends Controller {
 				$nac = $this->helper->getNotesAndCategories($pruneBefore, [ 'etag', 'content' ]);
 			} catch (\Throwable $e) {
 				$this->helper->logException($e);
-				$errorMessage = $this->l10n->t('Reading notes from filesystem has failed.').' ('.get_class($e).')';
+				$errorMessage = $this->l10n->t('Reading notes from filesystem has failed.') . ' (' . get_class($e) . ')';
 			}
 
 			if ($errorMessage === null && $lastViewedNote
@@ -176,7 +182,7 @@ class NotesController extends Controller {
 		string $content,
 		string $category,
 		int $modified,
-		bool $favorite
+		bool $favorite,
 	) : JSONResponse {
 		return $this->helper->handleErrorResponse(function () use (
 			$id,
@@ -245,7 +251,7 @@ class NotesController extends Controller {
 		?int $modified = null,
 		?string $title = null,
 		?string $category = null,
-		?bool $favorite = null
+		?bool $favorite = null,
 	) : JSONResponse {
 		return $this->helper->handleErrorResponse(function () use (
 			$id,
@@ -271,7 +277,10 @@ class NotesController extends Controller {
 							$note->setTitle($title);
 						});
 					}
-					$result = $note->getTitle();
+					$result = [
+						'title' => $note->getTitle(),
+						'internalPath' => $note->getData()['internalPath'], // based on the title
+					];
 					break;
 
 				case 'category':

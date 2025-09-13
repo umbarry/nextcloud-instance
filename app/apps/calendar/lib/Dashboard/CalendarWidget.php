@@ -60,6 +60,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getId(): string {
 		return Application::APP_ID;
 	}
@@ -67,6 +68,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getTitle(): string {
 		return $this->l10n->t('Upcoming events');
 	}
@@ -74,6 +76,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getOrder(): int {
 		return 2;
 	}
@@ -81,6 +84,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getIconClass(): string {
 		return 'app-icon-calendar';
 	}
@@ -88,6 +92,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getUrl(): ?string {
 		return null;
 	}
@@ -95,6 +100,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getIconUrl(): string {
 		return $this->urlGenerator->getAbsoluteURL(
 			$this->urlGenerator->imagePath(Application::APP_ID, 'calendar-dark.svg')
@@ -104,10 +110,12 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function load(): void {
 		// No assets need to be loaded anymore as the widget is rendered from the API
 	}
 
+	#[\Override]
 	public function getItems(string $userId, ?string $since = null, int $limit = 7): array {
 		$calendars = $this->calendarManager->getCalendarsForPrincipal('principals/users/' . $userId);
 		$count = count($calendars);
@@ -124,6 +132,12 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 		];
 		$widgetItems = [];
 		foreach ($calendars as $calendar) {
+			if (method_exists($calendar, 'isEnabled') && $calendar->isEnabled() === false) {
+				continue;
+			}
+			if ($calendar->isDeleted()) {
+				continue;
+			}
 			$searchResult = $calendar->search('', [], $options, $limit);
 			foreach ($searchResult as $calendarEvent) {
 				// Find first recurrence in the future
@@ -146,7 +160,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 					$this->dateTimeFormatter->formatTimeSpan(DateTime::createFromImmutable($startDate)),
 					$this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute('calendar.view.index', ['objectId' => $calendarEvent['uid']])),
 					$this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute('calendar.view.getCalendarDotSvg', ['color' => $calendar->getDisplayColor() ?? '#0082c9'])), // default NC blue fallback
-					(string) $startDate->getTimestamp(),
+					(string)$startDate->getTimestamp(),
 				);
 				$widgetItems[] = $widget;
 			}
@@ -162,6 +176,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getItemsV2(string $userId, ?string $since = null, int $limit = 7): WidgetItems {
 		$widgetItems = $this->getItems($userId, $since, $limit);
 
@@ -183,6 +198,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getWidgetButtons(string $userId): array {
 		return [
 			new WidgetButton(
@@ -198,6 +214,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getWidgetOptions(): WidgetOptions {
 		return new WidgetOptions(true);
 	}
@@ -205,6 +222,7 @@ class CalendarWidget implements IAPIWidget, IAPIWidgetV2, IButtonWidget, IIconWi
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getReloadInterval(): int {
 		return 600;
 	}

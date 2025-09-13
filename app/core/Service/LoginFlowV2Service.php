@@ -62,8 +62,12 @@ class LoginFlowV2Service {
 		try {
 			// Decrypt the apptoken
 			$privateKey = $this->crypto->decrypt($data->getPrivateKey(), $pollToken);
-			$appPassword = $this->decryptPassword($data->getAppPassword(), $privateKey);
-		} catch (\Exception $e) {
+		} catch (\Exception) {
+			throw new LoginFlowV2NotFoundException('Apptoken could not be decrypted');
+		}
+
+		$appPassword = $this->decryptPassword($data->getAppPassword(), $privateKey);
+		if ($appPassword === null) {
 			throw new LoginFlowV2NotFoundException('Apptoken could not be decrypted');
 		}
 
@@ -126,7 +130,7 @@ class LoginFlowV2Service {
 			return false;
 		}
 
-		$appPassword = $this->random->generate(72, ISecureRandom::CHAR_UPPER.ISecureRandom::CHAR_LOWER.ISecureRandom::CHAR_DIGITS);
+		$appPassword = $this->random->generate(72, ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_DIGITS);
 		$this->tokenProvider->generateToken(
 			$appPassword,
 			$userId,
@@ -166,8 +170,8 @@ class LoginFlowV2Service {
 
 	public function createTokens(string $userAgent): LoginFlowV2Tokens {
 		$flow = new LoginFlowV2();
-		$pollToken = $this->random->generate(128, ISecureRandom::CHAR_DIGITS.ISecureRandom::CHAR_LOWER.ISecureRandom::CHAR_UPPER);
-		$loginToken = $this->random->generate(128, ISecureRandom::CHAR_DIGITS.ISecureRandom::CHAR_LOWER.ISecureRandom::CHAR_UPPER);
+		$pollToken = $this->random->generate(128, ISecureRandom::CHAR_DIGITS . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER);
+		$loginToken = $this->random->generate(128, ISecureRandom::CHAR_DIGITS . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER);
 		$flow->setPollToken($this->hashToken($pollToken));
 		$flow->setLoginToken($loginToken);
 		$flow->setStarted(0);
@@ -230,10 +234,10 @@ class LoginFlowV2Service {
 		return $encryptedPassword;
 	}
 
-	private function decryptPassword(string $encryptedPassword, string $privateKey): string {
+	private function decryptPassword(string $encryptedPassword, string $privateKey): ?string {
 		$encryptedPassword = base64_decode($encryptedPassword);
-		openssl_private_decrypt($encryptedPassword, $password, $privateKey, OPENSSL_PKCS1_OAEP_PADDING);
+		$success = openssl_private_decrypt($encryptedPassword, $password, $privateKey, OPENSSL_PKCS1_OAEP_PADDING);
 
-		return $password;
+		return $success ? $password : null;
 	}
 }

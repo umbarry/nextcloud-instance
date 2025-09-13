@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\AppAPI\Controller;
 
 use GuzzleHttp\Cookie\CookieJar;
@@ -43,7 +48,7 @@ class ExAppProxyController extends Controller {
 		parent::__construct(Application::APP_ID, $request);
 	}
 
-	private function createProxyResponse(string $path, IResponse $response, $cache = true): ProxyResponse {
+	private function createProxyResponse(string $path, IResponse $response, bool $isHTML, $cache = true): ProxyResponse {
 		$headersToIgnore = ['aa-version', 'ex-app-id', 'authorization-app-api', 'ex-app-version', 'aa-request-id'];
 		$responseHeaders = [];
 		foreach ($response->getHeaders() as $key => $value) {
@@ -53,7 +58,6 @@ class ExAppProxyController extends Controller {
 		}
 		$content = $response->getBody();
 
-		$isHTML = pathinfo($path, PATHINFO_EXTENSION) === 'html';
 		if ($isHTML) {
 			$nonce = $this->nonceManager->getNonce();
 			$content = str_replace(
@@ -71,6 +75,11 @@ class ExAppProxyController extends Controller {
 			if (!empty($mime) && $mime != 'application/octet-stream') {
 				$responseHeaders['Content-Type'] = $mime;
 			}
+		}
+
+		if (isset($responseHeaders['Transfer-Encoding'])
+			&& str_contains(strtolower($responseHeaders['Transfer-Encoding']), 'chunked')) {
+			unset($responseHeaders['Transfer-Encoding']);
 		}
 
 		$proxyResponse = new ProxyResponse($response->getStatusCode(), $responseHeaders, $content);
@@ -93,9 +102,11 @@ class ExAppProxyController extends Controller {
 		if ($exApp === null) {
 			return new NotFoundResponse();
 		}
+		$isHTML = pathinfo($other, PATHINFO_EXTENSION) === 'html';
 
 		$response = $this->service->requestToExApp2(
 			$exApp, '/' . $other, $this->userId, 'GET', queryParams: $_GET, options: [
+				'stream' => !$isHTML, // Can't stream HTML
 				RequestOptions::COOKIES => $this->buildProxyCookiesJar($_COOKIE, $this->service->getExAppDomain($exApp)),
 				RequestOptions::HEADERS => $this->buildHeadersWithExclude($route, getallheaders()),
 				RequestOptions::TIMEOUT => 0,
@@ -107,7 +118,7 @@ class ExAppProxyController extends Controller {
 		}
 
 		$this->processBruteforce($bruteforceProtection, $delay, $response->getStatusCode());
-		return $this->createProxyResponse($other, $response);
+		return $this->createProxyResponse($other, $response, $isHTML);
 	}
 
 	#[PublicPage]
@@ -121,8 +132,10 @@ class ExAppProxyController extends Controller {
 		if ($exApp === null) {
 			return new NotFoundResponse();
 		}
+		$isHTML = pathinfo($other, PATHINFO_EXTENSION) === 'html';
 
 		$options = [
+			'stream' => !$isHTML,
 			RequestOptions::COOKIES => $this->buildProxyCookiesJar($_COOKIE, $this->service->getExAppDomain($exApp)),
 			RequestOptions::HEADERS => $this->buildHeadersWithExclude($route, getallheaders()),
 			RequestOptions::TIMEOUT => 0,
@@ -148,7 +161,7 @@ class ExAppProxyController extends Controller {
 		}
 
 		$this->processBruteforce($bruteforceProtection, $delay, $response->getStatusCode());
-		return $this->createProxyResponse($other, $response);
+		return $this->createProxyResponse($other, $response, $isHTML);
 	}
 
 	#[PublicPage]
@@ -162,9 +175,11 @@ class ExAppProxyController extends Controller {
 		if ($exApp === null) {
 			return new NotFoundResponse();
 		}
+		$isHTML = pathinfo($other, PATHINFO_EXTENSION) === 'html';
 
 		$stream = fopen('php://input', 'r');
 		$options = [
+			'stream' => !$isHTML,
 			RequestOptions::COOKIES => $this->buildProxyCookiesJar($_COOKIE, $this->service->getExAppDomain($exApp)),
 			RequestOptions::BODY => $stream,
 			RequestOptions::HEADERS => $this->buildHeadersWithExclude($route, getallheaders()),
@@ -180,7 +195,7 @@ class ExAppProxyController extends Controller {
 		}
 
 		$this->processBruteforce($bruteforceProtection, $delay, $response->getStatusCode());
-		return $this->createProxyResponse($other, $response);
+		return $this->createProxyResponse($other, $response, $isHTML);
 	}
 
 	#[PublicPage]
@@ -194,9 +209,11 @@ class ExAppProxyController extends Controller {
 		if ($exApp === null) {
 			return new NotFoundResponse();
 		}
+		$isHTML = pathinfo($other, PATHINFO_EXTENSION) === 'html';
 
 		$stream = fopen('php://input', 'r');
 		$options = [
+			'stream' => !$isHTML,
 			RequestOptions::COOKIES => $this->buildProxyCookiesJar($_COOKIE, $this->service->getExAppDomain($exApp)),
 			RequestOptions::BODY => $stream,
 			RequestOptions::HEADERS => $this->buildHeadersWithExclude($route, getallheaders()),
@@ -212,7 +229,7 @@ class ExAppProxyController extends Controller {
 		}
 
 		$this->processBruteforce($bruteforceProtection, $delay, $response->getStatusCode());
-		return $this->createProxyResponse($other, $response);
+		return $this->createProxyResponse($other, $response, $isHTML);
 	}
 
 	private function prepareProxy(
@@ -316,8 +333,13 @@ class ExAppProxyController extends Controller {
 
 	private function buildHeadersWithExclude(array $route, array $headers): array {
 		$headersToExclude = json_decode($route['headers_to_exclude'], true);
+		$headersToExclude = array_map('strtolower', $headersToExclude);
+
 		if (!in_array('x-origin-ip', $headersToExclude)) {
 			$headersToExclude[] = 'x-origin-ip';
+		}
+		if (!in_array('content-length', $headersToExclude)) {
+			$headersToExclude[] = 'content-length';
 		}
 		$headersToExclude[] = 'authorization-app-api';
 		foreach ($headers as $key => $value) {
@@ -325,7 +347,7 @@ class ExAppProxyController extends Controller {
 				unset($headers[$key]);
 			}
 		}
-		$headers['X-Origin-IP'] = $this->request->getRemoteAddress();
+		$headers['x-origin-ip'] = $this->request->getRemoteAddress();
 		return $headers;
 	}
 }

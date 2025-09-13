@@ -90,7 +90,7 @@ class MemberService {
 		FederatedUserService $federatedUserService,
 		MembershipService $membershipService,
 		FederatedEventService $federatedEventService,
-		RemoteStreamService $remoteStreamService
+		RemoteStreamService $remoteStreamService,
 	) {
 		$this->circleRequest = $circleRequest;
 		$this->memberRequest = $memberRequest;
@@ -126,7 +126,7 @@ class MemberService {
 	public function getMemberById(
 		string $memberId,
 		string $circleId = '',
-		?MemberProbe $probe = null
+		?MemberProbe $probe = null,
 	): Member {
 		$this->federatedUserService->mustHaveCurrentUser();
 
@@ -151,7 +151,7 @@ class MemberService {
 	 * @throws InitiatorNotFoundException
 	 * @throws RequestBuilderException
 	 */
-	public function getMembers(string $circleId): array {
+	public function getMembers(string $circleId, bool $fullDetails = false): array {
 		$this->federatedUserService->mustHaveCurrentUser();
 
 		$probe = new MemberProbe();
@@ -164,7 +164,8 @@ class MemberService {
 		return $this->memberRequest->getMembers(
 			$circleId,
 			$this->federatedUserService->getCurrentUser(),
-			$probe
+			$probe,
+			fullDetails: $fullDetails
 		);
 	}
 

@@ -58,14 +58,14 @@ class Installer {
 			throw new \Exception('App not found in any app directory');
 		}
 
-		$basedir = $app['path'].'/'.$appId;
+		$basedir = $app['path'] . '/' . $appId;
 
 		if (is_file($basedir . '/appinfo/database.xml')) {
 			throw new \Exception('The appinfo/database.xml file is not longer supported. Used in ' . $appId);
 		}
 
 		$l = \OCP\Util::getL10N('core');
-		$info = \OCP\Server::get(IAppManager::class)->getAppInfo($basedir . '/appinfo/info.xml', true, $l->getLanguageCode());
+		$info = \OCP\Server::get(IAppManager::class)->getAppInfoByPath($basedir . '/appinfo/info.xml', $l->getLanguageCode());
 
 		if (!is_array($info)) {
 			throw new \Exception(
@@ -122,10 +122,10 @@ class Installer {
 
 		//set remote/public handlers
 		foreach ($info['remote'] as $name => $path) {
-			$config->setAppValue('core', 'remote_'.$name, $info['id'].'/'.$path);
+			$config->setAppValue('core', 'remote_' . $name, $info['id'] . '/' . $path);
 		}
 		foreach ($info['public'] as $name => $path) {
-			$config->setAppValue('core', 'public_'.$name, $info['id'].'/'.$path);
+			$config->setAppValue('core', 'public_' . $name, $info['id'] . '/' . $path);
 		}
 
 		OC_App::setAppTypes($info['id']);
@@ -241,6 +241,10 @@ class Installer {
 
 				// Download the release
 				$tempFile = $this->tempManager->getTemporaryFile('.tar.gz');
+				if ($tempFile === false) {
+					throw new \RuntimeException('Could not create temporary file for downloading app archive.');
+				}
+
 				$timeout = $this->isCLI ? 0 : 120;
 				$client = $this->clientService->newClient();
 				$client->get($app['releases'][0]['download'], ['sink' => $tempFile, 'timeout' => $timeout]);
@@ -252,8 +256,11 @@ class Installer {
 				if ($verified === true) {
 					// Seems to match, let's proceed
 					$extractDir = $this->tempManager->getTemporaryFolder();
-					$archive = new TAR($tempFile);
+					if ($extractDir === false) {
+						throw new \RuntimeException('Could not create temporary directory for unpacking app.');
+					}
 
+					$archive = new TAR($tempFile);
 					if (!$archive->extract($extractDir)) {
 						$errorMessage = 'Could not extract app ' . $appId;
 
@@ -332,6 +339,9 @@ class Installer {
 					}
 					OC_Helper::copyr($extractDir, $baseDir);
 					OC_Helper::rmdirr($extractDir);
+					if (function_exists('opcache_reset')) {
+						opcache_reset();
+					}
 					return;
 				}
 				// Signature does not match
@@ -410,8 +420,8 @@ class Installer {
 		if ($app === false) {
 			return false;
 		}
-		$basedir = $app['path'].'/'.$appId;
-		return file_exists($basedir.'/.git/');
+		$basedir = $app['path'] . '/' . $appId;
+		return file_exists($basedir . '/.git/');
 	}
 
 	/**
@@ -453,7 +463,7 @@ class Installer {
 			OC_Helper::rmdirr($appDir);
 			return true;
 		} else {
-			$this->logger->error('can\'t remove app '.$appId.'. It is not installed.');
+			$this->logger->error('can\'t remove app ' . $appId . '. It is not installed.');
 
 			return false;
 		}
@@ -497,9 +507,9 @@ class Installer {
 		foreach (\OC::$APPSROOTS as $app_dir) {
 			if ($dir = opendir($app_dir['path'])) {
 				while (false !== ($filename = readdir($dir))) {
-					if ($filename[0] !== '.' and is_dir($app_dir['path']."/$filename")) {
-						if (file_exists($app_dir['path']."/$filename/appinfo/info.xml")) {
-							if ($config->getAppValue($filename, "installed_version", null) === null) {
+					if ($filename[0] !== '.' and is_dir($app_dir['path'] . "/$filename")) {
+						if (file_exists($app_dir['path'] . "/$filename/appinfo/info.xml")) {
+							if ($config->getAppValue($filename, 'installed_version', null) === null) {
 								$enabled = $appManager->isDefaultEnabled($filename);
 								if (($enabled || in_array($filename, $appManager->getAlwaysEnabledApps()))
 									  && $config->getAppValue($filename, 'enabled') !== 'no') {
@@ -571,10 +581,10 @@ class Installer {
 
 		//set remote/public handlers
 		foreach ($info['remote'] as $name => $path) {
-			$config->setAppValue('core', 'remote_'.$name, $app.'/'.$path);
+			$config->setAppValue('core', 'remote_' . $name, $app . '/' . $path);
 		}
 		foreach ($info['public'] as $name => $path) {
-			$config->setAppValue('core', 'public_'.$name, $app.'/'.$path);
+			$config->setAppValue('core', 'public_' . $name, $app . '/' . $path);
 		}
 
 		OC_App::setAppTypes($info['id']);

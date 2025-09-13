@@ -53,10 +53,10 @@ class MembersSearch extends Base {
 	protected function configure() {
 		parent::configure();
 		$this->setName('circles:members:search')
-			 ->setDescription('Change the level of a member from a Circle')
-			 ->addArgument('term', InputArgument::REQUIRED, 'term to search')
-			 ->addOption('initiator', '', InputOption::VALUE_REQUIRED, 'set an initiator to the request', '')
-			 ->addOption('status-code', '', InputOption::VALUE_NONE, 'display status code on exception');
+			->setDescription('Change the level of a member from a Circle')
+			->addArgument('term', InputArgument::REQUIRED, 'term to search')
+			->addOption('initiator', '', InputOption::VALUE_REQUIRED, 'set an initiator to the request', '')
+			->addOption('status-code', '', InputOption::VALUE_NONE, 'display status code on exception');
 	}
 
 
@@ -87,20 +87,21 @@ class MembersSearch extends Base {
 		$output = $output->section();
 		$table = new Table($output);
 		$table->setHeaders(['SingleId', 'UserId', 'UserType', 'Instance']);
-		$table->render();
 
+		$rows = [];
 		foreach ($result as $entry) {
 			if (!$result instanceof IFederatedUser) {
 				continue;
 			}
-			$table->appendRow(
-				[
-					$entry->getSingleId(),
-					$entry->getUserId(),
-					Member::$TYPE[$entry->getUserType()],
-					$this->configService->displayInstance($entry->getInstance())
-				]
-			);
+			$rows[] = [
+				$entry->getSingleId(),
+				$entry->getUserId(),
+				Member::$TYPE[$entry->getUserType()],
+				$this->configService->displayInstance($entry->getInstance())
+			];
 		}
+
+		$table->setRows($rows);
+		$table->render();
 	}
 }

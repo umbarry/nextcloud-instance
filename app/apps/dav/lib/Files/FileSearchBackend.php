@@ -13,7 +13,9 @@ use OC\Files\Storage\Wrapper\Jail;
 use OC\Files\View;
 use OCA\DAV\Connector\Sabre\CachingTree;
 use OCA\DAV\Connector\Sabre\Directory;
+use OCA\DAV\Connector\Sabre\File;
 use OCA\DAV\Connector\Sabre\FilesPlugin;
+use OCA\DAV\Connector\Sabre\Server;
 use OCA\DAV\Connector\Sabre\TagsPlugin;
 use OCP\Files\Cache\ICacheEntry;
 use OCP\Files\Folder;
@@ -43,6 +45,7 @@ class FileSearchBackend implements ISearchBackend {
 	public const OPERATOR_LIMIT = 100;
 
 	public function __construct(
+		private Server $server,
 		private CachingTree $tree,
 		private IUser $user,
 		private IRootFolder $rootFolder,
@@ -132,6 +135,7 @@ class FileSearchBackend implements ISearchBackend {
 	 * @param string[] $requestProperties
 	 */
 	public function preloadPropertyFor(array $nodes, array $requestProperties): void {
+		$this->server->emit('preloadProperties', [$nodes, $requestProperties]);
 	}
 
 	private function getFolderForPath(?string $path = null): Folder {
@@ -206,9 +210,9 @@ class FileSearchBackend implements ISearchBackend {
 		/** @var SearchResult[] $nodes */
 		$nodes = array_map(function (Node $node) {
 			if ($node instanceof Folder) {
-				$davNode = new \OCA\DAV\Connector\Sabre\Directory($this->view, $node, $this->tree, $this->shareManager);
+				$davNode = new Directory($this->view, $node, $this->tree, $this->shareManager);
 			} else {
-				$davNode = new \OCA\DAV\Connector\Sabre\File($this->view, $node, $this->shareManager);
+				$davNode = new File($this->view, $node, $this->shareManager);
 			}
 			$path = $this->getHrefForNode($node);
 			$this->tree->cacheNode($davNode, $path);

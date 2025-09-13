@@ -10,6 +10,7 @@ namespace OCA\Files_Sharing\Controller;
 
 use Generator;
 use OC\Collaboration\Collaborators\SearchResult;
+use OC\Share\Share;
 use OCA\Files_Sharing\ResponseDefinitions;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -20,6 +21,7 @@ use OCP\Collaboration\Collaborators\ISearch;
 use OCP\Collaboration\Collaborators\ISearchResult;
 use OCP\Collaboration\Collaborators\SearchResultType;
 use OCP\Constants;
+use OCP\GlobalScale\IConfig as GlobalScaleIConfig;
 use OCP\IConfig;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -65,19 +67,10 @@ class ShareesAPIController extends OCSController {
 
 	protected $reachedEndFor = [];
 
-	/**
-	 * @param string $UserId
-	 * @param string $appName
-	 * @param IRequest $request
-	 * @param IConfig $config
-	 * @param IURLGenerator $urlGenerator
-	 * @param IManager $shareManager
-	 * @param ISearch $collaboratorSearch
-	 */
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		protected string $userId,
+		protected ?string $userId,
 		protected IConfig $config,
 		protected IURLGenerator $urlGenerator,
 		protected IManager $shareManager,
@@ -93,7 +86,7 @@ class ShareesAPIController extends OCSController {
 	 * @param string|null $itemType Limit to specific item types
 	 * @param int $page Page offset for searching
 	 * @param int $perPage Limit amount of search results per page
-	 * @param int|int[]|null $shareType Limit to specific share types
+	 * @param int|list<int>|null $shareType Limit to specific share types
 	 * @param bool $lookup If a global lookup should be performed too
 	 * @return DataResponse<Http::STATUS_OK, Files_SharingShareesSearchResult, array{Link?: string}>
 	 * @throws OCSBadRequestException Invalid search parameters
@@ -174,22 +167,18 @@ class ShareesAPIController extends OCSController {
 		if ($shareType !== null && is_array($shareType)) {
 			$shareTypes = array_intersect($shareTypes, $shareType);
 		} elseif (is_numeric($shareType)) {
-			$shareTypes = array_intersect($shareTypes, [(int) $shareType]);
+			$shareTypes = array_intersect($shareTypes, [(int)$shareType]);
 		}
 		sort($shareTypes);
 
 		$this->limit = $perPage;
 		$this->offset = $perPage * ($page - 1);
 
-		// In global scale mode we always search the loogup server
-		if ($this->config->getSystemValueBool('gs.enabled', false)) {
-			$lookup = true;
-			$this->result['lookupEnabled'] = true;
-		} else {
-			$this->result['lookupEnabled'] = $this->config->getAppValue('files_sharing', 'lookupServerEnabled', 'yes') === 'yes';
-		}
+		// In global scale mode we always search the lookup server
+		$this->result['lookupEnabled'] = \OCP\Server::get(GlobalScaleIConfig::class)->isGlobalScaleEnabled();
+		// TODO: Reconsider using lookup server for non-global-scale federation
 
-		[$result, $hasMoreResults] = $this->collaboratorSearch->search($search, $shareTypes, $lookup, $this->limit, $this->offset);
+		[$result, $hasMoreResults] = $this->collaboratorSearch->search($search, $shareTypes, $this->result['lookupEnabled'], $this->limit, $this->offset);
 
 		// extra treatment for 'exact' subarray, with a single merge expected keys might be lost
 		if (isset($result['exact'])) {
@@ -299,7 +288,7 @@ class ShareesAPIController extends OCSController {
 	 * Find recommended sharees
 	 *
 	 * @param string $itemType Limit to specific item types
-	 * @param int|int[]|null $shareType Limit to specific share types
+	 * @param int|list<int>|null $shareType Limit to specific share types
 	 * @return DataResponse<Http::STATUS_OK, Files_SharingShareesRecommendedResult, array{}>
 	 *
 	 * 200: Recommended sharees returned
@@ -344,7 +333,7 @@ class ShareesAPIController extends OCSController {
 			$shareTypes = array_intersect($shareTypes, $_GET['shareType']);
 			sort($shareTypes);
 		} elseif (is_numeric($shareType)) {
-			$shareTypes = array_intersect($shareTypes, [(int) $shareType]);
+			$shareTypes = array_intersect($shareTypes, [(int)$shareType]);
 			sort($shareTypes);
 		}
 
@@ -362,7 +351,7 @@ class ShareesAPIController extends OCSController {
 	protected function isRemoteSharingAllowed(string $itemType): bool {
 		try {
 			// FIXME: static foo makes unit testing unnecessarily difficult
-			$backend = \OC\Share\Share::getBackend($itemType);
+			$backend = Share::getBackend($itemType);
 			return $backend->isShareTypeAllowed(IShare::TYPE_REMOTE);
 		} catch (\Exception $e) {
 			return false;
@@ -372,7 +361,7 @@ class ShareesAPIController extends OCSController {
 	protected function isRemoteGroupSharingAllowed(string $itemType): bool {
 		try {
 			// FIXME: static foo makes unit testing unnecessarily difficult
-			$backend = \OC\Share\Share::getBackend($itemType);
+			$backend = Share::getBackend($itemType);
 			return $backend->isShareTypeAllowed(IShare::TYPE_REMOTE_GROUP);
 		} catch (\Exception $e) {
 			return false;

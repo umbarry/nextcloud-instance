@@ -4,6 +4,7 @@
  * SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
+
 namespace OCA\Richdocuments\Service;
 
 use OCA\Richdocuments\AppConfig;
@@ -176,7 +177,7 @@ class TemplateFieldService {
 
 		$formFormat = [
 			'name' => 'format',
-			'contents' => $file->getExtension(),
+			'contents' => $format === null ? $file->getExtension() : $format,
 		];
 
 		$form = RemoteOptionsService::getDefaultOptions();
@@ -189,13 +190,6 @@ class TemplateFieldService {
 			);
 
 			$content = $response->getBody();
-
-			if ($format !== null) {
-				$tmp = $this->tempManager->getTemporaryFile();
-				file_put_contents($tmp, $content);
-				$fp = fopen($tmp, 'rb');
-				$content = $this->remoteService->convertTo($file->getName(), $fp, $format);
-			}
 
 			if ($destination !== null) {
 				$this->writeToDestination($destination, $content);

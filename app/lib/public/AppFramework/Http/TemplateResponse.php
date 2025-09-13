@@ -13,9 +13,9 @@ use OCP\AppFramework\Http;
  * Response for a normal template
  * @since 6.0.0
  *
- * @template S of int
+ * @template S of Http::STATUS_*
  * @template H of array<string, mixed>
- * @template-extends Response<int, array<string, mixed>>
+ * @template-extends Response<Http::STATUS_*, array<string, mixed>>
  */
 class TemplateResponse extends Response {
 	/**
@@ -72,7 +72,7 @@ class TemplateResponse extends Response {
 	 * @param string $appName the name of the app to load the template from
 	 * @param string $templateName the name of the template
 	 * @param array $params an array of parameters which should be passed to the
-	 * template
+	 *                      template
 	 * @param string $renderAs how the page should be rendered, defaults to user
 	 * @param S $status
 	 * @param H $headers

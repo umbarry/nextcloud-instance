@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v7.6.2] - 2025-08-17
+
+- **Update**: New reverse geocoding boundaries are available. Run `occ memories:places-setup` to update.
+- **Feature**: Shift+F in the viewer on desktop will enter fullscreen ([#1469](https://github.com/pulsejet/memories/issues/1469))
+- **Bugfix**: Failing location searches in metadata editor
+
+## [v7.6.1] - 2025-07-14
+
+- **Breaking**: The `--folder` argument to the `occ memories:index` has been changed to `--path`
+- **Feature**: Allow right-click on image in viewer ([#1479](https://github.com/pulsejet/memories/issues/1479), [#993](https://github.com/pulsejet/memories/issues/993), [#1398](https://github.com/pulsejet/memories/issues/1398))
+
+## [v7.6.0] - 2025-07-03
+
+- **Feature**: Looping of live photos is now gated behind a user setting ([#1457](https://github.com/pulsejet/memories/issues/1457))
+- **Feature**: Option to hide sharing user from timeline ([#1452](https://github.com/pulsejet/memories/issues/1452))
+- **Fix**: Hide sharing user from public links ([#1452](https://github.com/pulsejet/memories/issues/1452))
+- **Fix**: Broken Google Takeout migration
+- **Fix**: Upload button on Nextcloud 31
+- **Performance**: Fix broken album loading ([#1446](https://github.com/pulsejet/memories/issues/1446), [#1459](https://github.com/pulsejet/memories/issues/1459))
+
+## [v7.5.1] - 2025-02-26
+
+- **Upgrade**: Please run `occ maintenance:repair` after the upgrade is complete.
+- **Feature**: Move to folder can now also copy files ([#1143](https://github.com/pulsejet/memories/pull/1143))
+- **Feature**: Move to folder can now organize files by year-month ([#1143](https://github.com/pulsejet/memories/pull/1143))
+- **Feature**: Mark shared files with the owner's name ([#1266](https://github.com/pulsejet/memories/pull/1266))
+- Compatibility with Nextcloud 31
+
 ## [v7.4.1] - 2024-09-19
 
 - **Feature**: Add filter to view all files without location data in places ([#1124](https://github.com/pulsejet/memories/issues/1124))

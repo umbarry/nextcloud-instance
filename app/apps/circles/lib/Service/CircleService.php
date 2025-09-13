@@ -123,7 +123,7 @@ class CircleService {
 		FederatedEventService $federatedEventService,
 		MemberService $memberService,
 		PermissionService $permissionService,
-		ConfigService $configService
+		ConfigService $configService,
 	) {
 		$this->l10n = $l10n;
 		$this->hasher = $hasher;
@@ -164,7 +164,7 @@ class CircleService {
 		string $name,
 		?FederatedUser $owner = null,
 		bool $personal = false,
-		bool $local = false
+		bool $local = false,
 	): array {
 		$this->federatedUserService->mustHaveCurrentUser();
 		if (is_null($owner)) {
@@ -181,8 +181,8 @@ class CircleService {
 
 		$circle = new Circle();
 		$circle->setName($this->cleanCircleName($name))
-			   ->setSingleId($this->token(ManagedModel::ID_LENGTH))
-			   ->setSource(Member::TYPE_CIRCLE);
+			->setSingleId($this->token(ManagedModel::ID_LENGTH))
+			->setSource(Member::TYPE_CIRCLE);
 
 		if (strlen($circle->getName()) < 3) {
 			throw new CircleNameTooShortException('Circle name is too short');
@@ -202,14 +202,14 @@ class CircleService {
 		$member = new Member();
 		$member->importFromIFederatedUser($owner);
 		$member->setId($this->token(ManagedModel::ID_LENGTH))
-			   ->setCircleId($circle->getSingleId())
-			   ->setLevel(Member::LEVEL_OWNER)
-			   ->setStatus(Member::STATUS_MEMBER);
+			->setCircleId($circle->getSingleId())
+			->setLevel(Member::LEVEL_OWNER)
+			->setStatus(Member::STATUS_MEMBER);
 
 		$this->federatedUserService->setMemberPatron($member);
 
 		$circle->setOwner($member)
-			   ->setInitiator($member);
+			->setInitiator($member);
 
 		$event = new FederatedEvent(CircleCreate::class);
 		$event->setCircle($circle);
@@ -363,6 +363,17 @@ class CircleService {
 		return $event->getOutcome();
 	}
 
+	public function updateDisplayName(string $circleId, string $displayName): array {
+		$circle = $this->getCircle($circleId);
+
+		$event = new FederatedEvent(CircleEdit::class);
+		$event->setCircle($circle);
+		$event->setParams(new SimpleDataStore(['displayName' => $displayName]));
+		$this->federatedEventService->newEvent($event);
+
+		return $event->getOutcome();
+	}
+
 	/**
 	 * @param string $circleId
 	 * @param string $description
@@ -414,7 +425,7 @@ class CircleService {
 
 		$probe = new CircleProbe();
 		$probe->includeNonVisibleCircles()
-			  ->emulateVisitor();
+			->emulateVisitor();
 
 		$circle = $this->circleRequest->getCircle(
 			$circleId,
@@ -457,7 +468,7 @@ class CircleService {
 
 		$probe = new CircleProbe();
 		$probe->includeNonVisibleCircles()
-			  ->emulateVisitor();
+			->emulateVisitor();
 
 		$circle = $this->circleRequest->getCircle(
 			$circleId,
@@ -486,7 +497,7 @@ class CircleService {
 	 */
 	public function getCircle(
 		string $circleId,
-		?CircleProbe $probe = null
+		?CircleProbe $probe = null,
 	): Circle {
 		$this->federatedUserService->mustHaveCurrentUser();
 
@@ -758,7 +769,7 @@ class CircleService {
 	public function probeCircle(
 		string $circleId,
 		?CircleProbe $circleProbe = null,
-		?DataProbe $dataProbe = null
+		?DataProbe $dataProbe = null,
 	): Circle {
 		$this->federatedUserService->mustHaveCurrentUser();
 

@@ -21,7 +21,7 @@ use OCP\FilesMetadata\Event\MetadataLiveEvent;
  */
 class PlaceMetadataProvider implements IEventListener {
 	public function __construct(
-		private MediaPlaceManager $mediaPlaceManager
+		private MediaPlaceManager $mediaPlaceManager,
 	) {
 	}
 
@@ -42,7 +42,7 @@ class PlaceMetadataProvider implements IEventListener {
 
 		if ($event instanceof MetadataBackgroundEvent) {
 			$metadata = $event->getMetadata();
-			$place = $this->mediaPlaceManager->getPlaceForFile($event->getNode()->getId());
+			$place = $this->mediaPlaceManager->getPlaceForMetadata($metadata);
 			if ($place !== null) {
 				$metadata->setString('photos-place', $place, true);
 			}

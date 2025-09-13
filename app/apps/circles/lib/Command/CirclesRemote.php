@@ -84,7 +84,7 @@ class CirclesRemote extends Base {
 		GlobalScaleService $globalScaleService,
 		RemoteStreamService $remoteStreamService,
 		InterfaceService $interfaceService,
-		ConfigService $configService
+		ConfigService $configService,
 	) {
 		parent::__construct();
 
@@ -104,17 +104,17 @@ class CirclesRemote extends Base {
 	protected function configure() {
 		parent::configure();
 		$this->setName('circles:remote')
-			 ->setDescription('remote features')
-			 ->addArgument('host', InputArgument::OPTIONAL, 'host of the remote instance of Nextcloud')
-			 ->addOption(
-			 	'type', '', InputOption::VALUE_REQUIRED, 'set type of remote', RemoteInstance::TYPE_UNKNOWN
-			 )
-			 ->addOption(
-			 	'iface', '', InputOption::VALUE_REQUIRED, 'set interface to use to contact remote',
-			 	InterfaceService::$LIST_IFACE[InterfaceService::IFACE_FRONTAL]
-			 )
-			 ->addOption('yes', '', InputOption::VALUE_NONE, 'silently add the remote instance')
-			 ->addOption('all', '', InputOption::VALUE_NONE, 'display all information');
+			->setDescription('remote features')
+			->addArgument('host', InputArgument::OPTIONAL, 'host of the remote instance of Nextcloud')
+			->addOption(
+				'type', '', InputOption::VALUE_REQUIRED, 'set type of remote', RemoteInstance::TYPE_UNKNOWN
+			)
+			->addOption(
+				'iface', '', InputOption::VALUE_REQUIRED, 'set interface to use to contact remote',
+				InterfaceService::$LIST_IFACE[InterfaceService::IFACE_FRONTAL]
+			)
+			->addOption('yes', '', InputOption::VALUE_NONE, 'silently add the remote instance')
+			->addOption('all', '', InputOption::VALUE_NONE, 'display all information');
 	}
 
 
@@ -261,8 +261,8 @@ class CirclesRemote extends Base {
 
 		if ($remoteSignatory->getUid() !== $localSignatory->getUid()) {
 			$remoteSignatory->setInstance($host)
-							->setType($remoteType)
-							->setInterface($remoteIface);
+				->setType($remoteType)
+				->setInterface($remoteIface);
 
 			try {
 				$stored = new RemoteInstance();
@@ -458,8 +458,8 @@ class CirclesRemote extends Base {
 		$output = $output->section();
 		$table = new Table($output);
 		$table->setHeaders(['Instance', 'Type', 'iface', 'UID', 'Authed', 'Aliases']);
-		$table->render();
 
+		$rows = [];
 		foreach ($instances as $instance) {
 			try {
 				$current = $this->remoteStreamService->retrieveRemoteInstance($instance->getInstance());
@@ -472,17 +472,18 @@ class CirclesRemote extends Base {
 				$currentUid = '<error>' . $e->getMessage() . '</error>';
 			}
 
-			$table->appendRow(
-				[
-					$instance->getInstance(),
-					$instance->getType(),
-					InterfaceService::$LIST_IFACE[$instance->getInterface()],
-					$instance->getUid(),
-					$currentUid,
-					json_encode($instance->getAliases())
-				]
-			);
+			$rows[] = [
+				$instance->getInstance(),
+				$instance->getType(),
+				InterfaceService::$LIST_IFACE[$instance->getInterface()],
+				$instance->getUid(),
+				$currentUid,
+				json_encode($instance->getAliases())
+			];
 		}
+
+		$table->setRows($rows);
+		$table->render();
 	}
 
 

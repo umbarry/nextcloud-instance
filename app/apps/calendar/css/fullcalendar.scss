@@ -29,9 +29,6 @@
 	--fc-today-bg-color: var(--color-main-background) !important;
 	--fc-now-indicator-color: red;
 	--fc-list-event-hover-bg-color: var(--color-background-hover) !important;
-}
-
-.fc {
 	font-family: var(--font-face) !important;
 }
 
@@ -75,6 +72,7 @@
 
 	.fc-event {
 		box-shadow: 0px 0px 0px 1px var(--color-primary-element-light) !important;
+		margin-top: 0px;
 	}
 
 	.fc-daygrid-day-top {
@@ -95,6 +93,8 @@
 // Fix list table
 .fc-list-table td {
 	white-space: normal;
+	/* https://developer.mozilla.org/en-US/docs/Web/CSS/word-break */
+	/* stylelint-disable-next-line declaration-property-value-keyword-no-deprecated */
 	word-break: break-word;
 }
 
@@ -105,7 +105,7 @@
 
 // Padding to account for left navigation toggle
 .fc-list-table .fc-list-day-cushion {
-	padding-left: calc(var(--default-clickable-area) + var(--default-grid-baseline) * 2);
+	padding-inline-start: calc(var(--default-clickable-area) + var(--default-grid-baseline) * 2);
 }
 
 // highlight current day (exclude day view)
@@ -130,7 +130,8 @@
 
 // ### FullCalendar Event adjustments
 .fc-event {
-	padding-left: 3px;
+	padding-inline-start: 3px;
+	border-width: 2px;
 
 	&.fc-event-nc-task-completed,
 	&.fc-event-nc-tentative,
@@ -149,6 +150,7 @@
 
 	.fc-event-title {
 		text-overflow: ellipsis;
+		font-weight: 700;
 	}
 
 	// Reminder icon on events with alarms set
@@ -158,7 +160,7 @@
 			background-position: right;
 			position: absolute;
 			top: 0;
-			right: 0;
+			inset-inline-end: 0;
 			&--light {
 				background-image: var(--icon-calendar-reminder-fffffe)
 			}
@@ -200,6 +202,10 @@
 		max-width: 25vw;
 	}
 
+	svg {
+		margin-inline-end: 2px;
+	}
+
 	@media only screen and (max-width: 767px) {
 		.fc-list-event-location,
 		.fc-list-event-description {
@@ -218,14 +224,10 @@
 	}
 }
 
-// Fix week view
-.fc-col-header-cell {
-	word-break: break-word;
-	white-space: normal;
-}
-
 .fc-timeGridWeek-view {
 	.fc-daygrid-more-link {
+		/* https://developer.mozilla.org/en-US/docs/Web/CSS/word-break */
+		/* stylelint-disable-next-line declaration-property-value-keyword-no-deprecated */
 		word-break: break-all;
 		white-space: normal;
 	}
@@ -252,30 +254,55 @@
 // Fix Month view
 .fc-dayGridMonth-view {
 	.fc-daygrid-more-link {
+		/* https://developer.mozilla.org/en-US/docs/Web/CSS/word-break */
+		/* stylelint-disable-next-line declaration-property-value-keyword-no-deprecated */
 		word-break: break-word;
 		white-space: normal;
 	}
+
 	.fc-daygrid-day-frame {
 		min-height: 150px !important;
 	}
 }
-.fc-daygrid-day-events {
-	position:relative !important;
-}
 
 // Fix week button overlapping with the toggle
 .fc-col-header-cell {
-    padding-top: 10px !important;
+	padding-top: 10px !important;
 }
-.fc-timegrid-axis-cushion  {
+
+.fc-timegrid-axis-cushion {
 	margin-top: 44px;
 }
+
 // Additional workaround for Firefox
 .fc-timegrid-axis.fc-scrollgrid-shrink {
 	height: 65px;
 }
 
-.fc-timegrid-event-harness, .fc-timegrid-event {
+.fc-timegrid-event-harness,
+.fc-timegrid-event {
 	// previously was 1px for no apparent reason
 	margin-bottom: 0;
+}
+
+// Leave some space for dragging
+.fc-timeGridDay-view, .fc-timeGridWeek-view {
+	.fc-event {
+		margin-inline-end: 1vw;
+	}
+
+	.fc-event-mirror {
+		border: none !important;
+	}
+
+	.fc-highlight {
+		background: none !important;
+	}
+
+}
+
+.fc-timeGridDay-view {
+	.fc-event {
+		margin-inline-end: 2vw;
+	}
 }

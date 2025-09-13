@@ -1,24 +1,8 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2018 Arthur Schiwon <blizzz@arthur-schiwon.de>
- *
- * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\WorkflowScript;
@@ -67,7 +51,7 @@ class Operation implements ISpecificOperation {
 		IUserSession $session,
 		IRootFolder $rootFolder,
 		LoggerInterface $logger,
-		IURLGenerator $urlGenerator
+		IURLGenerator $urlGenerator,
 	) {
 		$this->jobList = $jobList;
 		$this->l = $l;
@@ -212,7 +196,7 @@ class Operation implements ISpecificOperation {
 			$nodeID = -1;
 			try {
 				$nodeID = $node->getId();
-			} catch (InvalidPathException | NotFoundException) {
+			} catch (InvalidPathException|NotFoundException) {
 			}
 			$command = str_replace('%i', escapeshellarg((string)$nodeID), $command);
 		}
@@ -253,7 +237,7 @@ class Operation implements ISpecificOperation {
 		try {
 			$nodeID = $node->getId();
 			$storage = $node->getStorage();
-		} catch (NotFoundException | InvalidPathException $e) {
+		} catch (NotFoundException|InvalidPathException $e) {
 			$context = [
 				'app' => Application::APPID,
 				'exception' => $e,
@@ -290,7 +274,7 @@ class Operation implements ISpecificOperation {
 		} elseif (isset($storage) && $storage->instanceOfStorage(SharedStorage::class)) {
 			try {
 				$folder = $this->rootFolder->getUserFolder($owner->getUID());
-			} catch (NotPermittedException | NoUserException $e) {
+			} catch (NotPermittedException|NoUserException $e) {
 				throw new PlaceholderNotSubstituted('n', $e);
 			}
 			$nodes = $folder->getById($nodeID);

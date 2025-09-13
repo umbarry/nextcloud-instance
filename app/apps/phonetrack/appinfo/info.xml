@@ -2908,7 +2908,7 @@ I develop this app during my free time.
 
     </description>
 
-    <version>0.8.2</version>
+    <version>0.9.1</version>
     <licence>agpl</licence>
     <author mail="julien-nc@posteo.net">Julien Veyssier</author>
     <namespace>PhoneTrack</namespace>
@@ -2926,7 +2926,7 @@ I develop this app during my free time.
     <screenshot>https://github.com/julien-nc/phonetrack/raw/main/img/screenshot2.jpg</screenshot>
     <screenshot>https://github.com/julien-nc/phonetrack/raw/main/img/screenshot3.jpg</screenshot>
     <dependencies>
-        <nextcloud min-version="27" max-version="31"/>
+        <nextcloud min-version="30" max-version="32"/>
     </dependencies>
     <background-jobs>
         <job>OCA\PhoneTrack\Cron\AutoExport</job>

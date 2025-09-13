@@ -46,8 +46,8 @@ class EventReader {
 		7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
 	];
 	protected array $relativePositionNamesMap = [
-		1 => 'First', 2 => 'Second', 3 => 'Third', 4 => 'Fourth', 5 => 'Fifty',
-		-1 => 'Last', -2 => 'Second Last', -3 => 'Third Last', -4 => 'Fourth Last', -5 => 'Fifty Last'
+		1 => 'First', 2 => 'Second', 3 => 'Third', 4 => 'Fourth', 5 => 'Fifth',
+		-1 => 'Last', -2 => 'Second Last', -3 => 'Third Last', -4 => 'Fourth Last', -5 => 'Fifth Last'
 	];
 
 	/**
@@ -67,10 +67,12 @@ class EventReader {
 	 * @since 30.0.0
 	 *
 	 * @param VCalendar|VEvent|Array|String $input
-	 * @param string|null     				$uid
-	 * @param DateTimeZone|null    				$timeZone reference timezone for floating dates and times
+	 * @param string|null $uid
+	 * @param DateTimeZone|null $timeZone reference timezone for floating dates and times
 	 */
 	public function __construct(VCalendar|VEvent|array|string $input, ?string $uid = null, ?DateTimeZone $timeZone = null) {
+
+		$timeZoneFactory = new TimeZoneFactory();
 
 		// evaluate if the input is a string and convert it to and vobject if required
 		if (is_string($input)) {
@@ -90,11 +92,11 @@ class EventReader {
 			$events = $input->getByUID($uid);
 			// evaluate if any event where found
 			if (count($events) === 0) {
-				throw new InvalidArgumentException('This VCALENDAR did not have an event with UID: '.$uid);
+				throw new InvalidArgumentException('This VCALENDAR did not have an event with UID: ' . $uid);
 			}
 			// extract calendar timezone
 			if (isset($input->VTIMEZONE) && isset($input->VTIMEZONE->TZID)) {
-				$calendarTimeZone = new DateTimeZone($input->VTIMEZONE->TZID->getValue());
+				$calendarTimeZone = $timeZoneFactory->fromName($input->VTIMEZONE->TZID->getValue());
 			}
 		}
 		// evaluate if input is a collection of event vobjects
@@ -121,15 +123,15 @@ class EventReader {
 			$this->baseEvent = array_shift($events);
 		}
 
-		// determain the event starting time zone
+		// determine the event starting time zone
 		// we require this to align all other dates times
-		// evaluate if timezone paramater was used (treat this as a override)
+		// evaluate if timezone parameter was used (treat this as a override)
 		if ($timeZone !== null) {
 			$this->baseEventStartTimeZone = $timeZone;
 		}
 		// evaluate if event start date has a timezone parameter
 		elseif (isset($this->baseEvent->DTSTART->parameters['TZID'])) {
-			$this->baseEventStartTimeZone = new DateTimeZone($this->baseEvent->DTSTART->parameters['TZID']->getValue());
+			$this->baseEventStartTimeZone = $timeZoneFactory->fromName($this->baseEvent->DTSTART->parameters['TZID']->getValue()) ?? new DateTimeZone('UTC');
 		}
 		// evaluate if event parent calendar has a time zone
 		elseif (isset($calendarTimeZone)) {
@@ -140,15 +142,15 @@ class EventReader {
 			$this->baseEventStartTimeZone = new DateTimeZone('UTC');
 		}
 
-		// determain the event end time zone
+		// determine the event end time zone
 		// we require this to align all other dates and times
-		// evaluate if timezone paramater was used (treat this as a override)
+		// evaluate if timezone parameter was used (treat this as a override)
 		if ($timeZone !== null) {
 			$this->baseEventEndTimeZone = $timeZone;
 		}
 		// evaluate if event end date has a timezone parameter
 		elseif (isset($this->baseEvent->DTEND->parameters['TZID'])) {
-			$this->baseEventEndTimeZone = new DateTimeZone($this->baseEvent->DTEND->parameters['TZID']->getValue());
+			$this->baseEventEndTimeZone = $timeZoneFactory->fromName($this->baseEvent->DTEND->parameters['TZID']->getValue()) ?? new DateTimeZone('UTC');
 		}
 		// evaluate if event parent calendar has a time zone
 		elseif (isset($calendarTimeZone)) {
@@ -306,9 +308,9 @@ class EventReader {
 	 *
 	 * @since 30.0.0
 	 *
-	 * @return string|null				R - Relative or A - Absolute
+	 * @return string|null R - Relative or A - Absolute
 	 */
-	public function recurringPattern(): string | null {
+	public function recurringPattern(): ?string {
 		if ($this->rruleIterator === null && $this->rdateIterator === null) {
 			return null;
 		}
@@ -323,9 +325,9 @@ class EventReader {
 	 *
 	 * @since 30.0.0
 	 *
-	 * @return string|null			daily, weekly, monthly, yearly, fixed
+	 * @return string|null daily, weekly, monthly, yearly, fixed
 	 */
-	public function recurringPrecision(): string | null {
+	public function recurringPrecision(): ?string {
 		if ($this->rruleIterator !== null) {
 			return $this->rruleIterator->precision();
 		}
@@ -342,7 +344,7 @@ class EventReader {
 	 *
 	 * @return int|null
 	 */
-	public function recurringInterval(): int | null {
+	public function recurringInterval(): ?int {
 		return $this->rruleIterator?->interval();
 	}
 
@@ -385,14 +387,14 @@ class EventReader {
 	 *
 	 * @return int|null
 	 */
-	public function recurringConcludesAfter(): int | null {
-		
+	public function recurringConcludesAfter(): ?int {
+
 		// construct count place holder
 		$count = 0;
 		// retrieve and add RRULE iterations count
-		$count += (int) $this->rruleIterator?->concludesAfter();
+		$count += (int)$this->rruleIterator?->concludesAfter();
 		// retrieve and add RDATE iterations count
-		$count += (int) $this->rdateIterator?->concludesAfter();
+		$count += (int)$this->rdateIterator?->concludesAfter();
 		// return count
 		return !empty($count) ? $count : null;
 
@@ -410,7 +412,7 @@ class EventReader {
 	 *
 	 * @return DateTime|null
 	 */
-	public function recurringConcludesOn(): DateTime | null {
+	public function recurringConcludesOn(): ?DateTime {
 
 		if ($this->rruleIterator !== null) {
 			// retrieve rrule conclusion date
@@ -637,7 +639,7 @@ class EventReader {
 	 *
 	 * @return DateTime
 	 */
-	public function recurrenceDate(): DateTime | null {
+	public function recurrenceDate(): ?DateTime {
 		if ($this->recurrenceCurrentDate !== null) {
 			return DateTime::createFromInterface($this->recurrenceCurrentDate);
 		} else {
@@ -756,7 +758,7 @@ class EventReader {
 	 *
 	 * @since 30.0.0
 	 *
-	 * @param DateTimeInterface $dt			date and time to advance
+	 * @param DateTimeInterface $dt date and time to advance
 	 *
 	 * @return void
 	 */

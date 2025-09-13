@@ -15,19 +15,18 @@
 		More information is available in the Activity documentation.
 	</description>
 
-	<version>3.0.0</version>
+	<version>4.0.0</version>
 	<licence>agpl</licence>
 	<author>Frank Karlitschek</author>
 	<author>Joas Schilling</author>
 	<author>Ferdinand Thiessen</author>
 
-	<default_enable />
 	<types>
 		<filesystem />
 	</types>
 
 	<documentation>
-		<admin>https://docs.nextcloud.org/server/stable/admin_manual/configuration_server/activity_configuration.html</admin>
+		<admin>https://docs.nextcloud.com/server/stable/admin_manual/configuration_server/activity_configuration.html</admin>
 	</documentation>
 
 	<category>monitoring</category>
@@ -38,7 +37,7 @@
 	<repository>https://github.com/nextcloud/activity.git</repository>
 
 	<dependencies>
-		<nextcloud min-version="30" max-version="30" />
+		<nextcloud min-version="31" max-version="31" />
 	</dependencies>
 
 	<background-jobs>

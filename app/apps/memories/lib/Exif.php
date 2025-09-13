@@ -6,6 +6,9 @@ namespace OCA\Memories;
 
 use OCA\Memories\AppInfo\Application;
 use OCA\Memories\Service\BinExt;
+use OCA\Memories\Settings\SystemConfig;
+use OCP\EventDispatcher\IEventDispatcher;
+use OCP\Files\Events\Node\NodeWrittenEvent;
 use OCP\Files\File;
 
 class Exif
@@ -170,6 +173,8 @@ class Exif
                 ?? $exif['OffsetTime']
                 ?? $exif['LocationTZID']
                 ?? throw new \Exception();
+
+            /** @psalm-suppress ArgumentTypeCoercion */
             $exifTz = new \DateTimeZone((string) $tzStr);
         } catch (\Exception) {
             $exifTz = null;
@@ -244,7 +249,7 @@ class Exif
         $dt = new \DateTime('@'.$file->getMtime());
 
         // Set timezone to system timezone
-        $tz = getenv('TZ') ?: date_default_timezone_get();
+        $tz = SystemConfig::get('default_timezone') ?: getenv('TZ') ?: date_default_timezone_get();
 
         try {
             $dt->setTimezone(new \DateTimeZone($tz));
@@ -344,21 +349,24 @@ class Exif
             '-api', 'LargeFileSupport=1',
             '-json=-', $path,
         ]);
-        $proc = proc_open($cmd, [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ], $pipes);
 
-        fwrite($pipes[0], $raw);
-        fclose($pipes[0]);
+        try {
+            $output = Util::execSafe2($cmd, self::EXIFTOOL_TIMEOUT, $raw, true, true);
+            $stdout = $output[0];
+            $stderr = $output[1];
+        } catch (\Exception $ex) {
+            error_log("Timeout reading from exiftool: [{$path}]");
 
-        $stdout = self::readOrTimeout($pipes[1], self::EXIFTOOL_TIMEOUT);
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-        proc_terminate($proc);
-        proc_close($proc);
-        if (str_contains($stdout, 'error')) {
+            throw $ex;
+        }
+
+        if (null !== $stderr && str_contains($stderr, 'Error')) {
+            error_log("Exiftool error: {$stderr}");
+
+            throw new \Exception('Could not set exif data: '.$stderr);
+        }
+        if (null === $stdout || str_contains($stdout, 'Error')) {
+            $stdout = $stdout ?? $stderr ?? 'Error: Unknown cmd fail';
             error_log("Exiftool error: {$stdout}");
 
             throw new \Exception('Could not set exif data: '.$stdout);
@@ -386,30 +394,28 @@ class Exif
             $file->putContent(fopen($path, 'r')); // closes the handler
         }
 
+        // Dispatch NodeWrittenEvent to trigger processing by other apps
+        try {
+            $eventDispatcher = \OCP\Server::get(IEventDispatcher::class);
+            $eventDispatcher->dispatchTyped(new NodeWrittenEvent($file));
+        } catch (\Exception) {
+            // Not our problem
+        }
+
         // Touch the file, triggering a reprocess through the hook
         $file->touch();
     }
 
     public static function getBinaryExifProp(string $path, string $prop): string
     {
-        $pipes = [];
-        $proc = proc_open(array_merge(self::getExiftool(), [$prop, '-n', '-b', $path]), [
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ], $pipes);
-        stream_set_blocking($pipes[1], false);
+        $cmd = array_merge(self::getExiftool(), [$prop, '-n', '-b', $path]);
 
         try {
-            return self::readOrTimeout($pipes[1], self::EXIFTOOL_TIMEOUT);
+            return Util::execSafe($cmd, self::EXIFTOOL_TIMEOUT) ?? '';
         } catch (\Exception $ex) {
-            error_log("Exiftool timeout: [{$path}]");
+            error_log("Timeout reading from exiftool: [{$path}]");
 
-            throw new \Exception('Could not read from Exiftool');
-        } finally {
-            fclose($pipes[1]);
-            fclose($pipes[2]);
-            proc_terminate($proc);
-            proc_close($proc);
+            throw $ex;
         }
     }
 
@@ -420,8 +426,6 @@ class Exif
 
     private static function getExiftool(): array
     {
-        putenv('LANG=C'); // set perl lang to suppress warning
-
         return BinExt::getExiftool();
     }
 
@@ -440,36 +444,6 @@ class Exif
         stream_set_blocking(self::$staticPipes[1], false);
     }
 
-    /**
-     * Read from non blocking handle or throw timeout.
-     *
-     * @param resource $handle
-     * @param int      $timeout   milliseconds
-     * @param string   $delimiter null for eof
-     */
-    private static function readOrTimeout($handle, int $timeout, ?string $delimiter = null): string
-    {
-        $buf = '';
-        $waitedMs = 0;
-
-        while ($waitedMs < $timeout && ($delimiter ? !str_ends_with($buf, $delimiter) : !feof($handle))) {
-            $r = stream_get_contents($handle);
-            if (empty($r)) {
-                ++$waitedMs;
-                usleep(1000);
-
-                continue;
-            }
-            $buf .= $r;
-        }
-
-        if ($waitedMs >= $timeout) {
-            throw new \Exception('Timeout');
-        }
-
-        return $buf;
-    }
-
     private static function getExifFromLocalPathWithStaticProc(string $path): array
     {
         // This function should not be called if there is no static process
@@ -486,7 +460,7 @@ class Exif
         $readyToken = "\n{ready}\n";
 
         try {
-            $buf = self::readOrTimeout(self::$staticPipes[1], self::EXIFTOOL_TIMEOUT, $readyToken);
+            $buf = Util::readOrTimeout(self::$staticPipes[1], self::EXIFTOOL_TIMEOUT, $readyToken);
 
             // The output buffer should always contain the ready token
             // (this is the point of readOrTimeout)
@@ -509,27 +483,17 @@ class Exif
 
     private static function getExifFromLocalPathWithSeparateProc(string $path, array $extraArgs = []): array
     {
-        $pipes = [];
-        $proc = proc_open(array_merge(self::getExiftool(), self::EXIFTOOL_ARGS, $extraArgs, [$path]), [
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ], $pipes);
-        stream_set_blocking($pipes[1], false);
+        $cmd = array_merge(self::getExiftool(), self::EXIFTOOL_ARGS, $extraArgs, [$path]);
 
         try {
-            $stdout = self::readOrTimeout($pipes[1], self::EXIFTOOL_TIMEOUT);
-
-            return self::processStdout($stdout);
+            $stdout = Util::execSafe($cmd, self::EXIFTOOL_TIMEOUT) ?? '';
         } catch (\Exception $ex) {
-            error_log("Exiftool timeout: [{$path}]");
+            error_log("Timeout reading from exiftool: [{$path}]");
 
-            throw new \Exception('Could not read from Exiftool');
-        } finally {
-            fclose($pipes[1]);
-            fclose($pipes[2]);
-            proc_terminate($proc);
-            proc_close($proc);
+            throw $ex;
         }
+
+        return self::processStdout($stdout);
     }
 
     /** Get json array from stdout of exiftool */
@@ -537,7 +501,11 @@ class Exif
     {
         $json = json_decode($stdout, true);
         if (!$json) {
-            throw new \Exception('Could not read exif data');
+            throw new \Exception('Failed to parse exiftool output as JSON');
+        }
+
+        if (!\is_array($json) || !\count($json)) {
+            throw new \Exception('Exiftool output is not an array with at least one element');
         }
 
         return $json[0];

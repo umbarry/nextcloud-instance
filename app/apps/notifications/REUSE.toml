@@ -30,25 +30,19 @@ SPDX-FileCopyrightText = "2023 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
-path = [".github/CODEOWNERS", ".github/dependabot.yml", "tests/Integration/base-query-count.txt"]
+path = [".github/CODEOWNERS", ".github/dependabot.yml", "tests/Integration/base-query-count.txt", "tests/Integration/base-query-list.txt"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "none"
 SPDX-License-Identifier = "CC0-1.0"
 
 [[annotations]]
-path = ["docs", ".github/issue_template.md", ".github/contributing.md", "AUTHORS.md", "README.md"]
+path = [".github/issue_template.md", ".github/contributing.md"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2016 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "CC0-1.0"
 
 [[annotations]]
-path = "tests/Integration/features/**.feature"
-precedence = "aggregate"
-SPDX-FileCopyrightText = "2016 Nextcloud GmbH and Nextcloud contributors"
-SPDX-License-Identifier = "CC0-1.0"
-
-[[annotations]]
-path = ["package.json", "package-lock.json", "**/package.json", "**/package-lock.json", "composer.json", "composer.lock", "**/composer.json", "**/composer.lock", ".gitignore", ".l10nignore", "psalm.xml", "tests/psalm-baseline.xml", "vendor-bin/**/composer.json", "vendor-bin/**/composer.lock", ".tx/config", "**/phpunit.xml", "js/vendor.LICENSE.txt", "tsconfig.json"]
+path = ["package.json", "package-lock.json", "**/package.json", "**/package-lock.json", "composer.json", "composer.lock", "**/composer.json", "**/composer.lock", "psalm.xml", "tests/psalm-baseline.xml", ".tx/config", "**/phpunit.xml", "js/vendor.LICENSE.txt"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "none"
 SPDX-License-Identifier = "CC0-1.0"

@@ -9,18 +9,21 @@
 	<id>calendar</id>
 	<name>Calendar</name>
 	<summary>A Calendar app for Nextcloud</summary>
-	<description><![CDATA[The Calendar app is a user interface for Nextcloud's CalDAV server. Easily sync events from various devices with your Nextcloud and edit them online.
+	<description><![CDATA[A Calendar app for Nextcloud. Easily sync events from various devices with your Nextcloud and edit them online.
 
-* 🚀 **Integration with other Nextcloud apps!** Currently Contacts - more to come.
-* 🌐 **WebCal Support!** Want to see your favorite team’s matchdays in your calendar? No problem!
+* 🚀 **Integration with other Nextcloud apps!** Like Contacts, Talk, Tasks, Deck and Circles
+* 🌐 **WebCal Support!** Want to see your favorite team's matchdays in your calendar? No problem!
 * 🙋 **Attendees!** Invite people to your events
-* ⌚️ **Free/Busy!** See when your attendees are available to meet
+* ⌚ **Free/Busy!** See when your attendees are available to meet
 * ⏰ **Reminders!** Get alarms for events inside your browser and via email
-* 🔍 Search! Find your events at ease
-* ☑️ Tasks! See tasks with a due date directly in the calendar
+* 🔍 **Search!** Find your events at ease
+* ☑️ **Tasks!** See tasks or Deck cards with a due date directly in the calendar
+* 🔈 **Talk rooms!** Create an associated Talk room when booking a meeting with just one click
+* 📆 **Appointment booking** Send people a link so they can book an appointment with you [using this app](https://apps.nextcloud.com/apps/appointments)
+* 📎 **Attachments!** Add, upload and view event attachments
 * 🙈 **We’re not reinventing the wheel!** Based on the great [c-dav library](https://github.com/nextcloud/cdav-library), [ical.js](https://github.com/mozilla-comm/ical.js) and [fullcalendar](https://github.com/fullcalendar/fullcalendar) libraries.
 	]]></description>
-	<version>5.0.9</version>
+	<version>5.5.3</version>
 	<licence>agpl</licence>
 	<author homepage="https://github.com/st3iny">Richard Steinmetz</author>
 	<author homepage="https://github.com/SebastianKrupinski">Sebastian Krupinski </author>
@@ -40,8 +43,8 @@
 	<screenshot>https://raw.githubusercontent.com/nextcloud/calendar/main/screenshots/week_room_suggestion.png</screenshot>
 	<screenshot>https://raw.githubusercontent.com/nextcloud/calendar/main/screenshots/week_sidebar.png</screenshot>
 	<dependencies>
-		<php min-version="8.1" max-version="8.3" />
-		<nextcloud min-version="30" max-version="30" />
+		<php min-version="8.1" max-version="8.4" />
+		<nextcloud min-version="30" max-version="32" />
 		<backend>caldav</backend>
 	</dependencies>
 	<background-jobs>

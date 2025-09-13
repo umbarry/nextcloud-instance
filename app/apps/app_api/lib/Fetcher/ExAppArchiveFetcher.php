@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\AppAPI\Fetcher;
 
 use Exception;
@@ -111,7 +116,7 @@ class ExAppArchiveFetcher {
 	}
 
 	public function removeExAppFolder(string $appId): void {
-		foreach ($this->config->getSystemValue('apps_paths') as $appPath) {
+		foreach ($this->config->getSystemValue('apps_paths', []) as $appPath) {
 			if ($appPath['writable']) {
 				if (file_exists($appPath['path'] . '/' . $appId)) {
 					$this->rmdirr($appPath['path'] . '/' . $appId);

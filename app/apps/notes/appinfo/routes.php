@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2013 Bernhard Posselt <nukeawhale@gmail.com>
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 return ['routes' => [
 	//////////  P A G E  //////////
 	[
@@ -177,15 +183,7 @@ return ['routes' => [
 		'url' => '/api/{apiVersion}/settings',
 		'verb' => 'GET',
 		'requirements' => [
-			'apiVersion' => '(v1)',
-		],
-	],
-	[
-		'name' => 'notes_api#fail',
-		'url' => '/api/{catchAll}',
-		'verb' => 'GET',
-		'requirements' => [
-			'catchAll' => '.*',
+			'apiVersion' => '(v1|v1.4)',
 		],
 	],
 	[
@@ -195,6 +193,32 @@ return ['routes' => [
 		'requirements' => [
 			'apiVersion' => '(v0.2|v1)',
 			'path' => '.+',
+		],
+	],
+	[
+		'name' => 'notes_api#getAttachment',
+		'url' => '/api/{apiVersion}/attachment/{noteid}',
+		'verb' => 'GET',
+		'requirements' => [
+			'apiVersion' => '(v1.4)',
+			'noteid' => '\d+'
+		],
+	],
+	[
+		'name' => 'notes_api#uploadFile',
+		'url' => '/api/{apiVersion}/attachment/{noteid}',
+		'verb' => 'POST',
+		'requirements' => [
+			'apiVersion' => '(v1.4)',
+			'noteid' => '\d+'
+		],
+	],
+	[
+		'name' => 'notes_api#fail',
+		'url' => '/api/{catchAll}',
+		'verb' => 'GET',
+		'requirements' => [
+			'catchAll' => '.*',
 		],
 	],
 ]];

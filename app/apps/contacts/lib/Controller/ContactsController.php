@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPDX-FileCopyrightText: 2020 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -14,19 +15,13 @@ use OCP\IRequest;
 use OCP\IURLGenerator;
 
 class ContactsController extends Controller {
-	/** @var IL10N */
-	private $l10n;
 
-	/** @var IURLGenerator */
-	private $urlGenerator;
-
-	public function __construct(IRequest $request,
-		IL10N $l10n,
-		IURLGenerator $urlGenerator) {
+	public function __construct(
+		IRequest $request,
+		private IL10N $l10n,
+		private IURLGenerator $urlGenerator,
+	) {
 		parent::__construct(Application::APP_ID, $request);
-
-		$this->l10n = $l10n;
-		$this->urlGenerator = $urlGenerator;
 	}
 
 
@@ -38,6 +33,11 @@ class ContactsController extends Controller {
 	 * @param string $uuid
 	 */
 	public function direct(string $contact): RedirectResponse {
+		// Keep compatibility with old routing scheme
+		if (str_contains($contact, '~')) {
+			$contact = base64_encode($contact);
+		}
+
 		$url = $this->urlGenerator->getAbsoluteURL(
 			$this->urlGenerator->linkToRoute('contacts.page.index') . $this->l10n->t('All contacts') . '/' . $contact
 		);

@@ -10,6 +10,7 @@ OC.L10N.register(
     "Apps" : "Toeps",
     "Settings" : "Instellings",
     "Log out" : "Meld af",
+    "Accounts" : "Accounts",
     "Email" : "E-pos",
     "Phone" : "Foon",
     "Twitter" : "Twitter",
@@ -26,10 +27,8 @@ OC.L10N.register(
     "Saturday" : "Saterdag",
     "a safe home for all your data" : "’n veilige tuiste vir al u data",
     "Storage is temporarily not available" : "Berging is tydelik nie beskikbaar nie",
-    "Summary" : "Opsomming",
-    "Help" : "Hulp",
-    "Users" : "Gebruikers",
-    "Unknown user" : "Onbekende gebruiker",
-    "Open »%s«" : "Open »%s«"
+    "Images" : "Beelde",
+    "Text" : "Teks",
+    "Summary" : "Opsomming"
 },
 "nplurals=2; plural=(n != 1);");

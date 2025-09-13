@@ -12,8 +12,15 @@ OC.L10N.register(
     "Website" : "Asmel web",
     "Address" : "Adresse",
     "About" : "Γef",
-    "Translate" : "Suqel",
-    "Help" : "Tallalt",
-    "Users" : "Iseqdacen"
+    "Sunday" : "Acer",
+    "Monday" : "Arim",
+    "Tuesday" : "Aram",
+    "Wednesday" : "Ahad",
+    "Thursday" : "Amhad",
+    "Friday" : "Sem",
+    "Saturday" : "Sed",
+    "Images" : "Tugniwin",
+    "Question" : "Asteqsi",
+    "Translate" : "Suqel"
 },
 "nplurals=2; plural=(n != 1);");

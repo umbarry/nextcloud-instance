@@ -7,11 +7,11 @@ OC.L10N.register(
     "Favorites" : "Favorites",
     "Shared with you" : "Shared with you",
     "Tags" : "Tags",
+    "Places" : "ადგილები",
     "Back" : "Back",
     "Save" : "Save",
     "Shared by" : "Shared by",
     "No recommendations. Start typing." : "No recommendations. Start typing.",
-    "Group" : "Group",
     "Copy public link" : "Copy public link",
     "An error occurred" : "An error occurred",
     "Favorite" : "Favorite",
@@ -20,8 +20,9 @@ OC.L10N.register(
     "View" : "View",
     "Unselect all" : "Unselect all",
     "Remove from favorites" : "Remove from favorites",
-    "Add" : "Add",
+    "Last week" : "Last week",
     "Details" : "Details",
-    "Invalid location selected" : "Invalid location selected"
+    "Group" : "Group",
+    "Add" : "Add"
 },
 "nplurals=2; plural=(n!=1);");

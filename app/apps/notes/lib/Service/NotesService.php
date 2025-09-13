@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2013 Bernhard Posselt <nukeawhale@gmail.com>
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\Notes\Service;
 
 use OCP\Files\File;
@@ -17,7 +23,7 @@ class NotesService {
 	public function __construct(
 		MetaService $metaService,
 		SettingsService $settings,
-		NoteUtil $noteUtil
+		NoteUtil $noteUtil,
 	) {
 		$this->metaService = $metaService;
 		$this->settings = $settings;
@@ -67,6 +73,9 @@ class NotesService {
 		}
 	}
 
+	/**
+	 * @throws NoteDoesNotExistException
+	 */
 	public function get(string $userId, int $id) : Note {
 		$customExtension = $this->getCustomExtension($userId);
 		$notesFolder = $this->getNotesFolder($userId);
@@ -159,7 +168,7 @@ class NotesService {
 	private static function gatherNoteFiles(
 		string $customExtension,
 		Folder $folder,
-		string $categoryPrefix = ''
+		string $categoryPrefix = '',
 	) : array {
 		$data = [
 			'files' => [],

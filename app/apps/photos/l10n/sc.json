@@ -17,16 +17,14 @@
     "New album" : "Album nou",
     "_%n item_::_%n photos and videos_" : ["%n elementu","%n fotografias e vìdeos"],
     "No recommendations. Start typing." : "Peruna racumandatzione. Cumintza a iscrìere.",
-    "Group" : "Grupu",
     "Copy the public link" : "Còpia su ligòngiu pùblicu",
     "Copy public link" : "Còpia ligòngiu pùblicu",
     "An error occurred" : "B'at àpidu un'errore",
     "Favorite" : "Preferidu",
     "Open the full size \"{name}\" image" : "Aberi s'immàgine \"{name}\" a mannària prena",
     "Go back" : "In segus",
-    "Back to {folder}" : "Torra a {folder}",
-    "Share this folder" : "Cumpartzi custa cartella",
     "Enable squared photos view" : "Ativa sa visualizatzione a fotos cuadradas",
+    "All folders" : "Totu is cartellas",
     "Home" : "Pàgina printzipale",
     "View" : "Visualiza",
     "Unselect all" : "Deseletziona totu",
@@ -35,9 +33,13 @@
     "No photos in here" : "Peruna fotografia inoghe",
     "No tags yet" : "Ancora peruna eticheta",
     "Photos with tags will show up here" : "Is fotografias etichetadas ant a aparèssere inoghe",
-    "Add" : "Agiunghe",
     "Delete selection" : "Cantzella seletzione",
     "Tagged photos" : "Fotografias etichetadas",
-    "Details" : "Detàllios"
+    "Last week" : "Sa chida passada",
+    "Details" : "Detàllios",
+    "Group" : "Grupu",
+    "Back to {folder}" : "Torra a {folder}",
+    "Share this folder" : "Cumpartzi custa cartella",
+    "Add" : "Agiunghe"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\AppAPI\Command\ExApp;
 
 use OCA\AppAPI\DeployActions\DockerActions;
@@ -11,6 +16,7 @@ use OCA\AppAPI\Fetcher\ExAppFetcher;
 use OCA\AppAPI\Service\AppAPIService;
 use OCA\AppAPI\Service\DaemonConfigService;
 
+use OCA\AppAPI\Service\ExAppDeployOptionsService;
 use OCA\AppAPI\Service\ExAppService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -22,14 +28,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Update extends Command {
 
 	public function __construct(
-		private readonly AppAPIService  	  $service,
-		private readonly ExAppService         $exAppService,
-		private readonly DaemonConfigService  $daemonConfigService,
-		private readonly DockerActions        $dockerActions,
-		private readonly ManualActions        $manualActions,
-		private readonly LoggerInterface      $logger,
-		private readonly ExAppArchiveFetcher  $exAppArchiveFetcher,
-		private readonly ExAppFetcher		  $exAppFetcher,
+		private readonly AppAPIService  	       $service,
+		private readonly ExAppService              $exAppService,
+		private readonly DaemonConfigService       $daemonConfigService,
+		private readonly DockerActions             $dockerActions,
+		private readonly ManualActions             $manualActions,
+		private readonly LoggerInterface           $logger,
+		private readonly ExAppArchiveFetcher       $exAppArchiveFetcher,
+		private readonly ExAppFetcher		       $exAppFetcher,
+		private readonly ExAppDeployOptionsService $exAppDeployOptionsService,
 	) {
 		parent::__construct();
 	}
@@ -45,8 +52,9 @@ class Update extends Command {
 		$this->addOption('force-scopes', null, InputOption::VALUE_NONE, 'Force new ExApp scopes approval[deprecated]');
 		$this->addOption('wait-finish', null, InputOption::VALUE_NONE, 'Wait until finish');
 		$this->addOption('silent', null, InputOption::VALUE_NONE, 'Do not print to console');
-		$this->addOption('all', null, InputOption::VALUE_NONE, 'Update all updatable apps');
+		$this->addOption('all', null, InputOption::VALUE_NONE, 'Updates all enabled and updatable apps');
 		$this->addOption('showonly', null, InputOption::VALUE_NONE, 'Additional flag for "--all" to only show all updatable apps');
+		$this->addOption('include-disabled', null, InputOption::VALUE_NONE, 'Additional flag for "--all" to also update disabled apps');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -84,8 +92,12 @@ class Update extends Command {
 
 	private function updateExApp(InputInterface $input, OutputInterface $output, string $appId): int {
 		$outputConsole = !$input->getOption('silent');
+		$deployOptions = $this->exAppDeployOptionsService->formatDeployOptions(
+			$this->exAppDeployOptionsService->getDeployOptions()
+		);
 		$appInfo = $this->exAppService->getAppInfo(
-			$appId, $input->getOption('info-xml'), $input->getOption('json-info')
+			$appId, $input->getOption('info-xml'), $input->getOption('json-info'),
+			$deployOptions
 		);
 		if (isset($appInfo['error'])) {
 			$this->logger->error($appInfo['error']);
@@ -103,6 +115,15 @@ class Update extends Command {
 				$output->writeln(sprintf('ExApp %s not found.', $appId));
 			}
 			return 1;
+		}
+
+		$includeDisabledApps = $input->getOption('include-disabled');
+		if ($input->getOption('all') && !$exApp->getEnabled() && !$includeDisabledApps) {
+			$this->logger->info(sprintf('ExApp %s is disabled. Update skipped (use --include-disabled to update disabled apps).', $appId));
+			if ($outputConsole) {
+				$output->writeln(sprintf('ExApp %s is disabled. Update skipped (use --include-disabled to update disabled apps).', $appId));
+			}
+			return 0;
 		}
 
 		$daemonConfig = $this->daemonConfigService->getDaemonConfigByName($exApp->getDaemonConfigName());
@@ -140,7 +161,8 @@ class Update extends Command {
 		$exApp->setStatus($status);
 		$this->exAppService->updateExApp($exApp, ['status']);
 
-		if ($exApp->getEnabled()) {
+		$wasEnabled = $exApp->getEnabled();
+		if ($wasEnabled) {
 			if ($this->service->disableExApp($exApp)) {
 				$this->logger->info(sprintf('ExApp %s successfully disabled.', $appId));
 				if ($outputConsole) {
@@ -248,6 +270,19 @@ class Update extends Command {
 		if ($outputConsole) {
 			$output->writeln(sprintf('ExApp %s successfully updated.', $appId));
 		}
+
+		if ($includeDisabledApps) {
+			$exApp = $this->exAppService->getExApp($appId);
+			if (!$wasEnabled && $exApp->getEnabled()) {
+				if ($this->service->disableExApp($exApp)) {
+					$this->logger->info(sprintf('ExApp %s successfully disabled after update.', $appId));
+					if ($outputConsole) {
+						$output->writeln(sprintf('ExApp %s successfully disabled after update.', $appId));
+					}
+				}
+			}
+		}
+
 		return 0;
 	}
 }

@@ -27,6 +27,7 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 	}
 
 
+	#[\Override]
 	public function getId(): string {
 		return 'calendar';
 	}
@@ -34,6 +35,7 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getTitle(): string {
 		return 'Calendar';
 	}
@@ -41,6 +43,7 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getOrder(): int {
 		return 20;
 	}
@@ -48,19 +51,21 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getIconUrl(): string {
 		return $this->urlGenerator->getAbsoluteURL(
 			$this->urlGenerator->imagePath(Application::APP_ID, 'calendar-dark.svg')
 		);
 	}
 
+	#[\Override]
 	public function matchReference(string $referenceText): bool {
 		$start = $this->urlGenerator->getAbsoluteURL('/apps/' . Application::APP_ID);
 		$startIndex = $this->urlGenerator->getAbsoluteURL('/index.php/apps/' . Application::APP_ID);
 		if (preg_match('/^' . preg_quote($start, '/') . '\/p\/[a-zA-Z0-9]+$/i', $referenceText) === 1 || preg_match('/^' . preg_quote($startIndex, '/') . '\/p\/[a-zA-Z0-9]+$/i', $referenceText) === 1) {
 			return true;
 		}
-		
+
 		$start = $this->urlGenerator->getAbsoluteURL('/remote.php/dav/calendars');
 		if (preg_match('/^' . preg_quote($start, '/') . '\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/$/i', $referenceText) === 1) {
 			return true;
@@ -69,6 +74,7 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 		return false;
 	}
 
+	#[\Override]
 	public function resolveReference(string $referenceText): ?IReference {
 		if ($this->matchReference($referenceText)) {
 			$type = $this->getType($referenceText);
@@ -105,7 +111,7 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 					return null;
 			}
 
-		
+
 
 			return $reference;
 		}
@@ -124,7 +130,7 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 		if ($type === 'public') {
 			return "{$this->urlGenerator->getWebroot()}/remote.php/dav/public-calendars/{$data}/";
 		} elseif ($type === 'private' && preg_match('/\/remote.php\/dav\/calendars\/([a-zA-Z0-9-]+)\/([a-zA-Z0-9-]+)\//', $data, $output_array)) {
-			return $this->urlGenerator->getWebroot().$output_array[0];
+			return $this->urlGenerator->getWebroot() . $output_array[0];
 		}
 		return null;
 
@@ -140,6 +146,7 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 		return 'unknown';
 	}
 
+	#[\Override]
 	public function getCachePrefix(string $referenceId): string {
 		return '';
 	}
@@ -147,6 +154,7 @@ class ReferenceProvider extends ADiscoverableReferenceProvider {
 	/**
 	 * @inheritDoc
 	 */
+	#[\Override]
 	public function getCacheKey(string $referenceId): ?string {
 		return $referenceId;
 	}

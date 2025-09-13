@@ -32,12 +32,14 @@ use OCP\Share\IShare;
 use OCP\Util;
 
 class AttachmentService {
-	public function __construct(private IRootFolder $rootFolder,
+	public function __construct(
+		private IRootFolder $rootFolder,
 		private ShareManager $shareManager,
 		private IPreview $previewManager,
 		private IMimeTypeDetector $mimeTypeDetector,
 		private IURLGenerator $urlGenerator,
-		private IFilenameValidator $filenameValidator) {
+		private IFilenameValidator $filenameValidator,
+	) {
 	}
 
 	/**
@@ -101,7 +103,7 @@ class AttachmentService {
 	 * @throws NotPermittedException
 	 * @throws NoUserException
 	 */
-	public function getMediaFile(int $documentId, string $mediaFileName, string $userId): File|null {
+	public function getMediaFile(int $documentId, string $mediaFileName, string $userId): ?File {
 		$textFile = $this->getTextFile($documentId, $userId);
 		return $this->getMediaFullFile($mediaFileName, $textFile);
 	}
@@ -114,7 +116,7 @@ class AttachmentService {
 	 * @throws InvalidPathException
 	 * @throws NoUserException
 	 */
-	public function getMediaFilePublic(int $documentId, string $mediaFileName, string $shareToken): File|null {
+	public function getMediaFilePublic(int $documentId, string $mediaFileName, string $shareToken): ?File {
 		$textFile = $this->getTextFilePublic($documentId, $shareToken);
 		return $this->getMediaFullFile($mediaFileName, $textFile);
 	}
@@ -216,7 +218,11 @@ class AttachmentService {
 			: '?documentId=' . $documentId . $shareTokenUrlString;
 
 		$attachments = [];
-		$userFolder = $userId !== null ? $this->rootFolder->getUserFolder($userId) : null;
+
+		// Folder davPath need to be relative to.
+		$davFolder = $userId !== null
+			? $this->rootFolder->getUserFolder($userId)
+			: $this->getShareFolder($shareToken);
 		foreach ($attachmentDir->getDirectoryListing() as $node) {
 			if (!($node instanceof File)) {
 				// Ignore anything but files
@@ -231,7 +237,7 @@ class AttachmentService {
 				'mimetype' => $node->getMimeType(),
 				'mtime' => $node->getMTime(),
 				'isImage' => $isImage,
-				'davPath' => $userFolder?->getRelativePath($node->getPath()),
+				'davPath' => $davFolder?->getRelativePath($node->getPath()),
 				'fullUrl' => $isImage
 					? $this->urlGenerator->linkToRouteAbsolute('text.Attachment.getImageFile') . $urlParamsBase . '&imageFileName=' . rawurlencode($name) . '&preferRawImage=1'
 					: $this->urlGenerator->linkToRouteAbsolute('text.Attachment.getMediaFile') . $urlParamsBase . '&mediaFileName=' . rawurlencode($name),
@@ -247,10 +253,10 @@ class AttachmentService {
 	/**
 	 * Save an uploaded file in the attachment folder
 	 *
-	 * @param int      $documentId
-	 * @param string   $newFileName
+	 * @param int $documentId
+	 * @param string $newFileName
 	 * @param resource $newFileResource
-	 * @param string   $userId
+	 * @param string $userId
 	 *
 	 * @return array
 	 * @throws InvalidPathException
@@ -366,12 +372,12 @@ class AttachmentService {
 		if ($extension !== '') {
 			while ($dir->nodeExists($uniqueFileName)) {
 				$counter++;
-				$uniqueFileName = preg_replace('/\.' . $extension . '$/', ' (' . $counter . ').' . $extension, $fileName);
+				$uniqueFileName = (string)preg_replace('/\.' . $extension . '$/', ' (' . $counter . ').' . $extension, $fileName);
 			}
 		} else {
 			while ($dir->nodeExists($uniqueFileName)) {
 				$counter++;
-				$uniqueFileName = preg_replace('/$/', ' (' . $counter . ')', $fileName);
+				$uniqueFileName = (string)preg_replace('/$/', ' (' . $counter . ')', $fileName);
 			}
 		}
 		return $uniqueFileName;
@@ -393,8 +399,9 @@ class AttachmentService {
 					[IShare::TYPE_LINK, IShare::TYPE_EMAIL, IShare::TYPE_ROOM],
 					true
 				)
-				&& $share->getPermissions() & Constants::PERMISSION_UPDATE);
-		} catch (ShareNotFound $e) {
+				&& $share->getPermissions() & Constants::PERMISSION_UPDATE
+				&& $share->getNode()->getPermissions() & Constants::PERMISSION_UPDATE);
+		} catch (ShareNotFound|NotFoundException $e) {
 			return false;
 		}
 	}
@@ -474,7 +481,7 @@ class AttachmentService {
 	/**
 	 * Get a user file from file ID
 	 *
-	 * @param int    $documentId
+	 * @param int $documentId
 	 * @param string $userId
 	 *
 	 * @return File
@@ -528,6 +535,35 @@ class AttachmentService {
 	}
 
 	/**
+	 * Get share folder
+	 *
+	 * @param string $shareToken
+	 *
+	 * @throws NotFoundException
+	 */
+	private function getShareFolder(string $shareToken): ?Folder {
+		// is the file shared with this token?
+		try {
+			$share = $this->shareManager->getShareByToken($shareToken);
+			if (in_array($share->getShareType(), [IShare::TYPE_LINK, IShare::TYPE_EMAIL])) {
+				// shared file or folder?
+				if ($share->getNodeType() === 'file') {
+					return null;
+				} elseif ($share->getNodeType() === 'folder') {
+					$folder = $share->getNode();
+					if ($folder instanceof Folder) {
+						return $folder;
+					}
+					throw new NotFoundException('Share folder for ' . $shareToken . ' was not a folder.');
+				}
+			}
+		} catch (ShareNotFound $e) {
+			// same as below
+		}
+		throw new NotFoundException('Share folder for ' . $shareToken . ' was not found.');
+	}
+
+	/**
 	 * Actually delete attachment files which are not pointed in the markdown content
 	 *
 	 * @param int $fileId
@@ -572,7 +608,7 @@ class AttachmentService {
 	 * Get attachment file names listed in the markdown file content
 	 *
 	 * @param string $content
-	 * @param int    $fileId
+	 * @param int $fileId
 	 *
 	 * @return array
 	 */
@@ -640,26 +676,67 @@ class AttachmentService {
 	 * @param File $source
 	 * @param File $target
 	 *
+	 * @return array file id translation map
 	 * @throws InvalidPathException
 	 * @throws NoUserException
 	 * @throws NotFoundException
 	 * @throws NotPermittedException
 	 * @throws LockedException
 	 */
-	public function copyAttachments(File $source, File $target): void {
+	public function copyAttachments(File $source, File $target): array {
 		try {
 			$sourceAttachmentDir = $this->getAttachmentDirectoryForFile($source);
 		} catch (NotFoundException $e) {
 			// silently return if no attachment dir was found for source file
-			return;
+			return [];
 		}
 		// create a new attachment dir next to the new file
 		$targetAttachmentDir = $this->getAttachmentDirectoryForFile($target, true);
 		// copy the attachment files
+		$fileIdMapping = [];
 		foreach ($sourceAttachmentDir->getDirectoryListing() as $sourceAttachment) {
 			if ($sourceAttachment instanceof File) {
-				$targetAttachmentDir->newFile($sourceAttachment->getName(), $sourceAttachment->getContent());
+				$newFile = $targetAttachmentDir->newFile($sourceAttachment->getName(), $sourceAttachment->getContent());
+				$fileIdMapping[] = [
+					$sourceAttachment->getId(),
+					$newFile->getId()
+				];
 			}
+		}
+		return $fileIdMapping;
+	}
+
+	public static function replaceAttachmentFolderId(File $source, File $target): void {
+		$sourceId = $source->getId();
+		$targetId = $target->getId();
+		$patterns = [
+			// Replace `[title](.attachments.1/file.png)` with `[title](attachments.2/file.png)`
+			// '/(\[[^]]+\]\(\s*\<?\.attachments\.)' . $sourceId . '(\/[^)]+\>?\s*\))/',
+			'/(\[(?:\\\]|[^]])+\]\(\s*\<?\.attachments\.)' . $sourceId . '(\/[^)]+\>?\s*\))/',
+			// Replace `[ref]: .attachments.1/file.png` with `[ref]: .attachments.2/file.png`
+			'/(\[(?:\\\]|[^]])+\]:\s+.attachments\.)' . $sourceId . '(\/[^\s]+)/',
+		];
+		$replacements = [
+			'${1}' . $targetId . '${2}',
+			'${1}' . $targetId . '${2}',
+		];
+		$content = preg_replace($patterns, $replacements, $target->getContent());
+		if ($content !== null) {
+			$target->putContent($content);
+		}
+	}
+
+	public static function replaceAttachmentFileIds(File $target, array $fileIdMapping): void {
+		$patterns = [];
+		$replacements = [];
+		foreach ($fileIdMapping as $mapping) {
+			$patterns[] = '/(\[(?:\\\]|[^]])+\]\(\s*\S+\/f\/)' . $mapping[0] . '(\s*)(\(preview\)\s*)?\)/';
+			// Replace `[title](URL/f/sourceId (preview))` with `[title](URL/f/targetId (preview))`
+			$replacements[] = '${1}' . $mapping[1] . '${2}${3})';
+		}
+		$content = preg_replace($patterns, $replacements, $target->getContent());
+		if ($content !== null) {
+			$target->putContent($content);
 		}
 	}
 }

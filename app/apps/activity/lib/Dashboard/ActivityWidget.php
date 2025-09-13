@@ -15,16 +15,18 @@ use OCA\Activity\UserSettings;
 use OCP\Dashboard\IAPIWidget;
 use OCP\Dashboard\IButtonWidget;
 use OCP\Dashboard\IIconWidget;
+use OCP\Dashboard\IOptionWidget;
 use OCP\Dashboard\IReloadableWidget;
 use OCP\Dashboard\Model\WidgetButton;
 use OCP\Dashboard\Model\WidgetItem;
 use OCP\Dashboard\Model\WidgetItems;
+use OCP\Dashboard\Model\WidgetOptions;
 use OCP\IDateTimeFormatter;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Util;
 
-class ActivityWidget implements IAPIWidget, IButtonWidget, IIconWidget, IReloadableWidget {
+class ActivityWidget implements IAPIWidget, IButtonWidget, IIconWidget, IReloadableWidget, IOptionWidget {
 	private Data $data;
 	private IL10N $l10n;
 	private GroupHelper $helper;
@@ -109,7 +111,7 @@ class ActivityWidget implements IAPIWidget, IButtonWidget, IIconWidget, IReloada
 			$this->helper,
 			$this->settings,
 			$userId,
-			$since ? (int) $since : 0,
+			$since ? (int)$since : 0,
 			50,
 			'desc',
 			'by',
@@ -122,7 +124,7 @@ class ActivityWidget implements IAPIWidget, IButtonWidget, IIconWidget, IReloada
 				$this->dateTimeFormatter->formatTimeSpan($activity['timestamp']),
 				$activity['link'],
 				$activity['icon'],
-				(string) $activity['activity_id']
+				(string)$activity['activity_id']
 			);
 		}, array_slice($activities['data'], 0, $limit));
 	}
@@ -137,7 +139,7 @@ class ActivityWidget implements IAPIWidget, IButtonWidget, IIconWidget, IReloada
 			$this->helper,
 			$this->settings,
 			$userId,
-			$since ? (int) $since : 0,
+			$since ? (int)$since : 0,
 			50,
 			'desc',
 			'by',
@@ -160,7 +162,7 @@ class ActivityWidget implements IAPIWidget, IButtonWidget, IIconWidget, IReloada
 				$this->dateTimeFormatter->formatTimeSpan($activity['timestamp']),
 				$activity['link'],
 				$userAvatarUrl,
-				(string) $activity['activity_id'],
+				(string)$activity['activity_id'],
 				$activity['icon'],
 			);
 		}, array_slice($activities['data'], 0, $limit));
@@ -190,5 +192,13 @@ class ActivityWidget implements IAPIWidget, IButtonWidget, IIconWidget, IReloada
 	 */
 	public function getReloadInterval(): int {
 		return 30;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	#[\Override]
+	public function getWidgetOptions(): WidgetOptions {
+		return new WidgetOptions(true);
 	}
 }

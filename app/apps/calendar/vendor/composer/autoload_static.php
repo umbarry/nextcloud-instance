@@ -84,6 +84,7 @@ class ComposerStaticInitCalendar
         'OCA\\Calendar\\Service\\Appointments\\SlotExtrapolator' => __DIR__ . '/../..' . '/lib/Service/Appointments/SlotExtrapolator.php',
         'OCA\\Calendar\\Service\\Appointments\\TimezoneGenerator' => __DIR__ . '/../..' . '/lib/Service/Appointments/TimezoneGenerator.php',
         'OCA\\Calendar\\Service\\CalendarInitialStateService' => __DIR__ . '/../..' . '/lib/Service/CalendarInitialStateService.php',
+        'OCA\\Calendar\\Service\\ContactsService' => __DIR__ . '/../..' . '/lib/Service/ContactsService.php',
         'OCA\\Calendar\\Service\\JSDataService' => __DIR__ . '/../..' . '/lib/Service/JSDataService.php',
         'OCA\\Calendar\\Service\\ServiceException' => __DIR__ . '/../..' . '/lib/Service/ServiceException.php',
     );

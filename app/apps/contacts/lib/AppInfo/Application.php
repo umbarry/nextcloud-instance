@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -6,7 +7,9 @@
 namespace OCA\Contacts\AppInfo;
 
 use OCA\Contacts\Dav\PatchPlugin;
+use OCA\Contacts\Event\LoadContactsOcaApiEvent;
 use OCA\Contacts\Listener\LoadContactsFilesActions;
+use OCA\Contacts\Listener\LoadContactsOcaApi;
 use OCA\Files\Event\LoadAdditionalScriptsEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -28,6 +31,7 @@ class Application extends App implements IBootstrap {
 
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(LoadAdditionalScriptsEvent::class, LoadContactsFilesActions::class);
+		$context->registerEventListener(LoadContactsOcaApiEvent::class, LoadContactsOcaApi::class);
 	}
 
 	public function boot(IBootContext $context): void {

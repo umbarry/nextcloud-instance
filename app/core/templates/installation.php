@@ -38,15 +38,15 @@ script('core', 'install');
 	</fieldset>
 	<?php endif; ?>
 	<fieldset id="adminaccount">
-		<legend><?php print_unescaped($l->t('Create an <strong>admin account</strong>')); ?></legend>
+		<legend><?php print_unescaped($l->t('<strong>Create an admin account</strong>')); ?></legend>
 		<p>
-			<label for="adminlogin"><?php p($l->t('Login')); ?></label>
+			<label for="adminlogin"><?php p($l->t('New admin account name')); ?></label>
 			<input type="text" name="adminlogin" id="adminlogin"
 				value="<?php p($_['adminlogin']); ?>"
 				autocomplete="off" autocapitalize="none" spellcheck="false" autofocus required>
 		</p>
 		<p class="groupbottom">
-			<label for="adminpass"><?php p($l->t('Password')); ?></label>
+			<label for="adminpass"><?php p($l->t('New admin password')); ?></label>
 			<input type="password" name="adminpass" data-typetoggle="#show" id="adminpass"
 				value="<?php p($_['adminpass']); ?>"
 				autocomplete="off" autocapitalize="none" spellcheck="false" required>
@@ -67,7 +67,7 @@ script('core', 'install');
 		<div id="datadirContent">
 			<label for="directory"><?php p($l->t('Data folder')); ?></label>
 			<input type="text" name="directory" id="directory"
-				placeholder="<?php p(OC::$SERVERROOT.'/data'); ?>"
+				placeholder="<?php p(OC::$SERVERROOT . '/data'); ?>"
 				value="<?php p($_['directory']); ?>"
 				autocomplete="off" autocapitalize="none" spellcheck="false">
 		</div>

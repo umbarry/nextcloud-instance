@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPDX-FileCopyrightText: 2017 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -130,7 +131,7 @@ class Circles {
 		$probe->includePersonalCircles($personalCircle);
 		$probe->filterHiddenCircles();
 
-		return $circleService->getCircles($probe);
+		return $circleService->probeCircles($probe);
 	}
 
 

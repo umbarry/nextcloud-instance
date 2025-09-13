@@ -5,11 +5,11 @@ OC.L10N.register(
     "Hello %s," : "Hei %s,",
     "Notifications" : "Meldingar",
     "Dismiss" : "Forkast",
-    "seconds ago" : "sekund sidan",
     "in {path}" : "i {spor}",
     "Never" : "Aldri",
     "Your settings have been updated." : "Innstillingane dine har blitt oppdaterte.",
+    "None" : "Ingen",
     "You need to set up your email address before you can receive notification emails." : "Du må skriva inn e-postadressa di før du kan få e-postvarsel.",
-    "None" : "Ingen"
+    "seconds ago" : "sekund sidan"
 },
 "nplurals=2; plural=(n != 1);");

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
  * SPDX-FileCopyrightText: 2016 ownCloud, Inc.
@@ -24,7 +25,7 @@ class GroupHelper {
 		protected IL10N $l,
 		protected IManager $activityManager,
 		protected IValidator $richObjectValidator,
-		protected LoggerInterface $logger
+		protected LoggerInterface $logger,
 	) {
 	}
 
@@ -41,7 +42,7 @@ class GroupHelper {
 	 * Add an activity to the internal array
 	 */
 	public function addActivity(array $activity): void {
-		$id = (int) $activity['activity_id'];
+		$id = (int)$activity['activity_id'];
 		$event = $this->arrayToEvent($activity);
 		$this->addEvent($id, $event);
 	}
@@ -60,23 +61,31 @@ class GroupHelper {
 				} else {
 					$event = $provider->parse($language, $event);
 				}
+
+				if (!$event->isValidParsed()) {
+					$this->logger->info('Activity event was claimed to be parsed, but was not fully parsed by ' . get_class($provider) . ' [app: ' . $event->getApp() . ', subject: ' . $event->getSubject() . ']', ['app' => $event->getApp()]);
+				}
 			} catch (UnknownActivityException) {
 			} catch (\InvalidArgumentException) {
 				// todo 33.0.0 Log as warning
 				// todo 39.0.0 Log as error
-				$this->logger->debug(get_class($provider) . '::parse() threw \InvalidArgumentException which is deprecated. Throw \OCP\Activity\Exceptions\UnknownActivityException when the event is not known to your provider and otherwise handle all \InvalidArgumentException yourself.');
+				$this->logger->debug(get_class($provider) . '::parse() threw \InvalidArgumentException which is deprecated. Throw \OCP\Activity\Exceptions\UnknownActivityException when the event is not known to your provider and otherwise handle all \InvalidArgumentException yourself.', ['app' => $event->getApp()]);
 			} catch (\Throwable $e) {
-				$this->logger->error('Error while parsing activity event', ['exception' => $e]);
+				$this->logger->error('Error while parsing activity event', ['exception' => $e, 'app' => $event->getApp()]);
 			}
+		}
+
+		if (!$event->isValidParsed()) {
+			$this->logger->info('Activity event was not parsed by any provider [app: ' . $event->getApp() . ', subject: ' . $event->getSubject() . ']', ['app' => $event->getApp()]);
 		}
 
 		try {
 			$this->richObjectValidator->validate($event->getRichSubject(), $event->getRichSubjectParameters());
 		} catch (InvalidObjectExeption $e) {
 			$this->logger->error(
-				$e->getMessage(),
+				'Activity event had invalid subject parameters provided [app: ' . $event->getApp() . ', subject: ' . $event->getSubject() . ']',
 				[
-					'app' => 'activity',
+					'app' => $event->getApp(),
 					'exception' => $e
 				],
 			);
@@ -89,9 +98,9 @@ class GroupHelper {
 				$this->richObjectValidator->validate($event->getRichMessage(), $event->getRichMessageParameters());
 			} catch (InvalidObjectExeption $e) {
 				$this->logger->error(
-					$e->getMessage(),
+					'Activity event had invalid message parameters provided [app: ' . $event->getApp() . ', subject: ' . $event->getSubject() . ']',
 					[
-						'app' => 'activity',
+						'app' => $event->getApp(),
 						'exception' => $e
 					],
 				);
@@ -108,7 +117,7 @@ class GroupHelper {
 		}
 
 		if (!$event->getParsedSubject()) {
-			$this->logger->debug('Activity "' . $event->getRichSubject() . '" was not parsed by any provider');
+			$this->logger->debug('Activity "' . $event->getRichSubject() . '" was not parsed by any provider', ['app' => $event->getApp()]);
 			return;
 		}
 
@@ -142,15 +151,15 @@ class GroupHelper {
 
 	protected function arrayToEvent(array $row): IEvent {
 		$event = $this->activityManager->generateEvent();
-		$event->setApp((string) $row['app'])
-			->setType((string) $row['type'])
-			->setAffectedUser((string) $row['affecteduser'])
-			->setAuthor((string) $row['user'])
-			->setTimestamp((int) $row['timestamp'])
-			->setSubject((string) $row['subject'], (array) json_decode($row['subjectparams'], true))
-			->setMessage((string) $row['message'], (array) json_decode($row['messageparams'], true))
-			->setObject((string) $row['object_type'], (int) $row['object_id'], (string) $row['file'])
-			->setLink((string) $row['link']);
+		$event->setApp((string)$row['app'])
+			->setType((string)$row['type'])
+			->setAffectedUser((string)$row['affecteduser'])
+			->setAuthor((string)$row['user'])
+			->setTimestamp((int)$row['timestamp'])
+			->setSubject((string)$row['subject'], (array)json_decode($row['subjectparams'], true))
+			->setMessage((string)$row['message'], (array)json_decode($row['messageparams'], true))
+			->setObject((string)$row['object_type'], (int)$row['object_id'], (string)$row['file'])
+			->setLink((string)$row['link']);
 
 		return $event;
 	}

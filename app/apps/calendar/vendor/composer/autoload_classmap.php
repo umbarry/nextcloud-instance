@@ -61,6 +61,7 @@ return array(
     'OCA\\Calendar\\Service\\Appointments\\SlotExtrapolator' => $baseDir . '/lib/Service/Appointments/SlotExtrapolator.php',
     'OCA\\Calendar\\Service\\Appointments\\TimezoneGenerator' => $baseDir . '/lib/Service/Appointments/TimezoneGenerator.php',
     'OCA\\Calendar\\Service\\CalendarInitialStateService' => $baseDir . '/lib/Service/CalendarInitialStateService.php',
+    'OCA\\Calendar\\Service\\ContactsService' => $baseDir . '/lib/Service/ContactsService.php',
     'OCA\\Calendar\\Service\\JSDataService' => $baseDir . '/lib/Service/JSDataService.php',
     'OCA\\Calendar\\Service\\ServiceException' => $baseDir . '/lib/Service/ServiceException.php',
 );

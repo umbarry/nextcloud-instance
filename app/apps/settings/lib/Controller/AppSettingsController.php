@@ -6,6 +6,7 @@
  */
 namespace OCA\Settings\Controller;
 
+use OC\App\AppManager;
 use OC\App\AppStore\Bundles\BundleFetcher;
 use OC\App\AppStore\Fetcher\AppDiscoverFetcher;
 use OC\App\AppStore\Fetcher\AppFetcher;
@@ -14,15 +15,12 @@ use OC\App\AppStore\Version\VersionParser;
 use OC\App\DependencyAnalyzer;
 use OC\App\Platform;
 use OC\Installer;
-use OC_App;
 use OCP\App\AppPathNotFoundException;
-use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\OpenAPI;
 use OCP\AppFramework\Http\Attribute\PasswordConfirmationRequired;
-use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\FileDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
@@ -38,12 +36,16 @@ use OCP\Files\SimpleFS\ISimpleFile;
 use OCP\Files\SimpleFS\ISimpleFolder;
 use OCP\Http\Client\IClientService;
 use OCP\IConfig;
+use OCP\IGroup;
 use OCP\IL10N;
 use OCP\INavigationManager;
 use OCP\IRequest;
 use OCP\IURLGenerator;
+use OCP\IUserSession;
 use OCP\L10N\IFactory;
+use OCP\Security\RateLimiting\ILimiter;
 use OCP\Server;
+use OCP\Util;
 use Psr\Log\LoggerInterface;
 
 #[OpenAPI(scope: OpenAPI::SCOPE_IGNORE)]
@@ -61,7 +63,7 @@ class AppSettingsController extends Controller {
 		private IL10N $l10n,
 		private IConfig $config,
 		private INavigationManager $navigationManager,
-		private IAppManager $appManager,
+		private AppManager $appManager,
 		private CategoryFetcher $categoryFetcher,
 		private AppFetcher $appFetcher,
 		private IFactory $l10nFactory,
@@ -104,8 +106,8 @@ class AppSettingsController extends Controller {
 		$templateResponse = new TemplateResponse('settings', 'settings/empty', ['pageTitle' => $this->l10n->t('Settings')]);
 		$templateResponse->setContentSecurityPolicy($policy);
 
-		\OCP\Util::addStyle('settings', 'settings');
-		\OCP\Util::addScript('settings', 'vue-settings-apps-users-management');
+		Util::addStyle('settings', 'settings');
+		Util::addScript('settings', 'vue-settings-apps-users-management');
 
 		return $templateResponse;
 	}
@@ -125,10 +127,11 @@ class AppSettingsController extends Controller {
 	 * @param string $image
 	 * @throws \Exception
 	 */
-	#[PublicPage]
 	#[NoCSRFRequired]
-	public function getAppDiscoverMedia(string $fileName): Response {
-		$etag = $this->discoverFetcher->getETag() ?? date('Y-m');
+	public function getAppDiscoverMedia(string $fileName, ILimiter $limiter, IUserSession $session): Response {
+		$getEtag = $this->discoverFetcher->getETag() ?? date('Y-m');
+		$etag = trim($getEtag, '"');
+
 		$folder = null;
 		try {
 			$folder = $this->appData->getFolder('app-discover-cache');
@@ -155,6 +158,26 @@ class AppSettingsController extends Controller {
 		$file = reset($file);
 		// If not found request from Web
 		if ($file === false) {
+			$user = $session->getUser();
+			// this route is not public thus we can assume a user is logged-in
+			assert($user !== null);
+			// Register a user request to throttle fetching external data
+			// this will prevent using the server for DoS of other systems.
+			$limiter->registerUserRequest(
+				'settings-discover-media',
+				// allow up to 24 media requests per hour
+				// this should be a sane default when a completely new section is loaded
+				// keep in mind browsers request all files from a source-set
+				24,
+				60 * 60,
+				$user,
+			);
+
+			if (!$this->checkCanDownloadMedia($fileName)) {
+				$this->logger->warning('Tried to load media files for app discover section from untrusted source');
+				return new NotFoundResponse(Http::STATUS_BAD_REQUEST);
+			}
+
 			try {
 				$client = $this->clientService->newClient();
 				$fileResponse = $client->get($fileName);
@@ -174,6 +197,31 @@ class AppSettingsController extends Controller {
 		// cache for 7 days
 		$response->cacheFor(604800, false, true);
 		return $response;
+	}
+
+	private function checkCanDownloadMedia(string $filename): bool {
+		$urlInfo = parse_url($filename);
+		if (!isset($urlInfo['host']) || !isset($urlInfo['path'])) {
+			return false;
+		}
+
+		// Always allowed hosts
+		if ($urlInfo['host'] === 'nextcloud.com') {
+			return true;
+		}
+
+		// Hosts that need further verification
+		// Github is only allowed if from our organization
+		$ALLOWED_HOSTS = ['github.com', 'raw.githubusercontent.com'];
+		if (!in_array($urlInfo['host'], $ALLOWED_HOSTS)) {
+			return false;
+		}
+
+		if (str_starts_with($urlInfo['path'], '/nextcloud/') || str_starts_with($urlInfo['path'], '/nextcloud-gmbh/')) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -473,7 +521,7 @@ class AppSettingsController extends Controller {
 				'missingMaxOwnCloudVersion' => false,
 				'missingMinOwnCloudVersion' => false,
 				'canInstall' => true,
-				'screenshot' => isset($app['screenshots'][0]['url']) ? 'https://usercontent.apps.nextcloud.com/'.base64_encode($app['screenshots'][0]['url']) : '',
+				'screenshot' => isset($app['screenshots'][0]['url']) ? 'https://usercontent.apps.nextcloud.com/' . base64_encode($app['screenshots'][0]['url']) : '',
 				'score' => $app['ratingOverall'],
 				'ratingNumOverall' => $app['ratingNumOverall'],
 				'ratingNumThresholdReached' => $app['ratingNumOverall'] > 5,
@@ -514,7 +562,7 @@ class AppSettingsController extends Controller {
 			$updateRequired = false;
 
 			foreach ($appIds as $appId) {
-				$appId = OC_App::cleanAppId($appId);
+				$appId = $this->appManager->cleanAppId($appId);
 
 				// Check if app is already downloaded
 				/** @var Installer $installer */
@@ -548,7 +596,7 @@ class AppSettingsController extends Controller {
 		$groupsList = [];
 		foreach ($groups as $group) {
 			$groupItem = $groupManager->get($group);
-			if ($groupItem instanceof \OCP\IGroup) {
+			if ($groupItem instanceof IGroup) {
 				$groupsList[] = $groupManager->get($group);
 			}
 		}
@@ -572,7 +620,7 @@ class AppSettingsController extends Controller {
 	public function disableApps(array $appIds): JSONResponse {
 		try {
 			foreach ($appIds as $appId) {
-				$appId = OC_App::cleanAppId($appId);
+				$appId = $this->appManager->cleanAppId($appId);
 				$this->appManager->disableApp($appId);
 			}
 			return new JSONResponse([]);
@@ -588,9 +636,11 @@ class AppSettingsController extends Controller {
 	 */
 	#[PasswordConfirmationRequired]
 	public function uninstallApp(string $appId): JSONResponse {
-		$appId = OC_App::cleanAppId($appId);
+		$appId = $this->appManager->cleanAppId($appId);
 		$result = $this->installer->removeApp($appId);
 		if ($result !== false) {
+			// If this app was force enabled, remove the force-enabled-state
+			$this->appManager->removeOverwriteNextcloudRequirement($appId);
 			$this->appManager->clearAppsCache();
 			return new JSONResponse(['data' => ['appid' => $appId]]);
 		}
@@ -602,7 +652,7 @@ class AppSettingsController extends Controller {
 	 * @return JSONResponse
 	 */
 	public function updateApp(string $appId): JSONResponse {
-		$appId = OC_App::cleanAppId($appId);
+		$appId = $this->appManager->cleanAppId($appId);
 
 		$this->config->setSystemValue('maintenance', true);
 		try {
@@ -629,8 +679,8 @@ class AppSettingsController extends Controller {
 	}
 
 	public function force(string $appId): JSONResponse {
-		$appId = OC_App::cleanAppId($appId);
-		$this->appManager->ignoreNextcloudRequirementForApp($appId);
+		$appId = $this->appManager->cleanAppId($appId);
+		$this->appManager->overwriteNextcloudRequirement($appId);
 		return new JSONResponse();
 	}
 }

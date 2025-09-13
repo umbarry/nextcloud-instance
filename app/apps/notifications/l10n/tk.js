@@ -4,9 +4,9 @@ OC.L10N.register(
     "Hello %s" : "Salam%s",
     "Notifications" : "Duýduryşlar",
     "Dismiss" : "Ýapmak.",
-    "seconds ago" : "Sekunt öň",
     "No notifications" : "Duýduryş ýok",
     "1 hour" : "1 sagat",
-    "None" : "Hiç"
+    "None" : "Hiç",
+    "seconds ago" : "Sekunt öň"
 },
 "nplurals=2; plural=(n != 1);");

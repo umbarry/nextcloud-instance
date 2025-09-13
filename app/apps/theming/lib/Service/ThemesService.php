@@ -31,7 +31,8 @@ class ThemesService {
 		private DarkTheme $darkTheme,
 		HighContrastTheme $highContrastTheme,
 		DarkHighContrastTheme $darkHighContrastTheme,
-		DyslexiaFont $dyslexiaFont) {
+		DyslexiaFont $dyslexiaFont,
+	) {
 
 		// Register themes
 		$this->themesProviders = [
@@ -147,18 +148,20 @@ class ThemesService {
 	}
 
 	/**
-	 * Get the list of all enabled themes IDs
-	 * for the logged-in user
+	 * Get the list of all enabled themes IDs for the current user.
 	 *
 	 * @return string[]
 	 */
 	public function getEnabledThemes(): array {
+		$enforcedTheme = $this->config->getSystemValueString('enforce_theme', '');
 		$user = $this->userSession->getUser();
 		if ($user === null) {
+			if ($enforcedTheme !== '') {
+				return [$enforcedTheme];
+			}
 			return [];
 		}
 
-		$enforcedTheme = $this->config->getSystemValueString('enforce_theme', '');
 		$enabledThemes = json_decode($this->config->getUserValue($user->getUID(), Application::APP_ID, 'enabled-themes', '["default"]'));
 		if ($enforcedTheme !== '') {
 			return array_merge([$enforcedTheme], $enabledThemes);

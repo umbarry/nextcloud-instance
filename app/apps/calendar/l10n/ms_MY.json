@@ -50,6 +50,8 @@
     "can edit" : "boleh mengubah",
     "Save" : "Simpan",
     "Cancel" : "Batal",
+    "General" : "Umum",
+    "Update" : "Kemaskini",
     "Location" : "Lokasi",
     "Description" : "Keterangan",
     "to" : "kepada",
@@ -61,7 +63,6 @@
     "Friday" : "Jumaat",
     "Saturday" : "Sabtu",
     "Sunday" : "Ahad",
-    "Update" : "Kemaskini",
     "Your email address" : "Alamat emel anda",
     "Notification" : "Pemberitahuan",
     "Email" : "Email",
@@ -69,10 +70,14 @@
     "Attendees" : "Jemputan",
     "Repeat" : "Ulang",
     "never" : "jangan",
+    "Yes" : "Ya",
+    "No" : "Tidak",
     "Personal" : "Peribadi",
+    "Edit event" : "Ubah peristiwa",
     "Close" : "Tutup",
     "Daily" : "Setiap hari",
     "Weekly" : "Setiap minggu",
+    "second" : "kedua",
     "Other" : "Lain"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

@@ -133,6 +133,10 @@ class RelatedService {
 	): array {
 		$this->logger->debug('retrieving related to item ' . $providerId . '.' . $itemId);
 
+		if ($providerId && !$this->appManager->isInstalled($providerId)) {
+			return [];
+		}
+
 		try {
 			// we generate a related resource for current item, including a full
 			// list of recipients and virtual group
@@ -150,7 +154,14 @@ class RelatedService {
 		if ($resourceType === '') {
 			$providers = $this->getRelatedResourceProviders();
 		} else {
-			$providers = [$this->getRelatedResourceProvider($resourceType)];
+			if ((($resourceType == 'deck') && !$this->appManager->isInstalled('deck'))
+				|| (($resourceType == 'calendar') && !$this->appManager->isInstalled('calendar'))
+				|| (($resourceType == 'spreed') && !$this->appManager->isInstalled('spreed'))
+				|| (($resourceType == 'groupfolders') && !$this->appManager->isInstalled('groupfolders'))) {
+				$providers = [];
+			} else {
+				$providers = [$this->getRelatedResourceProvider($resourceType)];
+			}
 		}
 
 		$result = [];
@@ -582,7 +593,7 @@ class RelatedService {
 			}
 		}
 
-		throw new RelatedResourceProviderNotFound();
+		throw new RelatedResourceProviderNotFound("Failed to find provider {$relatedProviderId}");
 	}
 
 	/**

@@ -9,9 +9,9 @@ namespace OCA\DAV\DAV;
 
 use Exception;
 use OCA\DAV\CalDAV\Calendar;
+use OCA\DAV\CalDAV\CalendarObject;
 use OCA\DAV\CalDAV\DefaultCalendarValidator;
 use OCA\DAV\Connector\Sabre\Directory;
-use OCA\DAV\Connector\Sabre\FilesPlugin;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 use OCP\IUser;
@@ -65,33 +65,16 @@ class CustomPropertiesBackend implements BackendInterface {
 		'{DAV:}getetag',
 		'{DAV:}quota-used-bytes',
 		'{DAV:}quota-available-bytes',
-		'{http://owncloud.org/ns}permissions',
-		'{http://owncloud.org/ns}downloadURL',
-		'{http://owncloud.org/ns}dDC',
-		'{http://owncloud.org/ns}size',
-		'{http://nextcloud.org/ns}is-encrypted',
+	];
 
-		// Currently, returning null from any propfind handler would still trigger the backend,
-		// so we add all known Nextcloud custom properties in here to avoid that
-
-		// text app
-		'{http://nextcloud.org/ns}rich-workspace',
-		'{http://nextcloud.org/ns}rich-workspace-file',
-		// groupfolders
-		'{http://nextcloud.org/ns}acl-enabled',
-		'{http://nextcloud.org/ns}acl-can-manage',
-		'{http://nextcloud.org/ns}acl-list',
-		'{http://nextcloud.org/ns}inherited-acl-list',
-		'{http://nextcloud.org/ns}group-folder-id',
-		// files_lock
-		'{http://nextcloud.org/ns}lock',
-		'{http://nextcloud.org/ns}lock-owner-type',
-		'{http://nextcloud.org/ns}lock-owner',
-		'{http://nextcloud.org/ns}lock-owner-displayname',
-		'{http://nextcloud.org/ns}lock-owner-editor',
-		'{http://nextcloud.org/ns}lock-time',
-		'{http://nextcloud.org/ns}lock-timeout',
-		'{http://nextcloud.org/ns}lock-token',
+	/**
+	 * Allowed properties for the oc/nc namespace, all other properties in the namespace are ignored
+	 *
+	 * @var string[]
+	 */
+	private const ALLOWED_NC_PROPERTIES = [
+		'{http://owncloud.org/ns}calendar-enabled',
+		'{http://owncloud.org/ns}enabled',
 	];
 
 	/**
@@ -113,30 +96,12 @@ class CustomPropertiesBackend implements BackendInterface {
 	];
 
 	/**
-	 * @var Tree
-	 */
-	private $tree;
-
-	/**
-	 * @var IDBConnection
-	 */
-	private $connection;
-
-	/**
-	 * @var IUser
-	 */
-	private $user;
-
-	/**
 	 * Properties cache
 	 *
 	 * @var array
 	 */
 	private $userCache = [];
-
-	private Server $server;
 	private XmlService $xmlService;
-	private DefaultCalendarValidator $defaultCalendarValidator;
 
 	/**
 	 * @param Tree $tree node tree
@@ -144,22 +109,17 @@ class CustomPropertiesBackend implements BackendInterface {
 	 * @param IUser $user owner of the tree and properties
 	 */
 	public function __construct(
-		Server $server,
-		Tree $tree,
-		IDBConnection $connection,
-		IUser $user,
-		DefaultCalendarValidator $defaultCalendarValidator,
+		private Server $server,
+		private Tree $tree,
+		private IDBConnection $connection,
+		private IUser $user,
+		private DefaultCalendarValidator $defaultCalendarValidator,
 	) {
-		$this->server = $server;
-		$this->tree = $tree;
-		$this->connection = $connection;
-		$this->user = $user;
 		$this->xmlService = new XmlService();
 		$this->xmlService->elementMap = array_merge(
 			$this->xmlService->elementMap,
 			self::COMPLEX_XML_ELEMENT_MAP,
 		);
-		$this->defaultCalendarValidator = $defaultCalendarValidator;
 	}
 
 	/**
@@ -172,14 +132,9 @@ class CustomPropertiesBackend implements BackendInterface {
 	public function propFind($path, PropFind $propFind) {
 		$requestedProps = $propFind->get404Properties();
 
-		// these might appear
-		$requestedProps = array_diff(
-			$requestedProps,
-			self::IGNORED_PROPERTIES,
-		);
 		$requestedProps = array_filter(
 			$requestedProps,
-			fn ($prop) => !str_starts_with($prop, FilesPlugin::FILE_METADATA_PREFIX),
+			$this->isPropertyAllowed(...),
 		);
 
 		// substr of calendars/ => path is inside the CalDAV component
@@ -241,6 +196,11 @@ class CustomPropertiesBackend implements BackendInterface {
 			$this->cacheDirectory($path, $node);
 		}
 
+		if ($node instanceof CalendarObject) {
+			// No custom properties supported on individual events
+			return;
+		}
+
 		// First fetch the published properties (set by another user), then get the ones set by
 		// the current user. If both are set then the latter as priority.
 		foreach ($this->getPublishedProperties($path, $requestedProps) as $propName => $propValue) {
@@ -259,6 +219,16 @@ class CustomPropertiesBackend implements BackendInterface {
 			}
 			$propFind->set($propName, $propValue);
 		}
+	}
+
+	private function isPropertyAllowed(string $property): bool {
+		if (in_array($property, self::IGNORED_PROPERTIES)) {
+			return false;
+		}
+		if (str_starts_with($property, '{http://owncloud.org/ns}') || str_starts_with($property, '{http://nextcloud.org/ns}')) {
+			return in_array($property, self::ALLOWED_NC_PROPERTIES);
+		}
+		return true;
 	}
 
 	/**
@@ -373,7 +343,10 @@ class CustomPropertiesBackend implements BackendInterface {
 			)),
 			)
 			->where($query->expr()->eq('parent', $query->createNamedParameter($node->getInternalFileId(), IQueryBuilder::PARAM_INT)))
-			->andWhere($query->expr()->eq('p.userid', $query->createNamedParameter($this->user->getUID())));
+			->andWhere($query->expr()->orX(
+				$query->expr()->eq('p.userid', $query->createNamedParameter($this->user->getUID())),
+				$query->expr()->isNull('p.userid'),
+			));
 		$result = $query->executeQuery();
 
 		$propsByPath = [];
@@ -542,7 +515,9 @@ class CustomPropertiesBackend implements BackendInterface {
 			$value = $value->getHref();
 		} else {
 			$valueType = self::PROPERTY_TYPE_OBJECT;
-			$value = serialize($value);
+			// serialize produces null character
+			// these can not be properly stored in some databases and need to be replaced
+			$value = str_replace(chr(0), '\x00', serialize($value));
 		}
 		return [$value, $valueType];
 	}
@@ -557,7 +532,9 @@ class CustomPropertiesBackend implements BackendInterface {
 			case self::PROPERTY_TYPE_HREF:
 				return new Href($value);
 			case self::PROPERTY_TYPE_OBJECT:
-				return unserialize($value);
+				// some databases can not handel null characters, these are custom encoded during serialization
+				// this custom encoding needs to be first reversed before unserializing
+				return unserialize(str_replace('\x00', chr(0), $value));
 			case self::PROPERTY_TYPE_STRING:
 			default:
 				return $value;

@@ -657,6 +657,7 @@ class Version13000Date20170718121200 extends SimpleMigrationStep {
 			$table->addIndex(['uid'], 'uid_index');
 			$table->addIndex(['type'], 'type_index');
 			$table->addIndex(['category'], 'category_index');
+			$table->addUniqueIndex(['uid', 'type', 'category'], 'unique_category_per_user');
 		}
 
 		if (!$schema->hasTable('vcategory_to_object')) {
@@ -730,6 +731,10 @@ class Version13000Date20170718121200 extends SimpleMigrationStep {
 			$table->setPrimaryKey(['objecttype', 'objectid', 'systemtagid'], 'som_pk');
 			//			$table->addUniqueIndex(['objecttype', 'objectid', 'systemtagid'], 'mapping');
 			$table->addIndex(['systemtagid', 'objecttype'], 'systag_by_tagid');
+			// systag_by_objectid was added later and might be missing in older deployments
+			$table->addIndex(['objectid'], 'systag_by_objectid');
+			// systag_objecttype was added later and might be missing in older deployments
+			$table->addIndex(['objecttype'], 'systag_objecttype');
 		}
 
 		if (!$schema->hasTable('systemtag_group')) {
@@ -1013,9 +1018,9 @@ class Version13000Date20170718121200 extends SimpleMigrationStep {
 		$result = $query->execute();
 		while ($row = $result->fetch()) {
 			preg_match('/(calendar)\/([A-z0-9-@_]+)\//', $row['propertypath'], $match);
-			$insert->setParameter('propertypath', (string) $row['propertypath'])
-				->setParameter('propertyname', (string) $row['propertyname'])
-				->setParameter('propertyvalue', (string) $row['propertyvalue'])
+			$insert->setParameter('propertypath', (string)$row['propertypath'])
+				->setParameter('propertyname', (string)$row['propertyname'])
+				->setParameter('propertyvalue', (string)$row['propertyvalue'])
 				->setParameter('userid', ($match[2] ?? ''));
 			$insert->execute();
 		}

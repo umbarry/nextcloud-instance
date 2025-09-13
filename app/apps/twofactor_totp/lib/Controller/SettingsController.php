@@ -2,23 +2,9 @@
 
 declare(strict_types = 1);
 
-/**
- * @author Christoph Wurst <christoph@winzerhof-wurst.at>
- *
- * Two-factor TOTP
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
+/*
+ * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 
 namespace OCA\TwoFactorTOTP\Controller;
@@ -72,7 +58,7 @@ class SettingsController extends ALoginSetupController {
 	 * @param int $state
 	 * @param string|null $code for verification
 	 */
-	public function enable(int $state, string $code = null): JSONResponse {
+	public function enable(int $state, ?string $code = null): JSONResponse {
 		$user = $this->userSession->getUser();
 		if (is_null($user)) {
 			throw new \Exception('user not available');
@@ -96,7 +82,7 @@ class SettingsController extends ALoginSetupController {
 				]);
 			case ITotp::STATE_ENABLED:
 				if ($code === null) {
-					throw new InvalidArgumentException("code is missing");
+					throw new InvalidArgumentException('code is missing');
 				}
 				$success = $this->totp->enable($user, $code);
 				return new JSONResponse([
@@ -116,7 +102,7 @@ class SettingsController extends ALoginSetupController {
 		$productName = $this->defaults->getName();
 		$user = $this->userSession->getUser();
 		if ($user === null) {
-			throw new RuntimeException("No user in this context");
+			throw new RuntimeException('No user in this context');
 		}
 		$userName = $user->getCloudId();
 		return rawurlencode("$productName:$userName");

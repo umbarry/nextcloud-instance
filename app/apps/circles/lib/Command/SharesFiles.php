@@ -64,7 +64,7 @@ class SharesFiles extends Base {
 	 */
 	public function __construct(
 		FederatedUserService $federatedUserService, ShareWrapperService $shareWrapperService,
-		ConfigService $configService
+		ConfigService $configService,
 	) {
 		parent::__construct();
 		$this->federatedUserService = $federatedUserService;
@@ -79,12 +79,12 @@ class SharesFiles extends Base {
 	protected function configure() {
 		parent::configure();
 		$this->setName('circles:shares:files')
-			 ->setDescription('listing shares files')
-			 ->addArgument('file_id', InputArgument::OPTIONAL, 'filter on a File Id', '0')
-			 ->addOption('to', '', InputOption::VALUE_REQUIRED, 'get files shared TO CIRCLEID', '')
-			 ->addOption('with', '', InputOption::VALUE_REQUIRED, 'get files shared WITH USERID', '')
-			 ->addOption('by', '', InputOption::VALUE_REQUIRED, 'get files shared BY USERID', '')
-			 ->addOption('all', '', InputOption::VALUE_NONE, 'get all data about the shares');
+			->setDescription('listing shares files')
+			->addArgument('file_id', InputArgument::OPTIONAL, 'filter on a File Id', '0')
+			->addOption('to', '', InputOption::VALUE_REQUIRED, 'get files shared TO CIRCLEID', '')
+			->addOption('with', '', InputOption::VALUE_REQUIRED, 'get files shared WITH USERID', '')
+			->addOption('by', '', InputOption::VALUE_REQUIRED, 'get files shared BY USERID', '')
+			->addOption('all', '', InputOption::VALUE_NONE, 'get all data about the shares');
 	}
 
 
@@ -166,7 +166,7 @@ class SharesFiles extends Base {
 		string $with,
 		string $by,
 		bool $all,
-		bool $json
+		bool $json,
 	): void {
 		$shareWrappers = $this->getShares($fileId, $to, $with, $by, $all, $filterRecipient);
 
@@ -193,8 +193,8 @@ class SharesFiles extends Base {
 		}
 
 		$table->setHeaders($headers);
-		$table->render();
 
+		$rows = [];
 		foreach ($shareWrappers as $share) {
 			if (!$filterRecipient) {
 				$recipient = $share->getInitiator();
@@ -203,30 +203,38 @@ class SharesFiles extends Base {
 					$sharedTo .= '@' . $recipient->getInstance();
 				}
 			}
-			$circle = $share->getCircle();
+			$circleField = '';
+			if ($share->hasCircle()) {
+				$circle = $share->getCircle();
+				$circleField = $circle->getDisplayName()
+					. ' (' . $share->getSharedWith()
+					. ', ' . Circle::$DEF_SOURCE[$circle->getSource()] . ')';
+			}
 			$row = [
 				$share->getId(),
 				$share->getFileSource(),
 				$share->getShareOwner(),
 				$share->getFileTarget(),
 				$share->getSharedBy(),
-				$circle->getDisplayName() . ' (' . $share->getSharedWith()
-				. ', ' . Circle::$DEF_SOURCE[$circle->getSource()] . ')'
+				$circleField,
 			];
 
 			if (!$filterRecipient) {
+				$def = ($recipient->hasBasedOn()) ? Circle::$DEF_SOURCE[$recipient->getBasedOn()->getSource()] : 'undef';
 				$row = array_merge(
 					$row, [
-						$sharedTo . ' (' . $recipient->getSingleId() . ', '
-						. Circle::$DEF_SOURCE[$recipient->getBasedOn()->getSource()] . ')',
+						$sharedTo . ' (' . $recipient->getSingleId() . ', ' . $def . ')',
 						(($share->getChildId() > 0) ? $share->getChildFileTarget(
 						) : $share->getFileTarget()),
 					]
 				);
 			}
 
-			$table->appendRow($row);
+			$rows[] = $row;
 		}
+
+		$table->setRows($rows);
+		$table->render();
 	}
 
 
@@ -251,7 +259,7 @@ class SharesFiles extends Base {
 		string $with,
 		string $by,
 		bool $all,
-		?bool &$filterRecipient = false
+		?bool &$filterRecipient = false,
 	): array {
 		if ($fileId > 0) {
 			return $this->shareWrapperService->getSharesByFileId($this->fileId, true);

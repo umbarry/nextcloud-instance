@@ -37,17 +37,14 @@ use function strtr;
 class Log implements ILogger, IDataLogger {
 	private ?bool $logConditionSatisfied = null;
 	private ?IEventDispatcher $eventDispatcher = null;
+	private int $nestingLevel = 0;
 
 	public function __construct(
 		private IWriter $logger,
 		private SystemConfig $config,
-		private ?Normalizer $normalizer = null,
-		private ?IRegistry $crashReporters = null
+		private Normalizer $normalizer = new Normalizer(),
+		private ?IRegistry $crashReporters = null,
 	) {
-		// FIXME: php8.1 allows "private Normalizer $normalizer = new Normalizer()," in initializer
-		if ($normalizer === null) {
-			$this->normalizer = new Normalizer();
-		}
 	}
 
 	public function setEventDispatcher(IEventDispatcher $eventDispatcher): void {
@@ -196,6 +193,11 @@ class Log implements ILogger, IDataLogger {
 	}
 
 	public function getLogLevel(array $context, string $message): int {
+		if ($this->nestingLevel > 1) {
+			return ILogger::WARN;
+		}
+
+		$this->nestingLevel++;
 		/**
 		 * @psalm-var array{
 		 *   shared_secret?: string,
@@ -246,6 +248,7 @@ class Log implements ILogger, IDataLogger {
 
 		// if log condition is satisfied change the required log level to DEBUG
 		if ($this->logConditionSatisfied) {
+			$this->nestingLevel--;
 			return ILogger::DEBUG;
 		}
 
@@ -260,6 +263,7 @@ class Log implements ILogger, IDataLogger {
 			 * once this is met -> change the required log level to debug
 			 */
 			if (in_array($context['app'], $logCondition['apps'] ?? [], true)) {
+				$this->nestingLevel--;
 				return ILogger::DEBUG;
 			}
 		}
@@ -267,11 +271,13 @@ class Log implements ILogger, IDataLogger {
 		if (!isset($logCondition['matches'])) {
 			$configLogLevel = $this->config->getValue('loglevel', ILogger::WARN);
 			if (is_numeric($configLogLevel)) {
+				$this->nestingLevel--;
 				return min((int)$configLogLevel, ILogger::FATAL);
 			}
 
 			// Invalid configuration, warn the user and fall back to default level of WARN
 			error_log('Nextcloud configuration: "loglevel" is not a valid integer');
+			$this->nestingLevel--;
 			return ILogger::WARN;
 		}
 
@@ -285,12 +291,15 @@ class Log implements ILogger, IDataLogger {
 				if (!isset($option['apps']) && !isset($option['loglevel']) && !isset($option['message'])) {
 					/* Only user and/or secret are listed as conditions, we can cache the result for the rest of the request */
 					$this->logConditionSatisfied = true;
+					$this->nestingLevel--;
 					return ILogger::DEBUG;
 				}
+				$this->nestingLevel--;
 				return $option['loglevel'] ?? ILogger::DEBUG;
 			}
 		}
 
+		$this->nestingLevel--;
 		return ILogger::WARN;
 	}
 
@@ -330,7 +339,7 @@ class Log implements ILogger, IDataLogger {
 		try {
 			$serializer = $this->getSerializer();
 		} catch (Throwable $e) {
-			$this->error("Failed to load ExceptionSerializer serializer while trying to log " . $exception->getMessage());
+			$this->error('Failed to load ExceptionSerializer serializer while trying to log ' . $exception->getMessage());
 			return;
 		}
 		$data = $context;

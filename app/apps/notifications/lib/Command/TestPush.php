@@ -21,26 +21,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class TestPush extends Command {
-	/** @var ITimeFactory */
-	protected $timeFactory;
-	/** @var IUserManager */
-	protected $userManager;
-	/** @var IManager */
-	protected $notificationManager;
-	/** @var App */
-	protected $app;
-
 	public function __construct(
-		ITimeFactory $timeFactory,
-		IUserManager $userManager,
-		IManager $notificationManager,
-		App $app) {
+		protected ITimeFactory $timeFactory,
+		protected IUserManager $userManager,
+		protected IManager $notificationManager,
+		protected App $app,
+	) {
 		parent::__construct();
-
-		$this->timeFactory = $timeFactory;
-		$this->userManager = $userManager;
-		$this->notificationManager = $notificationManager;
-		$this->app = $app;
 	}
 
 	protected function configure(): void {
@@ -56,7 +43,13 @@ class TestPush extends Command {
 				'talk',
 				null,
 				InputOption::VALUE_NONE,
-				'Test talk devices'
+				'Test Talk devices'
+			)
+			->addOption(
+				'files',
+				null,
+				InputOption::VALUE_NONE,
+				'Test other devices (Files, Notes, …)'
 			)
 		;
 	}
@@ -69,38 +62,59 @@ class TestPush extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		if (!$this->notificationManager->isFairUseOfFreePushService()) {
 			$output->writeln('<error>We want to keep offering our push notification service for free, but large</error>');
-			$output->writeln('<error>users overload our infrastructure. For this reason we have to rate-limit the</error>');
+			$output->writeln('<error>number of users overload our infrastructure. For this reason we have to rate-limit the</error>');
 			$output->writeln('<error>use of push notifications. If you need this feature, consider using Nextcloud Enterprise.</error>');
 			return 1;
 		}
 
 		$userId = $input->getArgument('user-id');
-		$subject = 'Testing push notifications';
-
 		$user = $this->userManager->get($userId);
 		if (!$user instanceof IUser) {
-			$output->writeln('Unknown user');
+			$output->writeln('<error>Unknown user</error>');
 			return 1;
 		}
 
+		if ($input->getOption('talk')) {
+			$failed = $this->sendNotification($output, $user, 'talk');
+		} else {
+			$failed = false;
+		}
+		if ($input->getOption('files')) {
+			$failed = $this->sendNotification($output, $user, 'files') || $failed;
+		}
+		if (!$input->getOption('talk') && !$input->getOption('files')) {
+			$failed = $this->sendNotification($output, $user, 'talk') || $failed;
+			$failed = $this->sendNotification($output, $user, 'files') || $failed;
+		}
+
+		return $failed ? 1 : 0;
+	}
+
+	protected function sendNotification(OutputInterface $output, IUser $user, string $clients): bool {
+		$app = $clients === 'talk' ? 'admin_notification_talk' : 'admin_notifications';
 		$notification = $this->notificationManager->createNotification();
 		$datetime = $this->timeFactory->getDateTime();
-		$app = $input->getOption('talk') ? 'admin_notification_talk' : 'admin_notifications';
+
+		$output->writeln('');
+		if ($clients === 'talk') {
+			$output->writeln('Testing Talk clients:');
+		} else {
+			$output->writeln('Testing other clients: Files, Notes, …');
+		}
 
 		try {
 			$notification->setApp($app)
 				->setUser($user->getUID())
 				->setDateTime($datetime)
 				->setObject('admin_notifications', dechex($datetime->getTimestamp()))
-				->setSubject('cli', [$subject]);
+				->setSubject('cli', ['Testing push notifications']);
 
 			$this->app->setOutput($output);
 			$this->notificationManager->notify($notification);
-		} catch (\InvalidArgumentException $e) {
+		} catch (\InvalidArgumentException) {
 			$output->writeln('Error while sending the notification');
-			return 1;
+			return true;
 		}
-
-		return 0;
+		return false;
 	}
 }

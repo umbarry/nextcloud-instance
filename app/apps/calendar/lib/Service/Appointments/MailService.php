@@ -46,7 +46,8 @@ class MailService {
 
 	private IManager $notificationManager;
 
-	public function __construct(IMailer $mailer,
+	public function __construct(
+		IMailer $mailer,
 		IUserManager $userManager,
 		IL10N $l10n,
 		Defaults $defaults,
@@ -55,7 +56,8 @@ class MailService {
 		IDateTimeFormatter $dateFormatter,
 		IFactory $lFactory,
 		IManager $notificationManager,
-		private IConfig $userConfig) {
+		private IConfig $userConfig,
+	) {
 		$this->userManager = $userManager;
 		$this->mailer = $mailer;
 		$this->l10n = $l10n;
@@ -101,7 +103,7 @@ class MailService {
 		$template->setSubject($subject);
 
 		// Heading
-		$summary = $this->l10n->t("Dear %s, please confirm your booking", [$booking->getDisplayName()]);
+		$summary = $this->l10n->t('Dear %s, please confirm your booking', [$booking->getDisplayName()]);
 		$template->addHeading($summary);
 
 		$bookingUrl = $this->urlGenerator->linkToRouteAbsolute('calendar.booking.confirmBooking', ['token' => $booking->getToken()]);
@@ -190,7 +192,7 @@ class MailService {
 
 		$template->addFooter();
 
-		$attachment = $this->mailer->createAttachment($calendar, "appointment.ics", "text/calendar");
+		$attachment = $this->mailer->createAttachment($calendar, 'appointment.ics', 'text/calendar');
 		$message->attach($attachment);
 		$message->useTemplate($template);
 
@@ -217,21 +219,24 @@ class MailService {
 		bool $recipient): void {
 		$template->addBodyListItem($booking->getDisplayName(), $l10n->t('Appointment for:'));
 
-		// determain timezone depending on who is getting the message (Requestee/Requester)
+		// determine timezone depending on who is getting the message (Requestee/Requester)
 		$tzid = ($recipient) ? $config->getAvailabilityAsArray()['timezoneId'] : $booking->getTimezone();
-		$dtstart = new \DateTime("now", new \DateTimeZone($booking->getTimezone())); // generate DateTime with booking time zone
+		$dtstart = new \DateTime('now', new \DateTimeZone($booking->getTimezone())); // generate DateTime with booking time zone
 		$dtstart->setTimestamp($booking->getStart()); // set booking time stamp
 
 		$l = $this->lFactory->findGenericLanguage();
+		$relativeTimezone = new \DateTimeZone($tzid);
 		$relativeDateTime = $this->dateFormatter->formatDateTimeRelativeDay(
 			$dtstart,
 			'long',
 			'short',
-			new \DateTimeZone($tzid),
+			$relativeTimezone,
 			$this->lFactory->get('calendar', $l)
 		);
 
-		$template->addBodyListItem($relativeDateTime, $l10n->t('Date:'));
+		$timestring = $relativeDateTime . ' (' . $relativeTimezone->getName() . ')';
+
+		$template->addBodyListItem($timestring, $l10n->t('Date:'));
 
 		if (!$booking->isConfirmed() && $config->getCreateTalkRoom()) {
 			$template->addBodyListItem($l10n->t('You will receive a link with the confirmation email'), $l10n->t('Where:'));
@@ -324,7 +329,7 @@ class MailService {
 
 	public function sendOrganizerBookingInformationNotification(Booking $booking, AppointmentConfig $config): void {
 		$tzid = $config->getAvailabilityAsArray()['timezoneId']; // extract time zone from appointment configuration
-		$dtstart = new \DateTime("now", new \DateTimeZone($booking->getTimezone())); // generate DateTime with booking time zone
+		$dtstart = new \DateTime('now', new \DateTimeZone($booking->getTimezone())); // generate DateTime with booking time zone
 		$dtstart->setTimestamp($booking->getStart()); // set booking time stamp
 
 		$relativeDateTime = $this->dateFormatter->formatDateTimeRelativeDay(
@@ -339,7 +344,7 @@ class MailService {
 		$notification
 			->setApp('calendar')
 			->setUser($config->getUserId())
-			->setObject('booking', (string) $booking->getId())
+			->setObject('booking', (string)$booking->getId())
 			->setSubject('booking_accepted',
 				[
 					'type' => 'highlight',

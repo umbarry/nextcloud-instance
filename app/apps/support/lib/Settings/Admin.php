@@ -2,31 +2,15 @@
 
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2018 Morris Jobke <hey@morrisjobke.de>
- *
- * @author Morris Jobke <hey@morrisjobke.de>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 namespace OCA\Support\Settings;
 
 use OCA\Support\Service\SubscriptionService;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\IAppConfig;
 use OCP\IConfig;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
@@ -36,6 +20,7 @@ class Admin implements IDelegatedSettings {
 
 	public function __construct(
 		protected readonly IConfig $config,
+		protected readonly IAppConfig $appConfig,
 		protected readonly IUserManager $userManager,
 		protected readonly IURLGenerator $urlGenerator,
 		protected readonly SubscriptionService $subscriptionService,
@@ -56,22 +41,21 @@ class Admin implements IDelegatedSettings {
 			}
 		}
 
-		$subscriptionKey = $this->config->getAppValue('support', 'subscription_key', null);
-		$potentialSubscriptionKey = $this->config->getAppValue('support', 'potential_subscription_key', null);
-		$lastResponse = $this->config->getAppValue('support', 'last_response', '');
-		$lastError = (int)$this->config->getAppValue('support', 'last_error', 0);
+		$subscriptionKey = $this->appConfig->getValueString('support', 'subscription_key');
+		$potentialSubscriptionKey = $this->appConfig->getValueString('support', 'potential_subscription_key');
+		$subscriptionInfo = $this->appConfig->getValueArray('support', 'last_response', lazy: true);
+		$lastError = $this->appConfig->getValueInt('support', 'last_error');
 		// delete the invalid error, because there is no renewal happening
 		if ($lastError === SubscriptionService::ERROR_FAILED_INVALID) {
-			if ($subscriptionKey !== null && $subscriptionKey !== '') {
-				$this->config->setAppValue('support', 'potential_subscription_key', $subscriptionKey);
+			if ($subscriptionKey !== '') {
+				$this->appConfig->setValueString('support', 'potential_subscription_key', $subscriptionKey);
 			} else {
-				$this->config->deleteAppValue('support', 'potential_subscription_key');
+				$this->appConfig->deleteKey('support', 'potential_subscription_key');
 			}
-			$this->config->deleteAppValue('support', 'last_error');
+			$this->appConfig->deleteKey('support', 'last_error');
 		} elseif ($lastError === SubscriptionService::ERROR_INVALID_SUBSCRIPTION_KEY) {
-			$this->config->deleteAppValue('support', 'last_error');
+			$this->appConfig->deleteKey('support', 'last_error');
 		}
-		$subscriptionInfo = json_decode($lastResponse, true);
 
 		$now = new \DateTime();
 		$subscriptionEndDate = new \DateTime($subscriptionInfo['endDate'] ?? 'now');
@@ -149,10 +133,10 @@ class Admin implements IDelegatedSettings {
 			'overLimit' => $isOverLimit,
 
 
-			'showSubscriptionDetails' => is_array($subscriptionInfo),
-			'showSubscriptionKeyInput' => !is_array($subscriptionInfo),
-			'showCommunitySupportSection' => $instanceSize === 'small' && !is_array($subscriptionInfo),
-			'showEnterpriseSupportSection' => $instanceSize !== 'small' && !is_array($subscriptionInfo),
+			'showSubscriptionDetails' => !empty($subscriptionInfo),
+			'showSubscriptionKeyInput' => empty($subscriptionInfo),
+			'showCommunitySupportSection' => $instanceSize === 'small' && empty($subscriptionInfo),
+			'showEnterpriseSupportSection' => $instanceSize !== 'small' && empty($subscriptionInfo),
 
 			'subscriptionKeyUrl' => $this->urlGenerator->linkToRoute('support.api.setSubscriptionKey'),
 
@@ -179,8 +163,8 @@ class Admin implements IDelegatedSettings {
 
 	/**
 	 * @return int whether the form should be rather on the top or bottom of
-	 * the admin section. The forms are arranged in ascending order of the
-	 * priority values. It is required to return a value between 0 and 100.
+	 *             the admin section. The forms are arranged in ascending order of the
+	 *             priority values. It is required to return a value between 0 and 100.
 	 *
 	 * keep the server setting at the top, right after "server settings"
 	 */

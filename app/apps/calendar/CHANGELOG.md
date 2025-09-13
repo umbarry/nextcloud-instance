@@ -1,113 +1,407 @@
-## [5.0.9](https://github.com/nextcloud/calendar/compare/v5.0.8...v5.0.9) (2025-01-14)
+## [5.5.3](https://github.com/nextcloud/calendar/compare/v5.5.2...v5.5.3) (2025-09-09)
 
 
 ### Bug Fixes
 
-* adjust event click test to changed task url ([4d5328f](https://github.com/nextcloud/calendar/commit/4d5328fcdf15e16d3862bd392859b390f4de6cf1))
-* adjust url for task links ([3ad438b](https://github.com/nextcloud/calendar/commit/3ad438beb118c1fa667f0aa5d5a9a93e5d984210))
-* **CalendarList:** dragging to order calendars ([7877628](https://github.com/nextcloud/calendar/commit/78776286c241808393c894cccec1b919a318ef76))
+* **deps:** Fix npm audit ([277401c](https://github.com/nextcloud/calendar/commit/277401c0f6b3ade7b7cd1114c7b10cc6bee2057e))
+* **EditorMixin:** allow toggling all day when repeating if the event isn't yet saved on server ([195642c](https://github.com/nextcloud/calendar/commit/195642cd5a12a6d884b565cbcc95402ebcdd8704))
+* from alignment ([78205c7](https://github.com/nextcloud/calendar/commit/78205c7d185125844a4af558b72c6516e3ed0db5))
+* harden group attendee search ([83d75cc](https://github.com/nextcloud/calendar/commit/83d75cc59340d23008a1280174e87e6c0ab98968))
+* **l10n:** Update translations from Transifex ([21174c3](https://github.com/nextcloud/calendar/commit/21174c3ccff246866a5b257b2db253ec2b8b65da))
+* **l10n:** Update translations from Transifex ([178b5a8](https://github.com/nextcloud/calendar/commit/178b5a856a6afb8179c042b0e651f7ad37993061))
+* **l10n:** Update translations from Transifex ([95e0d55](https://github.com/nextcloud/calendar/commit/95e0d5520d9622b2e5f614f099a5502c2ad1a81f))
+* **l10n:** Update translations from Transifex ([3a98891](https://github.com/nextcloud/calendar/commit/3a98891cc210553a032a025829ae930bcb555ef7))
+* **l10n:** Update translations from Transifex ([7b5144e](https://github.com/nextcloud/calendar/commit/7b5144ee654213d2893040046aa7104fa3ac003f))
+* **l10n:** Update translations from Transifex ([ba9b704](https://github.com/nextcloud/calendar/commit/ba9b704a24d82551fdfe0b52e5f533c232536b1e))
+* **l10n:** Update translations from Transifex ([e585ef9](https://github.com/nextcloud/calendar/commit/e585ef9ba8298a5c21024c64828e32170dd73b51))
 
 
 
-## [5.0.8](https://github.com/nextcloud/calendar/compare/v5.0.7...v5.0.8) (2024-12-17)
-
-
-### Bug Fixes
-
-* allow adding self to shared event ([1a68634](https://github.com/nextcloud/calendar/commit/1a6863462498718e2034fe369b707033033c0663))
-
-
-
-## [5.0.7](https://github.com/nextcloud/calendar/compare/v5.0.6...v5.0.7) (2024-12-16)
-
-
-### Bug Fixes
-
-* enable directory selection in file picker ([d3d408e](https://github.com/nextcloud/calendar/commit/d3d408e0db71e0367c5ac4fa190e85bb9dda7259))
-* send date as sting instead of epoch ([dad9740](https://github.com/nextcloud/calendar/commit/dad974042bc389769b9a904004ea3adf42792109))
-* use folder icon as fallback ([459f41a](https://github.com/nextcloud/calendar/commit/459f41a2c99362cd6814f599f29e5451cdd2650f))
-
-
-
-## [5.0.6](https://github.com/nextcloud/calendar/compare/v5.0.5...v5.0.6) (2024-11-27)
+## [5.5.2](https://github.com/nextcloud/calendar/compare/v5.5.1...v5.5.2) (2025-09-02)
 
 
 ### Bug Fixes
 
-* **release:** Ignore unnecessary files ([14788f6](https://github.com/nextcloud/calendar/commit/14788f60b1b345b2b205db5e9fc7b9523ab36e73))
-* **release:** Specify committer for automated releases ([e46c159](https://github.com/nextcloud/calendar/commit/e46c1595982bdcbff1a6da77a89daa69b4d30d3f))
+* **deps:** Fix npm audit ([b9c339e](https://github.com/nextcloud/calendar/commit/b9c339ebd57b94ce416584d0d55c8173c4dd7cac))
+* **free-busy:** make backgound solid for attendees' slots ([c976750](https://github.com/nextcloud/calendar/commit/c9767508237b705fa5e7f6e7522d5600f3f39a34))
+* **l10n:** Update translations from Transifex ([269a3c4](https://github.com/nextcloud/calendar/commit/269a3c4bc3302f477d9e8da2ddc871f0ec410232))
+* **l10n:** Update translations from Transifex ([27dc55a](https://github.com/nextcloud/calendar/commit/27dc55a8ce5d1800d9cc487f21d147e713515683))
+* **l10n:** Update translations from Transifex ([21ba8a0](https://github.com/nextcloud/calendar/commit/21ba8a05a74d1a8dd909d8fec4ecc9e742c4a005))
+* **l10n:** Update translations from Transifex ([361ce08](https://github.com/nextcloud/calendar/commit/361ce081ba62ab1d4a373081cd57bccbfcd0f19c))
+* **l10n:** Update translations from Transifex ([2774339](https://github.com/nextcloud/calendar/commit/2774339e635c95c93a2dfa8331d70d926b7d0de9))
+* **l10n:** Update translations from Transifex ([9046cbe](https://github.com/nextcloud/calendar/commit/9046cbe60375209ac48756e130905f3740c72fee))
+* **l10n:** Update translations from Transifex ([0be7c55](https://github.com/nextcloud/calendar/commit/0be7c55cee94157394799ba0c838325ec8e6b6ea))
+* **Repeat:** change all day is visually disabled when recurrence is set ([daa5d3e](https://github.com/nextcloud/calendar/commit/daa5d3e7ed63546c30869dab73609875409c32af))
 
 
 
-## [5.0.5](https://github.com/nextcloud/calendar/compare/v5.0.4...v5.0.5) (2024-11-20)
-
-
-### Bug Fixes
-
-* Release process ([acdca3b](https://github.com/nextcloud/calendar/commit/acdca3bf58eaf21c4f3334b1eee6c27972987acc))
-
-
-
-## [5.0.4](https://github.com/nextcloud/calendar/compare/v5.0.3...v5.0.4) (2024-11-20)
-
-
-### Bug Fixes
-
-* **release:** App signature ([f40ec12](https://github.com/nextcloud/calendar/commit/f40ec1257d6801449ea9c3873efc743db04c99d2))
-
-
-
-## [5.0.3](https://github.com/nextcloud/calendar/compare/v5.0.2...v5.0.3) (2024-11-20)
+# [5.5.0](https://github.com/nextcloud/calendar/compare/v5.4.0-rc.5...v5.5.0) (2025-08-24)
 
 
 ### Bug Fixes
 
-* **deps:** Update axios ([e3b439f](https://github.com/nextcloud/calendar/commit/e3b439f35d2d372e2ba2b454518d8146875c4936))
-* Packge version inconsistency ([c4c6216](https://github.com/nextcloud/calendar/commit/c4c621616b931d3439964fb296ce3ba385a5727b))
+* **AddTalkModal:** styling ([6467bb5](https://github.com/nextcloud/calendar/commit/6467bb529c7757dd573b79dfe46998a1f82f9bb5))
+* **deps:** Fix npm audit ([d367a44](https://github.com/nextcloud/calendar/commit/d367a44b097598c4324a91f4ee54e7937b63bef1))
+* **l10n:** Update translations from Transifex ([f45c97b](https://github.com/nextcloud/calendar/commit/f45c97b76199ee76976af4637618f87e75db47eb))
+* **l10n:** Update translations from Transifex ([9f5335c](https://github.com/nextcloud/calendar/commit/9f5335c7fefd4eb11159668b1da20af63db86560))
+* **l10n:** Update translations from Transifex ([487709a](https://github.com/nextcloud/calendar/commit/487709a5ae92a41ec82f968aea55965a54a0fc55))
+* **l10n:** Update translations from Transifex ([a634739](https://github.com/nextcloud/calendar/commit/a63473996f61dff2b341c917a67cc373f9abef47))
+* **l10n:** Update translations from Transifex ([0cd9b07](https://github.com/nextcloud/calendar/commit/0cd9b070fbf58a7bc32a66d738c5272e7ff23fa2))
+* **l10n:** Update translations from Transifex ([91f8c53](https://github.com/nextcloud/calendar/commit/91f8c53409ee03afc1b19d1a914282ceceb21dcc))
+* use createFromStringMinimal() instead of createFromString() ([62d2282](https://github.com/nextcloud/calendar/commit/62d2282399f791b899fde3b250474856f1887b28))
+
+
+### Features
+
+* add support for nextcloud 32 ([b9405f6](https://github.com/nextcloud/calendar/commit/b9405f65f5c19fd46020bc481fa84409b0f7b2b6))
 
 
 
-## [5.0.2](https://github.com/nextcloud/calendar/compare/v5.0.1...v5.0.2) (2024-11-20)
+# [5.4.0-rc.5](https://github.com/nextcloud/calendar/compare/v5.4.0-rc.4...v5.4.0-rc.5) (2025-08-18)
+
+
+### Bug Fixes
+
+* alarm styling ([db8b804](https://github.com/nextcloud/calendar/commit/db8b804e408758621f6548d5bf080e2762971271))
+* **deps:** Fix npm audit ([0c04e46](https://github.com/nextcloud/calendar/commit/0c04e466172a4f271e8f67d00e52a8a0d412438a))
+* event modal overflow ([ddb62f9](https://github.com/nextcloud/calendar/commit/ddb62f97aaf3714b4e0601d91349fd68c98e8402))
+* **EventDidMount:** make transparent events be background color instead of transparent to prevent overlapping issues ([7b10062](https://github.com/nextcloud/calendar/commit/7b100623f9840ebaf2eafe602bf9da79be286e9c))
+* **free-busy-modal:** Pin all day events on scroll ([6042127](https://github.com/nextcloud/calendar/commit/6042127e09eea3fd0a9549a4d7ead9d070fdb99d))
+* **l10n:** Update translations from Transifex ([38f2f1b](https://github.com/nextcloud/calendar/commit/38f2f1b6876454aa8380dfbd6b0155a4bbf638a3))
+* **l10n:** Update translations from Transifex ([8d7bfbb](https://github.com/nextcloud/calendar/commit/8d7bfbbc4bfea88064b9320b1b3c4484c4af8929))
+* **l10n:** Update translations from Transifex ([20b8e07](https://github.com/nextcloud/calendar/commit/20b8e07cf3212228d4aca42c360167618b3db310))
+* **l10n:** Update translations from Transifex ([128c531](https://github.com/nextcloud/calendar/commit/128c53142e27c0662e58cf9a7b42a2c0fceeb325))
+* **l10n:** Update translations from Transifex ([d724343](https://github.com/nextcloud/calendar/commit/d724343ac2ceb5ccbc73a74e8e434acb5b202f1f))
+* **l10n:** Update translations from Transifex ([9a6d627](https://github.com/nextcloud/calendar/commit/9a6d6276fc419009e13a2b29c898f3f8927e8a17))
+* **l10n:** Update translations from Transifex ([fd7a225](https://github.com/nextcloud/calendar/commit/fd7a2256dd48c71f127b7ccdb79af968c5de20f1))
+* **l10n:** Update translations from Transifex ([aa01106](https://github.com/nextcloud/calendar/commit/aa011069258ab8a5d1f510ec68dbc8794a3ad907))
+* **l10n:** Update translations from Transifex ([a6dc515](https://github.com/nextcloud/calendar/commit/a6dc515aec80020d59b7b861b856e0296c17f86e))
+* **l10n:** Update translations from Transifex ([ef2ca79](https://github.com/nextcloud/calendar/commit/ef2ca79a614a58996f3e780f8299b11a69872487))
+* **l10n:** Update translations from Transifex ([8d78d93](https://github.com/nextcloud/calendar/commit/8d78d93115d7b3bf9f9be6cee7b477eb127e2e3c))
+* **l10n:** Update translations from Transifex ([8c42f80](https://github.com/nextcloud/calendar/commit/8c42f8035e6fe1c0f97f53c42aef01f02c71407f))
+* **OrganizerNoEmailError:** update styling ([9c8b8f9](https://github.com/nextcloud/calendar/commit/9c8b8f9f5579f511892def75e28b0d3090eb26d6))
+
+
+
+# [5.4.0-rc.4](https://github.com/nextcloud/calendar/compare/v5.4.0-rc.3...v5.4.0-rc.4) (2025-07-29)
+
+
+### Bug Fixes
+
+* **deps:** Fix npm audit ([c10c520](https://github.com/nextcloud/calendar/commit/c10c52017cb92e605c3c59beea512cde2f2fb8b4))
+* fix compiler SCSS warning ([647a677](https://github.com/nextcloud/calendar/commit/647a67734fdde42c6224aeb268dcf7008283d9b3))
+* **free-busy:** adjust event title color to nextcloud theme ([1985f1c](https://github.com/nextcloud/calendar/commit/1985f1cfc5856b033680a8daf69801bd0bc1936f))
+* **free-busy:** allow selection on top of busy blocks ([3252cbc](https://github.com/nextcloud/calendar/commit/3252cbce82020c35e334a917550a603f520d1451))
+* **free-busy:** use own calendar color for organiser busy blocks ([0176af6](https://github.com/nextcloud/calendar/commit/0176af699b91847efaa2cfda36a5e0810ca4827a))
+* **l10n:** Update translations from Transifex ([a33dbda](https://github.com/nextcloud/calendar/commit/a33dbda697a29b0d59fdb63c3f459f29861e896a))
+* **l10n:** Update translations from Transifex ([9059aeb](https://github.com/nextcloud/calendar/commit/9059aeb9c9db556eb99fb8ab81d5455a9e0777bd))
+* **l10n:** Update translations from Transifex ([9ed632f](https://github.com/nextcloud/calendar/commit/9ed632f8241486390d7c5f9d5a66925dc624db47))
+* **l10n:** Update translations from Transifex ([7740803](https://github.com/nextcloud/calendar/commit/7740803dd52c03c44630e6d93b9861b15eafed91))
+* **l10n:** Update translations from Transifex ([05bb729](https://github.com/nextcloud/calendar/commit/05bb7290aa202076d6a482e59815ecc55f443d45))
+* make absolute URL generation more robust ([aacbbca](https://github.com/nextcloud/calendar/commit/aacbbcae7f1a6684722bd680d0ae99c3e9b4d802))
+* match main route more strictly to prevent conflicts in the contacts menu ([0632eb4](https://github.com/nextcloud/calendar/commit/0632eb4fea4be3bfcfc8a58ec6475e267a360072))
+* redirect sidebar editor route for activity deep links ([d1a0987](https://github.com/nextcloud/calendar/commit/d1a098794b0b451d803b0c5481d5455126eba114))
+* **ui:** scope mobile css rules for full editor ([404f9f1](https://github.com/nextcloud/calendar/commit/404f9f1154817983d05516674ad79b2e13777cd8))
+
+
+
+# [5.4.0-rc.3](https://github.com/nextcloud/calendar/compare/v5.4.0-rc.2...v5.4.0-rc.3) (2025-07-22)
+
+
+### Bug Fixes
+
+* **editor:** export button in full page editor not working ([04f50dc](https://github.com/nextcloud/calendar/commit/04f50dc2b7f913b5ae274885bdb7bde67212e046))
+* **l10n:** fix typo in server administrator ([937b17e](https://github.com/nextcloud/calendar/commit/937b17e47ad40e258675e870732ab0c72857229c))
+* **l10n:** Update translations from Transifex ([063df2d](https://github.com/nextcloud/calendar/commit/063df2d0523e55c5772d7b8662493f45f84998c2))
+* **settings:** forward compatibility of all checkboxes ([c4b15d0](https://github.com/nextcloud/calendar/commit/c4b15d059737fce59aeda7e3899147495c79263d))
+
+
+
+# [5.4.0-rc.2](https://github.com/nextcloud/calendar/compare/v5.4.0-rc.1...v5.4.0-rc.2) (2025-07-20)
+
+
+### Bug Fixes
+
+* add a gap for event dragging ([4cf192d](https://github.com/nextcloud/calendar/commit/4cf192d1827df7bcf81e0b48d0f7e96de9854677))
+* alarm type not binding properly ([c1dd80d](https://github.com/nextcloud/calendar/commit/c1dd80d8b9454c5b51fad18dbb7671ee72504cd1))
+* allow all calendars as appointment conflict calendars ([8f10775](https://github.com/nextcloud/calendar/commit/8f107759afaaa562d4218a605c13b669b3d49423))
+* always show alarm unit in pural ([1509e87](https://github.com/nextcloud/calendar/commit/1509e8747f526baed2520d2ce1b85517651467dd))
+* **appointments:** mobile booking view not being responsive ([5a18d85](https://github.com/nextcloud/calendar/commit/5a18d85915aaae0449d4e2428317716732e3afe6))
+* **attachments:** improve confirmation dialog message ([ec93e91](https://github.com/nextcloud/calendar/commit/ec93e91e85e4b86927b9a7b4664b41e4600627d5))
+* **AvatarParticipationStatus:** make attendee participation status text not ellipse early ([04a2c9b](https://github.com/nextcloud/calendar/commit/04a2c9b3a32cab6954ae5e11fd1ccea685533bc0))
+* avoid hotkeys in contenteditable ([cad954e](https://github.com/nextcloud/calendar/commit/cad954e7bdf20c591afcf087c2719438b9c7eff2))
+* **calendar-list:** restrict calendar visibility toggle to checkbox only ([f1ceb1a](https://github.com/nextcloud/calendar/commit/f1ceb1a2a32e535f4006a163b96b7819d514777f)), closes [#3027](https://github.com/nextcloud/calendar/issues/3027)
+* close modal after creating conversation ([a636ea0](https://github.com/nextcloud/calendar/commit/a636ea09f00fb38c4fb308fda51b627fab7da372))
+* color picker size ([0c1d227](https://github.com/nextcloud/calendar/commit/0c1d22737ef82fb5e76ca5abbf842f178c9912f6))
+* Console-log errors thrown when saving an event ([30f9eb7](https://github.com/nextcloud/calendar/commit/30f9eb75892ef56bac5a5a25140b59d09a2678f0))
+* date selector resetting time ([caf5cf8](https://github.com/nextcloud/calendar/commit/caf5cf87b2a075a061294d09a657b3047cc89b5c))
+* **deps:** bump @nextcloud/auth from 2.4.0 to ^2.5.1 (main) ([#6976](https://github.com/nextcloud/calendar/issues/6976)) ([12f442a](https://github.com/nextcloud/calendar/commit/12f442a0107248e2224d05504863193c51bd2aed))
+* **deps:** bump @nextcloud/auth from 2.5.1 to ^2.5.2 ([a5e2e58](https://github.com/nextcloud/calendar/commit/a5e2e586923a1c55431e425ef65d635e2e8acb76))
+* **deps:** bump @nextcloud/calendar-availability-vue from 2.2.6 to ^2.2.7 ([4add973](https://github.com/nextcloud/calendar/commit/4add973e8da60e8afc107e5f2167768fdd78836e))
+* **deps:** bump @nextcloud/calendar-js from 8.0.3 to ^8.1.0 (main) ([#6646](https://github.com/nextcloud/calendar/issues/6646)) ([a75bd08](https://github.com/nextcloud/calendar/commit/a75bd08d0548dcaaaeecc54a313a5618f0081a6d))
+* **deps:** bump @nextcloud/calendar-js from 8.1.0 to ^8.1.1 (main) ([#6807](https://github.com/nextcloud/calendar/issues/6807)) ([026cfd5](https://github.com/nextcloud/calendar/commit/026cfd57127a2583abb6e756c454afe8f1a39a88))
+* **deps:** bump @nextcloud/calendar-js from 8.1.2 to ^8.1.3 ([63def13](https://github.com/nextcloud/calendar/commit/63def13358a698663625b1241f41789021e9e684))
+* **deps:** bump @nextcloud/calendar-js to ^8.1.4 ([6dbdadd](https://github.com/nextcloud/calendar/commit/6dbdadd97621ceb3473d80b80f878a881a4487dd))
+* **deps:** bump @nextcloud/cdav-library from 1.5.2 to ^1.5.3 (main) ([#6855](https://github.com/nextcloud/calendar/issues/6855)) ([521a4fd](https://github.com/nextcloud/calendar/commit/521a4fd113049ffe3c070921a46096ad8b774e2e))
+* **deps:** bump @nextcloud/cdav-library from 1.5.3 to v2 ([8d13b4c](https://github.com/nextcloud/calendar/commit/8d13b4c0acac1f52e557baf8305ee2e66fa86e5f))
+* **deps:** bump @nextcloud/dialogs from 6.0.1 to ^6.1.1 (main) ([#6647](https://github.com/nextcloud/calendar/issues/6647)) ([d30e56a](https://github.com/nextcloud/calendar/commit/d30e56abb76c0ee642fa3803ee24165d1bee0f1e))
+* **deps:** bump @nextcloud/dialogs from 6.1.1 to ^6.2.0 (main) ([#6946](https://github.com/nextcloud/calendar/issues/6946)) ([05e7009](https://github.com/nextcloud/calendar/commit/05e700965d22974cea7e1ffc0598e65e89728e5c))
+* **deps:** bump @nextcloud/dialogs from 6.2.0 to ^6.3.0 (main) ([#6996](https://github.com/nextcloud/calendar/issues/6996)) ([f6246e4](https://github.com/nextcloud/calendar/commit/f6246e4abb65b09388b4bf66bf3c820f831b9c6e))
+* **deps:** bump @nextcloud/dialogs from 6.3.0 to ^6.3.1 ([ff333fa](https://github.com/nextcloud/calendar/commit/ff333fa637d2d5bbfb96c534d13373fc1f61bf91))
+* **deps:** bump @nextcloud/event-bus from 3.3.1 to ^3.3.2 (main) ([#6783](https://github.com/nextcloud/calendar/issues/6783)) ([3b4fc40](https://github.com/nextcloud/calendar/commit/3b4fc40e69666e68f76de49358dbe68e3371335f))
+* **deps:** bump @nextcloud/l10n from 3.2.0 to ^3.2.0 (main) ([#6745](https://github.com/nextcloud/calendar/issues/6745)) ([e0e0bb3](https://github.com/nextcloud/calendar/commit/e0e0bb32e767b0521fc24a2f6a97a634d6d02467))
+* **deps:** bump @nextcloud/l10n from 3.2.0 to ^3.3.0 ([f7bb5a0](https://github.com/nextcloud/calendar/commit/f7bb5a036c6e27c28b4f90e9430a70cb814a8acd))
+* **deps:** bump @nextcloud/moment from 1.3.2 to ^1.3.4 (main) ([#6962](https://github.com/nextcloud/calendar/issues/6962)) ([ac544e8](https://github.com/nextcloud/calendar/commit/ac544e8d5dc6d67ef0ce70eb0bdd1e3a1fb94e88))
+* **deps:** bump @nextcloud/moment from 1.3.4 to ^1.3.5 ([1294b48](https://github.com/nextcloud/calendar/commit/1294b485793aa530590a1849faba812f6cf61451))
+* **deps:** bump @nextcloud/vue from 8.22.0 to ^8.23.1 ([c7e91ab](https://github.com/nextcloud/calendar/commit/c7e91ab1ef08323f158fa151988e24c6631b0d9c))
+* **deps:** bump @nextcloud/vue from 8.23.1 to ^8.24.0 ([ef0cbf6](https://github.com/nextcloud/calendar/commit/ef0cbf6f02902d68091cc9a10ece39f39656e162))
+* **deps:** bump @nextcloud/vue from 8.24.0 to ^8.26.0 ([36d7ec4](https://github.com/nextcloud/calendar/commit/36d7ec4f3afc529d390601b319f0e1abf23d6c0e))
+* **deps:** bump @nextcloud/vue from 8.26.1 to ^8.27.0 ([878110e](https://github.com/nextcloud/calendar/commit/878110e57dad3db1976f2f3f288f961488cdb7ac))
+* **deps:** bump color-convert from 2.0.1 to v3 ([dde4ba5](https://github.com/nextcloud/calendar/commit/dde4ba59c31da3a093c5dca0b1a788960db82e84))
+* **deps:** bump color-convert from 3.0.1 to ^3.1.0 (main) ([#7002](https://github.com/nextcloud/calendar/issues/7002)) ([fb56378](https://github.com/nextcloud/calendar/commit/fb56378d0ba87eb4fc61679c38303e20ef2c5478))
+* **deps:** bump color-string from 1.9.1 to v2 ([a08c9ee](https://github.com/nextcloud/calendar/commit/a08c9eead5a76af3d6e82a04420f294748145d08))
+* **deps:** bump core-js from 3.40.0 to ^3.41.0 (main) ([#6784](https://github.com/nextcloud/calendar/issues/6784)) ([a8920a1](https://github.com/nextcloud/calendar/commit/a8920a1306186ad2463a362e1d83abb12d778169))
+* **deps:** bump core-js from 3.41.0 to ^3.42.0 (main) ([#6947](https://github.com/nextcloud/calendar/issues/6947)) ([71ffe32](https://github.com/nextcloud/calendar/commit/71ffe325696b157c09c88f891432d23e4d4b7d8f))
+* **deps:** bump core-js from 3.42.0 to ^3.43.0 ([2798772](https://github.com/nextcloud/calendar/commit/2798772a810debb85cf835746bb7451dd7d5cec1))
+* **deps:** bump fullcalendar family from 6.1.15 to v6.1.17 ([e617d74](https://github.com/nextcloud/calendar/commit/e617d74fa2d6f8a0bcbbe1394e7aaa05a8b5dcb4))
+* **deps:** bump linkifyjs from 4.2.0 to ^4.3.1 ([0e59ccd](https://github.com/nextcloud/calendar/commit/0e59ccd5a86c1b1c8f2b99241fe3eb5a25474e30))
+* **deps:** bump pinia from 2.3.0 to ^2.3.1 (main) ([#6645](https://github.com/nextcloud/calendar/issues/6645)) ([097f964](https://github.com/nextcloud/calendar/commit/097f9642bef7c7d37c6ea141a722702b5a595095))
+* **deps:** bump webdav from 5.7.1 to ^5.8.0 (main) ([#6769](https://github.com/nextcloud/calendar/issues/6769)) ([e1b1db5](https://github.com/nextcloud/calendar/commit/e1b1db53235626318f803ff62450a38b58d73de1))
+* **deps:** Fix npm audit ([cc225a8](https://github.com/nextcloud/calendar/commit/cc225a85615d5ce4220e5578ea62076d9fdb4128))
+* **deps:** Fix npm audit ([0a82119](https://github.com/nextcloud/calendar/commit/0a8211901778d42bfeb70ce8fa8cc21d4816b92d))
+* **deps:** Fix npm audit ([dc77c02](https://github.com/nextcloud/calendar/commit/dc77c02e4897e9fda4f0918d61b8852506d1356b))
+* **deps:** Fix npm audit ([050f25d](https://github.com/nextcloud/calendar/commit/050f25d3381a8075eb317319dc4e3d50f3f86bac))
+* **deps:** Fix npm audit ([3fa3f18](https://github.com/nextcloud/calendar/commit/3fa3f1831156fffdead028b45b73fccafb886009))
+* do not show attendee actions in viewing mode ([adcac42](https://github.com/nextcloud/calendar/commit/adcac426f9ec2d0967c96f5d338a46a54995aaba))
+* do not show attendee list when there are no attendees in viewing mode ([0fb2f7a](https://github.com/nextcloud/calendar/commit/0fb2f7a2002bb2faf6a3d2e702a39ea3b5fd2c8e))
+* do not show hidden calendars ([82316d5](https://github.com/nextcloud/calendar/commit/82316d5302d9990d142d2dfbd46f6ff9f1c16409))
+* do not show items from deleted calendars in widget ([9d1d26f](https://github.com/nextcloud/calendar/commit/9d1d26f0dcdfdf39930e8b85808bd087304cb5e8))
+* **EditFull:** readonly event formatting ([e97031c](https://github.com/nextcloud/calendar/commit/e97031cb8c21af2f594903292394eaef0120ebbb))
+* **editor:** Allow edits as attending organizer ([ba6dea5](https://github.com/nextcloud/calendar/commit/ba6dea5fd3906a098a12bf1bb88c15d2d104f54b))
+* **editor:** full page editor not showing via direct route ([d0efe1b](https://github.com/nextcloud/calendar/commit/d0efe1b8fc9346813f622fb98c08c893468f5133))
+* **EditorMixin:** add viewed by organizer if no attendees ([3a35fae](https://github.com/nextcloud/calendar/commit/3a35fae9deaa3efe001dcea649e7243868f859df))
+* **EditorMixin:** timepicker not adjusting end date ([ddf2d8d](https://github.com/nextcloud/calendar/commit/ddf2d8d0354b92552a81a387f802ab3e85ed6c72))
+* **editor:** Rephraze ambiguous "group" invites ([28745e4](https://github.com/nextcloud/calendar/commit/28745e4ab8032638b6d8e6c00f3273d38042d6a9))
+* **editor:** show add talk button if there are no attendees yet ([9bf6383](https://github.com/nextcloud/calendar/commit/9bf63836f99deaa45d8e26490499748d1d77f405))
+* **editor:** wrap date selects on small screens ([e6bc12b](https://github.com/nextcloud/calendar/commit/e6bc12b2f924bc0101067e4bf419d76f5ba59264))
+* EditSideBar bug ([ab102c7](https://github.com/nextcloud/calendar/commit/ab102c72f133641a0f71457b144b8af34d31ca8c))
+* **EditSidebar:** free busy not updating time ([cac80be](https://github.com/nextcloud/calendar/commit/cac80be0e2dc4d6c5047492d8d02295e74bae8ad))
+* end time resetting when changing day ([9fe7ffb](https://github.com/nextcloud/calendar/commit/9fe7ffba442d5eca5b1190bc3a1c1a55b56f6695))
+* **eventDidMount:** make time text color be main text ([53ea163](https://github.com/nextcloud/calendar/commit/53ea1635e56ed440ed9f1a905f63a08c06601876))
+* force height for descr and location ([832f86d](https://github.com/nextcloud/calendar/commit/832f86dfcc1a3c0d5a0f0ac69a66b5a08c41c21e))
+* free busy not updating date ([3b2d626](https://github.com/nextcloud/calendar/commit/3b2d6269c30d436ef0970807c27168fc33ada18c))
+* **free-busy:** close modal when all attendees removed ([f17465a](https://github.com/nextcloud/calendar/commit/f17465ad6b7cdb01e77c513b36f43bcb18e229b2))
+* freebusy ui visual improvements ([2dec06e](https://github.com/nextcloud/calendar/commit/2dec06e2455abd4dbb6a844e3a5501f17cb667bf))
+* **freebusy:** disable set free slot while previous slot is being set ([d268e25](https://github.com/nextcloud/calendar/commit/d268e257ddb031dfa7a0e415b2ba5cb5575a75a7))
+* **freebusy:** free busy ignoring user's time zone ([b3fc6dc](https://github.com/nextcloud/calendar/commit/b3fc6dc0e62906f7db336ca46359578947b67974))
+* **freebusy:** slot header format not respecting user's locale ([8d73bd2](https://github.com/nextcloud/calendar/commit/8d73bd23b08d514ddeeeaef805ec3bda56611ceb))
+* **fullcalendar css:** make event margin be in vw instead of percentage ([6eb2cbb](https://github.com/nextcloud/calendar/commit/6eb2cbb4724c0cfaef26f2ae827f540ffcbcfd98))
+* **fullcalendar:** freezing year view ([bf5372e](https://github.com/nextcloud/calendar/commit/bf5372e2d9229b537e736ee74275842e8fe71f16))
+* handle missing organizer gracefully when fetching room suggestions ([7abb014](https://github.com/nextcloud/calendar/commit/7abb01472a6af30d7fa61fa1ac761bb025d8c3f8))
+* keyboard shortcut modal not being responsive ([1ecf27b](https://github.com/nextcloud/calendar/commit/1ecf27b67c23c99bd16ecb4e3630743971e660ae))
+* **l10n:** add context for translators (second vs. seconds) ([9d76c8c](https://github.com/nextcloud/calendar/commit/9d76c8c5a3487c58732fe193155a59d59c1a5861))
+* **l10n:** Update translations from Transifex ([5050561](https://github.com/nextcloud/calendar/commit/505056158f4a616b27cbc338a5ec0784e7cc5c15))
+* **l10n:** Update translations from Transifex ([b9dcb41](https://github.com/nextcloud/calendar/commit/b9dcb41a05c1ea8919ba564a1ede53e486310419))
+* **l10n:** Update translations from Transifex ([4a4fba8](https://github.com/nextcloud/calendar/commit/4a4fba802017064f9570603643856be47886bab3))
+* **l10n:** Update translations from Transifex ([2891f2b](https://github.com/nextcloud/calendar/commit/2891f2bca5425fecb5f9f4de8625d8e508734a94))
+* **l10n:** Update translations from Transifex ([edeb60b](https://github.com/nextcloud/calendar/commit/edeb60b8fad0237e8f0940b7d3310e0fe2cac6cc))
+* **l10n:** Update translations from Transifex ([94ffb93](https://github.com/nextcloud/calendar/commit/94ffb935caa7bdc4f594604b06c89f28ba1ac01e))
+* **l10n:** Update translations from Transifex ([9d318dd](https://github.com/nextcloud/calendar/commit/9d318dd098285c23702e59fcf99b20fa48ae6c87))
+* **l10n:** Update translations from Transifex ([ffe24c3](https://github.com/nextcloud/calendar/commit/ffe24c33cc57b91d5cf17cee83535c1f4503b7a3))
+* **l10n:** Update translations from Transifex ([31ce986](https://github.com/nextcloud/calendar/commit/31ce9865e630bb5bec6dff81c540674acd9aa3c6))
+* **l10n:** Update translations from Transifex ([babb6fa](https://github.com/nextcloud/calendar/commit/babb6fa7b3703a01bf98f23eacc60151d1f5e7c7))
+* **l10n:** Update translations from Transifex ([4e13554](https://github.com/nextcloud/calendar/commit/4e13554342fbfde3201fc98408595cb3ed7bfe44))
+* **l10n:** Update translations from Transifex ([3c3b022](https://github.com/nextcloud/calendar/commit/3c3b022a163413c2a275bab1deea6cd7c0ac775c))
+* **l10n:** Update translations from Transifex ([ee39d94](https://github.com/nextcloud/calendar/commit/ee39d94082998abb6bb2a8a5d0d7e7da8670c44e))
+* **l10n:** Update translations from Transifex ([f952872](https://github.com/nextcloud/calendar/commit/f952872015fcd57f4d6a192b3609d5bc4904f6a1))
+* **l10n:** Update translations from Transifex ([f653814](https://github.com/nextcloud/calendar/commit/f653814ddb0fc5611a0e608aad08c2ca97b8b57c))
+* **l10n:** Update translations from Transifex ([6e33b26](https://github.com/nextcloud/calendar/commit/6e33b2646f20d2b47dfb27941c1de91448330658))
+* **l10n:** Update translations from Transifex ([e4a1d48](https://github.com/nextcloud/calendar/commit/e4a1d4842fb6a4f0e1070d7f34f0a0ba87cd5c33))
+* **l10n:** Update translations from Transifex ([0441999](https://github.com/nextcloud/calendar/commit/0441999f821c210189442e635f0ee592a716001b))
+* **l10n:** Update translations from Transifex ([cbc2a07](https://github.com/nextcloud/calendar/commit/cbc2a073ca2d4d41ce78c3a4ac4300815f7ada1d))
+* **l10n:** Update translations from Transifex ([9cd4b3d](https://github.com/nextcloud/calendar/commit/9cd4b3d41b6ae90291b7616ae554f660bba6e493))
+* **l10n:** Update translations from Transifex ([5f56c03](https://github.com/nextcloud/calendar/commit/5f56c031378a58da384d27c7351a950f6b53d9a1))
+* **l10n:** Update translations from Transifex ([1a18a06](https://github.com/nextcloud/calendar/commit/1a18a06db9c507c0d242c95a05d94476404f8e64))
+* **l10n:** Update translations from Transifex ([16bbc54](https://github.com/nextcloud/calendar/commit/16bbc5460ce7987911a3c27929770705530ffe77))
+* **l10n:** Update translations from Transifex ([0438b48](https://github.com/nextcloud/calendar/commit/0438b48565aa6119e5290f78cad85651f53776e1))
+* **l10n:** Update translations from Transifex ([64e478e](https://github.com/nextcloud/calendar/commit/64e478e145b827d8b4ee01628def8859677cb536))
+* **l10n:** Update translations from Transifex ([94157dc](https://github.com/nextcloud/calendar/commit/94157dc948071f6e8a052eb0b91c324abb51f2f6))
+* **l10n:** Update translations from Transifex ([3034699](https://github.com/nextcloud/calendar/commit/303469935faf1c3cd8ff15e5428791b59ec2152b))
+* **l10n:** Update translations from Transifex ([15c1542](https://github.com/nextcloud/calendar/commit/15c154208de1d83d7020a8526e90577a7f87bcac))
+* **l10n:** Update translations from Transifex ([a3494ac](https://github.com/nextcloud/calendar/commit/a3494ac69e25241872e5844fb996a7d25e4196fc))
+* **l10n:** Update translations from Transifex ([fb2db82](https://github.com/nextcloud/calendar/commit/fb2db8282549127c8fae202fcca3a6d1e659349d))
+* **l10n:** Update translations from Transifex ([833ed68](https://github.com/nextcloud/calendar/commit/833ed68680946d5481ec47184c6672a1490d29aa))
+* **l10n:** Update translations from Transifex ([f0bc20e](https://github.com/nextcloud/calendar/commit/f0bc20eb0bf361e21f2aa350da64637ec0705a4c))
+* **l10n:** Update translations from Transifex ([42fb748](https://github.com/nextcloud/calendar/commit/42fb7489653ddbb82f3a898f28e773fc35b992a6))
+* **l10n:** Update translations from Transifex ([ee5cbdd](https://github.com/nextcloud/calendar/commit/ee5cbddc547cb23d6be1c4409cf273e942f04965))
+* **l10n:** Update translations from Transifex ([728fb5e](https://github.com/nextcloud/calendar/commit/728fb5e2f907bdebf089c80859afdd7ae2128cb4))
+* **l10n:** Update translations from Transifex ([94f3a9a](https://github.com/nextcloud/calendar/commit/94f3a9afc26f57678b420ae083477b173b6cdb70))
+* **l10n:** Update translations from Transifex ([7a889c9](https://github.com/nextcloud/calendar/commit/7a889c948f3a83e84f25f5b6907ff019d054c6fc))
+* **l10n:** Update translations from Transifex ([6277baf](https://github.com/nextcloud/calendar/commit/6277baf13f06525376083b8a7c9becebab6ad012))
+* **l10n:** Update translations from Transifex ([1625208](https://github.com/nextcloud/calendar/commit/16252088e29ce3f1335a81f5d373c8bfdb53e65f))
+* **l10n:** Update translations from Transifex ([358cf00](https://github.com/nextcloud/calendar/commit/358cf004862f4789ca39cb315f57c5f8ec676ef1))
+* **l10n:** Update translations from Transifex ([d8e50e0](https://github.com/nextcloud/calendar/commit/d8e50e0c76ad1f81ba16e8bdb176b7f2ae5f3c70))
+* **l10n:** Update translations from Transifex ([7c9387a](https://github.com/nextcloud/calendar/commit/7c9387a2e8629c8e299765f8f2a24b98b7eab1b5))
+* **l10n:** Update translations from Transifex ([42ea5a5](https://github.com/nextcloud/calendar/commit/42ea5a57b2be2243bca27c0d46c1a3c3c138a46f))
+* **l10n:** Update translations from Transifex ([64a2cf1](https://github.com/nextcloud/calendar/commit/64a2cf14a0e08b6383578362c40794049c91855a))
+* **l10n:** Update translations from Transifex ([84e1b09](https://github.com/nextcloud/calendar/commit/84e1b0912bd3ec8e5bd9678b066cfa29138d29f0))
+* **l10n:** Update translations from Transifex ([634b6a6](https://github.com/nextcloud/calendar/commit/634b6a6f6aa6e5753d7a3ed67a1a86c62d582a11))
+* **l10n:** Update translations from Transifex ([34b3d58](https://github.com/nextcloud/calendar/commit/34b3d589a5c658f6d1298d02434c7e30215d9b01))
+* **l10n:** Update translations from Transifex ([97a73bf](https://github.com/nextcloud/calendar/commit/97a73bffc5780e4cd07a1604e355d264f47d1dda))
+* **l10n:** Update translations from Transifex ([f33c90f](https://github.com/nextcloud/calendar/commit/f33c90f13f7a929e93ef91fc5945406df0453c40))
+* **l10n:** Update translations from Transifex ([9198fbd](https://github.com/nextcloud/calendar/commit/9198fbd0b9c9aaec02bd19cf4f632d4e57c34a5f))
+* **l10n:** Update translations from Transifex ([965ee9e](https://github.com/nextcloud/calendar/commit/965ee9e339784ed2ca08b53cbcd4301a8863c105))
+* **l10n:** Update translations from Transifex ([43f427a](https://github.com/nextcloud/calendar/commit/43f427a4e2a227766ac6d191baca42077083dd97))
+* **l10n:** Update translations from Transifex ([657f9c4](https://github.com/nextcloud/calendar/commit/657f9c42e5c3a4b65968d74fe126d17bc5f8a3df))
+* **l10n:** Update translations from Transifex ([d19ed5d](https://github.com/nextcloud/calendar/commit/d19ed5d78894f8a851c852f134602b5793b2c87c))
+* **l10n:** Update translations from Transifex ([6c37b2d](https://github.com/nextcloud/calendar/commit/6c37b2d240202e1b03aeaef8bed212b134fd321b))
+* **l10n:** Update translations from Transifex ([b224dab](https://github.com/nextcloud/calendar/commit/b224dab8abcdd9b9f1b4ea407e11796270cfbd1a))
+* **l10n:** Update translations from Transifex ([7499428](https://github.com/nextcloud/calendar/commit/749942815bf3e47f34f68c553b92c98ca4af9284))
+* **l10n:** Update translations from Transifex ([d719b79](https://github.com/nextcloud/calendar/commit/d719b79b0d83d15e00f400b837e5e77159dbbaea))
+* **l10n:** Update translations from Transifex ([e43a3f8](https://github.com/nextcloud/calendar/commit/e43a3f8a64ceac0d2a0d808a74ec17bd162ed740))
+* **l10n:** Update translations from Transifex ([18c2a61](https://github.com/nextcloud/calendar/commit/18c2a61f27c1ceae15f10ebae3f662d2b166f3f1))
+* **l10n:** Update translations from Transifex ([cc758db](https://github.com/nextcloud/calendar/commit/cc758dbb9f7b54df33eed881ec9b92ccd212633b))
+* **l10n:** Update translations from Transifex ([eefcbc2](https://github.com/nextcloud/calendar/commit/eefcbc24d71ebc3c524dc7376d53ce3efc8dbce4))
+* **l10n:** Update translations from Transifex ([e33da56](https://github.com/nextcloud/calendar/commit/e33da56c108e36389788f196e21a832047ced8c4))
+* **l10n:** Update translations from Transifex ([1f49d01](https://github.com/nextcloud/calendar/commit/1f49d01a58ae7548b3decd9aabe29f738dd3db6f))
+* **l10n:** Update translations from Transifex ([597fc06](https://github.com/nextcloud/calendar/commit/597fc06995b054e6975242e989bc729509e252c5))
+* **l10n:** Update translations from Transifex ([c9dc23d](https://github.com/nextcloud/calendar/commit/c9dc23d175dc1c8475b5c7a40ed0a0e86c55a9e9))
+* **l10n:** Update translations from Transifex ([969a8d8](https://github.com/nextcloud/calendar/commit/969a8d80c141eb39ef6bf44c6456ac98e0076d4b))
+* **lint-php-cs:** use minimum available php version ([906868c](https://github.com/nextcloud/calendar/commit/906868c45fa9882626d4406bedb345625c2284db))
+* margin when dragging on selected events ([ae7275f](https://github.com/nextcloud/calendar/commit/ae7275f830d677615f39152f0221da6e6b59346b))
+* monthly recurrance type and bymonthday selection ([7afb1b4](https://github.com/nextcloud/calendar/commit/7afb1b4091a32804f233d226c3489e5d9630639c))
+* **PropertyTitleTimePicker:** debounce date time picker ([9f41604](https://github.com/nextcloud/calendar/commit/9f41604df3b5ea75c5237913cf2276c272b538de))
+* **public-calendar:** remove toggle functionality from public view ([8fb5f97](https://github.com/nextcloud/calendar/commit/8fb5f9743f507f5d8679e77571fd3268e472945f))
+* reduce long press event delay to 500 ms ([0473bd3](https://github.com/nextcloud/calendar/commit/0473bd3164b5549baf56c12bb4b7392ba227740a))
+* Release automation ([6a941c9](https://github.com/nextcloud/calendar/commit/6a941c96b41e3d2345eb28d53873b1f4e1cecfed))
+* remove organizer when there are no attendees ([7d936f8](https://github.com/nextcloud/calendar/commit/7d936f8c0de46d4ce3d55f71d462c0bb54ee0bbb))
+* respect Talk config when creating a new conversation for an event ([8703e5b](https://github.com/nextcloud/calendar/commit/8703e5b9a23ec0b448dfcdbd2764e37e61e21e4c))
+* restrict attendees edit priveleges in the frontend ([7c77be2](https://github.com/nextcloud/calendar/commit/7c77be260ba54b70b060c60c1d258b5410897578))
+* room suggestions not being rendered ([c674fac](https://github.com/nextcloud/calendar/commit/c674fac39a3d920e2236ff74f51111f3297ca7f1))
+* scope css rules for calendar full view ([cfd26c9](https://github.com/nextcloud/calendar/commit/cfd26c9ba7c5285c654d82d41d4233c5b30ac55e))
+* search for possible Talk room attendees by displayed name instead of email ([8ccce9d](https://github.com/nextcloud/calendar/commit/8ccce9dc69fe3a76ab12c134b053fa37f000b4e4))
+* show display name instead of user id in availability integration ([cb7d9aa](https://github.com/nextcloud/calendar/commit/cb7d9aa2b02ebe7a9ec3caea1c711349dae3f082))
+* show generic participation status for the organizer ([983a6dc](https://github.com/nextcloud/calendar/commit/983a6dc04da8e2571a2a063486cc1b2d8b57e694))
+* show time zone selector ([f3d241b](https://github.com/nextcloud/calendar/commit/f3d241b7826a37e200de85c98a827ce0564fabae))
+* simple calendar view width ([27d7852](https://github.com/nextcloud/calendar/commit/27d7852bff6120d7763bdb36ada927f7003fe1b2))
+* simple editor size and jumping ([11f766f](https://github.com/nextcloud/calendar/commit/11f766f2dd6f89636859b69b431b3508525eaeaf))
+* sort talk conversations by most recent activity ([056a8aa](https://github.com/nextcloud/calendar/commit/056a8aa333121a7d88a071cdb0a3e9a7816d3c66))
+* **talkintegration:** allow room creation with description ([65195e8](https://github.com/nextcloud/calendar/commit/65195e826539916daa8e1eab69dd7d4db92604ef))
+* **talk:** make it clearer that new conversations are public ([b30a425](https://github.com/nextcloud/calendar/commit/b30a425a08642aa28d3c1ddcca9cddae603113a8))
+* **transifex:** backport to stable5.1 ([d081af5](https://github.com/nextcloud/calendar/commit/d081af5839ce520427a375d7de1681fe13165903))
+* trashbin error toast wording when deleting items ([826dade](https://github.com/nextcloud/calendar/commit/826daded3039953550ccbaac845e748a2d116340))
+* update app store description ([9f0c255](https://github.com/nextcloud/calendar/commit/9f0c2550255f074e5a2a8eff2b3eebb1705ce152))
+* yearly recurrance options - month selection ([49f98be](https://github.com/nextcloud/calendar/commit/49f98bec6f7373157109cb768f502b4ce6ee0fa9))
+* yearly recurrance options - month selection ([43fb124](https://github.com/nextcloud/calendar/commit/43fb124e4524806a94c97992859daaeb6b9b194b))
+
+
+### Features
+
+* add full page event editor ([bb8f8bb](https://github.com/nextcloud/calendar/commit/bb8f8bbcc9204397a63abc12b7e4cd195cd0567c))
+* add support for nextcloud 32 ([5be4249](https://github.com/nextcloud/calendar/commit/5be4249857a0ba83dd73b14da41e062b0386ae98))
+* **FullCalendar:** add conditional styling for participation status in grid ([a68f90c](https://github.com/nextcloud/calendar/commit/a68f90ccb2456c86a2fb3d9a77618a75e10af3ec))
+* rework freebusy modal ([c00e7ab](https://github.com/nextcloud/calendar/commit/c00e7ab4d40094e04292d848bd291adb8888ebff))
+* **talkintegration:** add object type to talk room creation ([85bec05](https://github.com/nextcloud/calendar/commit/85bec05b878c3dafccbcdd2610a3ac0196bc9bd0))
+* **talkintegration:** filter out event type rooms from suggestions ([909f399](https://github.com/nextcloud/calendar/commit/909f399a04a1283c366b4224e7dec36e72a143c9))
+
+
+### Performance Improvements
+
+* don't load ContactsMenuScript when not logged in ([a0853ee](https://github.com/nextcloud/calendar/commit/a0853ee9787ed838a959f37f45ea0743953dcc94))
+
+
+
+# [5.1.0-beta2](https://github.com/nextcloud/calendar/compare/v5.1.0-beta1...v5.1.0-beta2) (2025-01-16)
+
+
+### Bug Fixes
+
+* **deps:** bump @nextcloud/calendar-availability-vue from 2.2.4 to ^2.2.6 (main) ([#6628](https://github.com/nextcloud/calendar/issues/6628)) ([a67b49f](https://github.com/nextcloud/calendar/commit/a67b49f2b21ad691bef6bd128e9f5d8f633c94df))
+* **deps:** bump core-js from 3.39.0 to ^3.40.0 (main) ([#6629](https://github.com/nextcloud/calendar/issues/6629)) ([7a8ede3](https://github.com/nextcloud/calendar/commit/7a8ede390f21f34c69e65df48f68dc4139c550ed))
+* location and description not being saved ([5348612](https://github.com/nextcloud/calendar/commit/5348612ffae9196963b495b9c71007489c29f685))
+
+
+### Features
+
+* **editor:** improve attendee and resource status display ([9c23ed8](https://github.com/nextcloud/calendar/commit/9c23ed8e11811faa94d5b91e406d272d36918c9b))
+
+
+
+# [5.1.0-beta1](https://github.com/nextcloud/calendar/compare/v5.1.0-alpha2...v5.1.0-beta1) (2025-01-14)
+
+
+### Features
+
+* add availability action to the contacts menu ([266a345](https://github.com/nextcloud/calendar/commit/266a34543e8ca552b5bd164472676379a80ae8de))
+* Add overlay between calendar and open simple editor ([8699a65](https://github.com/nextcloud/calendar/commit/8699a658475e8a511b23187056bc7308b535b6f8))
+
+
+
+# [5.1.0-alpha2](https://github.com/nextcloud/calendar/compare/v5.1.0-alpha1...v5.1.0-alpha2) (2025-01-09)
+
+
+### Bug Fixes
+
+* firefox avatar icon styling inconsistency ([02e8ed4](https://github.com/nextcloud/calendar/commit/02e8ed422aba9d2edf543196d317b4f2a0d84c62))
+* max-width for long timezones names ([c27f067](https://github.com/nextcloud/calendar/commit/c27f067da8efcce8a77ad120b8930e022b202703))
+
+
+
+# [5.1.0-alpha1](https://github.com/nextcloud/calendar/compare/v5.0.0-alpha4...v5.1.0-alpha1) (2025-01-07)
 
 
 ### Bug Fixes
 
 * add border to sidebar button ([50878bf](https://github.com/nextcloud/calendar/commit/50878bfea41f1c9e372afc4c83db46a60b8244a7))
 * add missing license ([9196525](https://github.com/nextcloud/calendar/commit/91965257efe918bbac804aedc43f066895bffdfa))
+* adjust url for task links ([#6550](https://github.com/nextcloud/calendar/issues/6550)) ([e86c82a](https://github.com/nextcloud/calendar/commit/e86c82a965a791fae0e9ee14966f2949502011b8))
 * **alarms:** also update DISPLAY alarms ([b66f96a](https://github.com/nextcloud/calendar/commit/b66f96ab30cdd5011695b52001179edbacb99f2a))
-* appointment slots start and end time ([138c2ea](https://github.com/nextcloud/calendar/commit/138c2eae3fd923f039b5efa1dadbb1312d09731d))
+* allow adding self to shared event ([479ba82](https://github.com/nextcloud/calendar/commit/479ba82475b81687c6d6dc4355acead16c2f081a))
+* appointment slots start and end time ([6e06e87](https://github.com/nextcloud/calendar/commit/6e06e87c416120482f3ae38dcb26c967564b8050))
 * **appointments:** log calculated start and end times for slot generation ([13ad251](https://github.com/nextcloud/calendar/commit/13ad251c07e5eda8cd2b1859b7b2fd4a82573295))
 * **appointments:** properly localise the calendar events ([74df703](https://github.com/nextcloud/calendar/commit/74df7032d0a03855ad98bf4b678a49ac96313780))
 * **appointments:** Set organiser email to correct langauge ([7893c95](https://github.com/nextcloud/calendar/commit/7893c95cd2c5d04d4b231553855ce423b289ab82))
 * **appointments:** simplify booking response ([3acd930](https://github.com/nextcloud/calendar/commit/3acd93027c3948eb52a4091408e6fe0128269afc))
 * attachment folder picker ([93374fa](https://github.com/nextcloud/calendar/commit/93374fad5e8fd1d16b31fd776077a2e0b560d483))
-* **attachments:** add missing file picker confirm ([4398324](https://github.com/nextcloud/calendar/commit/4398324ebcbb22ba44acc22e963fbb47c031ed4e))
+* **attachments:** add missing file picker confirm ([df34ac0](https://github.com/nextcloud/calendar/commit/df34ac087e28f547ab3d06f81762b18693e7273e))
 * **attachments:** adjust click handler ([9346664](https://github.com/nextcloud/calendar/commit/9346664359110c0a052d6933b57b4fc99c94dd5c))
-* **attachmentService, propfindErrorParse:** add an error message for when a file is not compatible for windows ([d2b4645](https://github.com/nextcloud/calendar/commit/d2b4645a114648fdfeb2bf49ddb031bbca994a4f))
-* **attachments:** improve layout ([9f2c9e9](https://github.com/nextcloud/calendar/commit/9f2c9e9c11fe40e0d9c259d9f0ce8cfcd67bd78f))
-* **CalendarListNew:** Public Calendar Modal Opening ([b9d803c](https://github.com/nextcloud/calendar/commit/b9d803cfb7d82a1fd3930a1912c5ee05aca1f514))
-* **CalendarObjectInstance:** reset attendee participation status on duplication of an event ([0a3d656](https://github.com/nextcloud/calendar/commit/0a3d65648e8b3765dc276cad1148fe6cfece23e8))
-* **calendarPicker:** undefined calendar ([1743d3a](https://github.com/nextcloud/calendar/commit/1743d3a5b72f52573c5559ca666b13a1b7ece40b))
+* **attachmentService, propfindErrorParse:** add an error message for when a file is not compatible for windows ([d7288b0](https://github.com/nextcloud/calendar/commit/d7288b06368b3fa0e4a3999c7e70338322e02f02))
+* **attachments:** improve layout ([e9e9bcf](https://github.com/nextcloud/calendar/commit/e9e9bcf209e1ae3a051e44f7cfb24d62ff30c533))
+* avatar status icon text misalignment ([f837082](https://github.com/nextcloud/calendar/commit/f8370822b0c7f697b8683bf0c453725d21ce357d))
+* **CalendarListNew:** Public Calendar Modal Opening ([0ae73bc](https://github.com/nextcloud/calendar/commit/0ae73bcb63ace8cb5c268b2a49d174d73441fb6e))
+* **CalendarObjectInstance:** reset attendee participation status on duplication of an event ([0b7f8dc](https://github.com/nextcloud/calendar/commit/0b7f8dc5d9d339218c2cc9990f01e15adad32e65))
+* **calendarPicker:** undefined calendar ([94fc5d1](https://github.com/nextcloud/calendar/commit/94fc5d12b7772f7aa3e06aef28e6feb8a812926a))
 * check if userId is null ([a123dc8](https://github.com/nextcloud/calendar/commit/a123dc80d6e80f17d3f985f6c3ad34818240a687))
 * CI ([75445bd](https://github.com/nextcloud/calendar/commit/75445bd624e9d1ba0fb06b25c683a6cb4f6528cc))
 * default calendar needs to support VEVENTs ([99921bc](https://github.com/nextcloud/calendar/commit/99921bc9ce7e243b9bbf028d90f7195d815380e3))
+* default reminder ui bug ([def95a6](https://github.com/nextcloud/calendar/commit/def95a6b109b11485ee176aa4ab0fea94f0ac6ab))
 * **deps:** bump @nextcloud/auth from 2.2.1 to ^2.3.0 (main) ([#5946](https://github.com/nextcloud/calendar/issues/5946)) ([9f1f387](https://github.com/nextcloud/calendar/commit/9f1f3878ede2499f0abbf1510bf40285c9383b3d))
+* **deps:** bump @nextcloud/auth from 2.4.0 to ^2.4.0 (main) ([#6257](https://github.com/nextcloud/calendar/issues/6257)) ([8d3357f](https://github.com/nextcloud/calendar/commit/8d3357f8bd72776e3f7a18eabfbc55ac1b3b6864))
 * **deps:** bump @nextcloud/axios from 2.4.0 to ^2.5.0 (main) ([#5989](https://github.com/nextcloud/calendar/issues/5989)) ([928d36b](https://github.com/nextcloud/calendar/commit/928d36bc50c687f7901b25678e9e726b03f11865))
+* **deps:** bump @nextcloud/axios from 2.5.0 to ^2.5.1 (main) ([#6366](https://github.com/nextcloud/calendar/issues/6366)) ([5203eeb](https://github.com/nextcloud/calendar/commit/5203eebd680cdf2325ae6de6f3e32e90e7320129))
 * **deps:** bump @nextcloud/calendar-availability-vue from 2.2.0 to ^2.2.1 (main) ([#6019](https://github.com/nextcloud/calendar/issues/6019)) ([70b8ae7](https://github.com/nextcloud/calendar/commit/70b8ae7b3c2813b7aa07dbf3766609a05d0324e6))
 * **deps:** bump @nextcloud/calendar-availability-vue from 2.2.1 to ^2.2.2 (main) ([#6085](https://github.com/nextcloud/calendar/issues/6085)) ([4081035](https://github.com/nextcloud/calendar/commit/408103599f1c7cfacc68b9d19940ff793e762125))
+* **deps:** bump @nextcloud/calendar-availability-vue from 2.2.2 to ^2.2.4 (main) ([#6272](https://github.com/nextcloud/calendar/issues/6272)) ([37f6e34](https://github.com/nextcloud/calendar/commit/37f6e345e8149657dda9ff84c9c7d14ec42a2428))
+* **deps:** bump @nextcloud/calendar-js from 8.0.2 to ^8.0.3 (main) ([#6526](https://github.com/nextcloud/calendar/issues/6526)) ([d674751](https://github.com/nextcloud/calendar/commit/d674751988b334342f94acb508f1978d2ce1d527))
 * **deps:** bump @nextcloud/cdav-library from 1.3.0 to ^1.4.0 ([b8e713c](https://github.com/nextcloud/calendar/commit/b8e713c8138cff678e5cfd8221020494ce9899ae))
 * **deps:** bump @nextcloud/cdav-library from 1.4.0 to ^1.5.0 (main) ([#6174](https://github.com/nextcloud/calendar/issues/6174)) ([5e5a9a0](https://github.com/nextcloud/calendar/commit/5e5a9a061d91f9258a06e5872d8884d1d93e6e91))
 * **deps:** bump @nextcloud/cdav-library from 1.5.0 to ^1.5.1 (main) ([#6182](https://github.com/nextcloud/calendar/issues/6182)) ([48116a4](https://github.com/nextcloud/calendar/commit/48116a4fcfd8edd9a26ff6244a04ccb79f702911))
+* **deps:** bump @nextcloud/cdav-library from 1.5.1 to ^1.5.2 (main) ([#6426](https://github.com/nextcloud/calendar/issues/6426)) ([faf4cd6](https://github.com/nextcloud/calendar/commit/faf4cd6a46062cf0d5c1f1b8d8391a38773a7292))
 * **deps:** bump @nextcloud/dialogs from 4.2.6 to v5 ([e93fb34](https://github.com/nextcloud/calendar/commit/e93fb34070a4f8575bb1ab9ff3ed2dc36cc1836f))
 * **deps:** bump @nextcloud/dialogs from 5.3.1 to ^5.3.2 (main) ([#6055](https://github.com/nextcloud/calendar/issues/6055)) ([c384096](https://github.com/nextcloud/calendar/commit/c384096f2a614563c6c30b6df795475ca7fd4f97))
 * **deps:** bump @nextcloud/dialogs from 5.3.2 to ^5.3.4 (main) ([#6086](https://github.com/nextcloud/calendar/issues/6086)) ([d3ba8ce](https://github.com/nextcloud/calendar/commit/d3ba8cec1597d3273b9029f29b86266fbfc6d342))
 * **deps:** bump @nextcloud/dialogs from 5.3.4 to ^5.3.5 (main) ([#6132](https://github.com/nextcloud/calendar/issues/6132)) ([ad5a518](https://github.com/nextcloud/calendar/commit/ad5a518abc2565d78c3aaf73f518124d47fae1cd))
+* **deps:** bump @nextcloud/dialogs from 5.3.5 to ^5.3.6 (main) ([#6273](https://github.com/nextcloud/calendar/issues/6273)) ([da7cc68](https://github.com/nextcloud/calendar/commit/da7cc685fc6681bb4b7a4e1476223662094946ad))
+* **deps:** bump @nextcloud/dialogs from 5.3.6 to ^5.3.7 (main) ([#6296](https://github.com/nextcloud/calendar/issues/6296)) ([e21d65e](https://github.com/nextcloud/calendar/commit/e21d65e41fb30541ee75da21e14bf8baf1b3f99d))
+* **deps:** bump @nextcloud/dialogs from 5.3.7 to ^5.3.8 (main) ([#6464](https://github.com/nextcloud/calendar/issues/6464)) ([aa30c8f](https://github.com/nextcloud/calendar/commit/aa30c8f6c164b420cfeb4b40cb3d91d4c1d39716))
+* **deps:** bump @nextcloud/dialogs from 5.3.8 to v6 ([e2a85a4](https://github.com/nextcloud/calendar/commit/e2a85a471778594d0638fbe28fc9549423c1d274))
 * **deps:** bump @nextcloud/event-bus from 3.2.0 to ^3.2.0 (main) ([#5947](https://github.com/nextcloud/calendar/issues/5947)) ([3cb4d04](https://github.com/nextcloud/calendar/commit/3cb4d04baa389a838fc383d8c57d3563c3626443))
 * **deps:** bump @nextcloud/event-bus from 3.2.0 to ^3.3.1 (main) ([#6028](https://github.com/nextcloud/calendar/issues/6028)) ([f242ae8](https://github.com/nextcloud/calendar/commit/f242ae81d976e1a83ea65ee3324d63fad5e4aca5))
 * **deps:** bump @nextcloud/initial-state from 2.1.0 to ^2.2.0 (main) ([#5990](https://github.com/nextcloud/calendar/issues/5990)) ([8f695f8](https://github.com/nextcloud/calendar/commit/8f695f83f26a7c608fba03e7737ae3388fba7bb6))
 * **deps:** bump @nextcloud/l10n from 2.2.0 to v3 ([bd67b27](https://github.com/nextcloud/calendar/commit/bd67b275a0454689612ecc8b7f447af6c29cf9e1))
 * **deps:** bump @nextcloud/logger from 2.7.0 to v3 ([5f84062](https://github.com/nextcloud/calendar/commit/5f84062945a27e5f373ca17f4b4b03fb5857c95a))
 * **deps:** bump @nextcloud/logger from 3.0.1 to ^3.0.2 (main) ([#6020](https://github.com/nextcloud/calendar/issues/6020)) ([f75b2a6](https://github.com/nextcloud/calendar/commit/f75b2a6c98830dd9b5720412e9f0172c5d953814))
+* **deps:** bump @nextcloud/moment from 1.3.1 to ^1.3.2 (main) ([#6575](https://github.com/nextcloud/calendar/issues/6575)) ([8d3b8b4](https://github.com/nextcloud/calendar/commit/8d3b8b46b662716cfc8e7c23f4780cfd541d2167))
 * **deps:** bump @nextcloud/router from 3.0.0 to ^3.0.1 (main) ([#5945](https://github.com/nextcloud/calendar/issues/5945)) ([2f8515d](https://github.com/nextcloud/calendar/commit/2f8515d0fe28696fa81173dc484d7b91ce23d747))
 * **deps:** bump @nextcloud/vue from 8.11.2 to ^8.11.2 ([e15a1a2](https://github.com/nextcloud/calendar/commit/e15a1a266374672555e0ee5e9d0394fa97b1f310))
 * **deps:** bump @nextcloud/vue from 8.11.2 to ^8.11.3 ([ccf5f95](https://github.com/nextcloud/calendar/commit/ccf5f95d88842b91e2944066d76ac6628b95495f))
@@ -117,16 +411,39 @@
 * **deps:** bump @nextcloud/vue from 8.14.0 to ^8.15.0 ([0271a5b](https://github.com/nextcloud/calendar/commit/0271a5b1496eaa7c9d957301d4479e63bce6ad75))
 * **deps:** bump @nextcloud/vue from 8.15.0 to ^8.15.1 ([de9bebb](https://github.com/nextcloud/calendar/commit/de9bebb62449de8b30fc5b704d6d3337824231ab))
 * **deps:** bump @nextcloud/vue from 8.15.1 to ^8.16.0 ([48a812c](https://github.com/nextcloud/calendar/commit/48a812cf3b615d58f276a944b43299e894ef5734))
+* **deps:** bump @nextcloud/vue from 8.18.0 to ^8.18.0 ([bd73f27](https://github.com/nextcloud/calendar/commit/bd73f27ab5fd9a793fbaec15feb6cc1bbc8107d7))
+* **deps:** bump @nextcloud/vue from 8.19.0 to ^8.19.0 ([6309905](https://github.com/nextcloud/calendar/commit/6309905c58c85b58118d825354b6d369e38f9b94))
+* **deps:** bump @nextcloud/vue from 8.19.0 to ^8.20.0 ([128c0ba](https://github.com/nextcloud/calendar/commit/128c0ba612c97b39f0c1676b38051de5f1bb91e3))
+* **deps:** bump @nextcloud/vue from 8.20.0 to ^8.22.0 ([5350abb](https://github.com/nextcloud/calendar/commit/5350abb88d020e6a085dcb7686c75a7b2d8a2084))
 * **deps:** bump core-js from 3.36.1 to ^3.37.0 (main) ([#5927](https://github.com/nextcloud/calendar/issues/5927)) ([7c62824](https://github.com/nextcloud/calendar/commit/7c62824dab7f3a25a8a04ba9b505894d0c027020))
 * **deps:** bump core-js from 3.37.0 to ^3.37.1 (main) ([#6006](https://github.com/nextcloud/calendar/issues/6006)) ([fb1d43c](https://github.com/nextcloud/calendar/commit/fb1d43c65dce261c28d7a0a899878fc021762299))
 * **deps:** bump core-js from 3.37.1 to ^3.38.0 (main) ([#6242](https://github.com/nextcloud/calendar/issues/6242)) ([399c8b6](https://github.com/nextcloud/calendar/commit/399c8b66746093f58635204e5d5481984fe64649))
+* **deps:** bump core-js from 3.38.0 to ^3.38.1 (main) ([#6298](https://github.com/nextcloud/calendar/issues/6298)) ([2ada469](https://github.com/nextcloud/calendar/commit/2ada469e5561588205d3f264d307dd3543826749))
+* **deps:** bump core-js from 3.38.1 to ^3.39.0 (main) ([#6491](https://github.com/nextcloud/calendar/issues/6491)) ([5f6bbbf](https://github.com/nextcloud/calendar/commit/5f6bbbf2e7416f7ba856d2973af1e491d7c22192))
 * **deps:** bump debounce from 2.0.0 to ^2.1.0 (main) ([#6030](https://github.com/nextcloud/calendar/issues/6030)) ([cb76a3f](https://github.com/nextcloud/calendar/commit/cb76a3f1cb45e9c8303957fbc58de16ee4655488))
+* **deps:** bump debounce from 2.1.1 to ^2.1.1 (main) ([#6334](https://github.com/nextcloud/calendar/issues/6334)) ([696cb0b](https://github.com/nextcloud/calendar/commit/696cb0b8c62542b841969dcf09d0ae80eeeccaf8))
+* **deps:** bump debounce from 2.1.1 to ^2.2.0 ([13545a6](https://github.com/nextcloud/calendar/commit/13545a6f288efed6bf88dd4d018e46ce0cfac0f8))
 * **deps:** bump fullcalendar family from 6.1.11 to v6.1.14 ([8c443cc](https://github.com/nextcloud/calendar/commit/8c443cc3195c64078a110a93533f25fdf5e30b72))
+* **deps:** bump fullcalendar family from 6.1.14 to v6.1.15 ([7fb8727](https://github.com/nextcloud/calendar/commit/7fb872793d73bdc785603a14e76079c43579b29a))
+* **deps:** bump linkifyjs from 4.1.3 to ^4.2.0 (main) ([#6576](https://github.com/nextcloud/calendar/issues/6576)) ([f31991d](https://github.com/nextcloud/calendar/commit/f31991dbaa3e5d589c829abfb615a9ee6de67002))
 * **deps:** bump p-limit from 5.0.0 to v6 ([b093b06](https://github.com/nextcloud/calendar/commit/b093b06ded3b784751712bbd5afdca692842a608))
+* **deps:** bump p-limit from 6.1.0 to ^6.2.0 (main) ([#6592](https://github.com/nextcloud/calendar/issues/6592)) ([8fdb932](https://github.com/nextcloud/calendar/commit/8fdb932240ab550441175d4016108d724f0c98fb))
 * **deps:** bump pinia from 2.1.7 to ^2.2.0 (main) ([#6209](https://github.com/nextcloud/calendar/issues/6209)) ([e4b2139](https://github.com/nextcloud/calendar/commit/e4b21392b4833f025012780ca502d81a4301ad7c))
 * **deps:** bump pinia from 2.2.0 to ^2.2.1 (main) ([#6240](https://github.com/nextcloud/calendar/issues/6240)) ([795a49d](https://github.com/nextcloud/calendar/commit/795a49d4d8be16a4c8a423233175e925fd6589f3))
+* **deps:** bump pinia from 2.2.1 to ^2.2.2 (main) ([#6299](https://github.com/nextcloud/calendar/issues/6299)) ([7b55dd5](https://github.com/nextcloud/calendar/commit/7b55dd54835eaaaeacac9379b51e33d2271d172a))
+* **deps:** bump pinia from 2.2.2 to ^2.2.4 (main) ([#6387](https://github.com/nextcloud/calendar/issues/6387)) ([d59146b](https://github.com/nextcloud/calendar/commit/d59146b64e1529ef30a0fc369d9bff987f0cfdc7))
+* **deps:** bump pinia from 2.2.4 to ^2.2.5 (main) ([#6450](https://github.com/nextcloud/calendar/issues/6450)) ([730b9e8](https://github.com/nextcloud/calendar/commit/730b9e8d986f207fe497fd2bd3884821887d358c))
+* **deps:** bump pinia from 2.2.5 to ^2.2.6 (main) ([#6465](https://github.com/nextcloud/calendar/issues/6465)) ([1ab521c](https://github.com/nextcloud/calendar/commit/1ab521c0db8e05c589d32cf3fa2092d0104520b8))
+* **deps:** bump pinia from 2.2.6 to ^2.3.0 (main) ([#6577](https://github.com/nextcloud/calendar/issues/6577)) ([fcc3182](https://github.com/nextcloud/calendar/commit/fcc318245d24ef2c8d6012146247a57751c3c1e0))
+* **deps:** bump vue-material-design-icons from 5.3.0 to ^5.3.1 (main) ([#6412](https://github.com/nextcloud/calendar/issues/6412)) ([b097235](https://github.com/nextcloud/calendar/commit/b097235cb35caede9e41e115a5a221c6c969d4e1))
 * **deps:** bump webdav from 5.5.0 to ^5.6.0 (main) ([#6007](https://github.com/nextcloud/calendar/issues/6007)) ([e3f9fe8](https://github.com/nextcloud/calendar/commit/e3f9fe845801aa2cfa0f27399b75abd0d3bf7cec))
 * **deps:** bump webdav from 5.6.0 to ^5.7.1 (main) ([#6243](https://github.com/nextcloud/calendar/issues/6243)) ([9fc1b6a](https://github.com/nextcloud/calendar/commit/9fc1b6a79815262cd068b39b585f97dba0ae7885))
+* **deps:** Fix npm audit ([492beb5](https://github.com/nextcloud/calendar/commit/492beb5d16cc1db0161c22f506c8168fb8338619))
+* **deps:** Fix npm audit ([dac1c26](https://github.com/nextcloud/calendar/commit/dac1c2677bc9301fef88629e97128ac6fa9e4500))
+* **deps:** Fix npm audit ([6a5ba16](https://github.com/nextcloud/calendar/commit/6a5ba160ec0af4bd25ea191057259230959335ad))
+* **deps:** Fix npm audit ([ccf2a1a](https://github.com/nextcloud/calendar/commit/ccf2a1a1cee4226ef6dc56af46aca42dcec116d6))
+* **deps:** Fix npm audit ([ef73eaf](https://github.com/nextcloud/calendar/commit/ef73eaf695a063a624228e4a3285d9ce3958bd09))
+* **deps:** Fix npm audit ([3d6e499](https://github.com/nextcloud/calendar/commit/3d6e499865a84121b0ab28712d61f1bafb01526b))
 * disable save appointment button ([6bdbb85](https://github.com/nextcloud/calendar/commit/6bdbb85a89139111d24e3cc40597f2a36204f736))
 * don't apply default calendar on Nextcloud < 29 ([b46ea0d](https://github.com/nextcloud/calendar/commit/b46ea0d50edff571dff2b6280efbef0507186fc0))
 * **editor:** add and remove categories from events ([97f62e6](https://github.com/nextcloud/calendar/commit/97f62e604fd5ff61466ff12ef9ead9a0b492b755))
@@ -136,51 +453,73 @@
 * **editor:** don't respect default calendar in the calendar picker ([4f2caf6](https://github.com/nextcloud/calendar/commit/4f2caf615b8ecdcb0f2f63abd71093581a0a68bb))
 * **editor:** sidebar editor custom header styling ([aec306b](https://github.com/nextcloud/calendar/commit/aec306b16cb06eaaf0e0ce1aa45b94aec43482b9))
 * **editor:** switching to sidebar after creating a new event ([c3df245](https://github.com/nextcloud/calendar/commit/c3df245dcc9c1ace74123e7d89654592b75ec04e)), closes [#5840](https://github.com/nextcloud/calendar/issues/5840)
-* **embed:** calendar header overlapping and adjust to compact design ([c73279c](https://github.com/nextcloud/calendar/commit/c73279cc6ca2212842824318d269ebe55775e6dc))
+* **embed:** calendar header overlapping and adjust to compact design ([96fb2c7](https://github.com/nextcloud/calendar/commit/96fb2c736cf3543842f00317e85598912ada4667))
 * enable attendee selection on shared calendars ([34de776](https://github.com/nextcloud/calendar/commit/34de776798486161e49e195722aa88288dbb4715))
-* Events with overlapping time visually overlap ([8c5e9ba](https://github.com/nextcloud/calendar/commit/8c5e9bab73ef1329dd54bb7de065a53b9814ed26))
+* enable directory selection in file picker ([4944b64](https://github.com/nextcloud/calendar/commit/4944b64c335c0cc93642f0d2d9fc3a606a39204a))
+* Entity parameter types ([c413f8d](https://github.com/nextcloud/calendar/commit/c413f8d1776924c1ba9c8994b80e60fc4e9734c8))
+* Events with overlapping time visually overlap ([ae0cc82](https://github.com/nextcloud/calendar/commit/ae0cc8222105b07ff7aa62891333ab6b9a74d1d6))
 * external attachment dialog mounted warning ([3fd760f](https://github.com/nextcloud/calendar/commit/3fd760f2466d472760fce345f0e4da9fe8eee106))
 * **fc:** Adjust *today* border radius ([8dbff4c](https://github.com/nextcloud/calendar/commit/8dbff4c4b4ae5f4d58dc87982c68c3bd73bc96d8))
 * **fc:** adjust week day header border radius to new design ([e4dd483](https://github.com/nextcloud/calendar/commit/e4dd483879f8c053def835bbc1023799b5bbcee5))
 * **fc:** tiny white border on highlighted cells ([1017e40](https://github.com/nextcloud/calendar/commit/1017e40e4cc110c317f85ba6da12057db6278426))
 * **files:** fix misplaced empty content ([80e131a](https://github.com/nextcloud/calendar/commit/80e131a0900162d74a1373b6cda96d6502cd0388))
 * **files:** replace input fields with `NcTextField` ([31dd0e9](https://github.com/nextcloud/calendar/commit/31dd0e9bc4ff126aa52ec005d0d67aeab884e25a))
-* **FullCalendar CSS:** make events in weekly view have the correct width ([ce780fb](https://github.com/nextcloud/calendar/commit/ce780fb9f5f990c009167883f989454a69184ade))
-* handle timezones with no transitions properly ([e352ef0](https://github.com/nextcloud/calendar/commit/e352ef0eb063d9ad03ff7db49fae43b17765317b))
+* **FreeBusySlotService:** improve suggested slots ([aac9479](https://github.com/nextcloud/calendar/commit/aac9479f7176e75ea329fdc3c960eb76aab4efeb))
+* **FullCalendar CSS:** make events in weekly view have the correct width ([0dad0f8](https://github.com/nextcloud/calendar/commit/0dad0f80adc223418909783cd9a0dced79ae99a8))
+* handle timezones with no transitions properly ([991402f](https://github.com/nextcloud/calendar/commit/991402f8669db6508f3f525c1db35bf451f0cd0a))
 * Ignore existing attendee without email in search results ([58fb57b](https://github.com/nextcloud/calendar/commit/58fb57b856cfababeebaa32cc6d2f737a17eb2e0))
 * Ignore VScode IDE directory ([ba60a11](https://github.com/nextcloud/calendar/commit/ba60a1190a2ff000e7c553bc6069f43ac62f0ad3))
 * input label warnings ([bc58a38](https://github.com/nextcloud/calendar/commit/bc58a38efb336bb536b644470b0318f4fbedc985))
-* **InviteesListSearch:** make avatar status not clip ([3eac883](https://github.com/nextcloud/calendar/commit/3eac8832a113c12beb9bc0ffe0cdbdc5b489309f))
+* **InviteesListSearch:** make avatar status not clip ([3cfb3a2](https://github.com/nextcloud/calendar/commit/3cfb3a24726bb4a75741f19aef874baf0df5c9f6))
+* **l10n:** propfind error message translation source ([343fe47](https://github.com/nextcloud/calendar/commit/343fe476439551e79167906e111155fecf491783))
 * make call token extraction more robust ([401f674](https://github.com/nextcloud/calendar/commit/401f674a92c41248fdd383f8da386c382ca8ecde))
 * make sidebar tabs spacing consistent ([bc2cc6d](https://github.com/nextcloud/calendar/commit/bc2cc6d5ad1046a65ae5c5431a184f28bb37972f))
 * missing default props warnings ([4ca0dca](https://github.com/nextcloud/calendar/commit/4ca0dca377b1a6d5d2113fef6dd8f1d0790ae449))
 * modified unit test to include arguments ([c8626fb](https://github.com/nextcloud/calendar/commit/c8626fb8c3986a01901cdd91a7f1f0ec34d249a4))
 * navigation when clicking on the grid on a custom week/month ([209bb44](https://github.com/nextcloud/calendar/commit/209bb44eec28e3ff77dc1d15bda3f6023b3269e4))
 * **navigation:** scope all styles to the calendar app ([307a265](https://github.com/nextcloud/calendar/commit/307a26546e66e5676edb1df9e9c928948cef14a1))
+* **notifications:** Notifier::prepare() threw \InvalidArgumentException which is deprecated ([2ab1b8f](https://github.com/nextcloud/calendar/commit/2ab1b8f033f09cd39d723875f8d7aa6c9061d51d))
 * php lint complaints ([0b9f4cb](https://github.com/nextcloud/calendar/commit/0b9f4cb7311549f3cfd3571b9fe6dec66626c355))
 * phpUnit required time zone object not string ([3c369e4](https://github.com/nextcloud/calendar/commit/3c369e44706a2ab18f62a5a26b1e53468fe4fb81))
 * popover custom trigger warnings ([b8b6490](https://github.com/nextcloud/calendar/commit/b8b6490272b6140d983050c7933f1009eec07ba6))
 * **PropertyColor:** now color is selected with submit button instead of directly ([16ebe41](https://github.com/nextcloud/calendar/commit/16ebe4165f2b403477d2a4f362e7fed9d99d72e2))
 * recurrance selection ([3927688](https://github.com/nextcloud/calendar/commit/3927688e749ff1a3ce28bf5e04bd5087f764b09a))
 * recurrance until selection ([692ea9e](https://github.com/nextcloud/calendar/commit/692ea9e605e340392eb187a8c496d73f6eea20e1))
+* **release:** Fix wget output option ([f77d285](https://github.com/nextcloud/calendar/commit/f77d285fe4a54d8fde47af5fb1d594af49ae13dc))
+* **release:** Ignore unnecessary files ([30efafe](https://github.com/nextcloud/calendar/commit/30efafe12b53d22779606dab000f5c2eae80a43c))
+* **rtl:** align event title ([9bc72ad](https://github.com/nextcloud/calendar/commit/9bc72adfad0e6e18268a7afb650b475853418999))
+* **rtl:** invitees list ([1a4c008](https://github.com/nextcloud/calendar/commit/1a4c008bbbbe1a228908491c39714bda7a201246))
+* **rtl:** navigation buttons ([4f88b3c](https://github.com/nextcloud/calendar/commit/4f88b3c0e9104ebcea017105dd5f724fa9f3e347))
 * **scheduling:** Find attendee via email ([3c0ec2a](https://github.com/nextcloud/calendar/commit/3c0ec2ade0541729384f3e2c7807db48783f22f6))
 * scope global sidebar styles to the app ([2460c53](https://github.com/nextcloud/calendar/commit/2460c539e8b7fdd0b867012006e0f0484ba91d48))
+* send date as sting instead of epoch ([91d787c](https://github.com/nextcloud/calendar/commit/91d787ca37af9ecf3c06d2dfdc22e8018a9b8111))
 * send requestee and requester correct date and time when timezones differ [#5198](https://github.com/nextcloud/calendar/issues/5198) ([01e7e2d](https://github.com/nextcloud/calendar/commit/01e7e2d68a6610d33f77d82b089890d19c5a3969))
 * **settings:** adjust design of import button ([911d5b9](https://github.com/nextcloud/calendar/commit/911d5b93be0b26aa7245e061fc9f741f2d37aff0))
+* **Settings:** invert edit simple checkbox ([761a6cb](https://github.com/nextcloud/calendar/commit/761a6cba7f1c0330847b02c9f66056302a61c293))
 * sidebar editor tab scrolling ([9cb56bd](https://github.com/nextcloud/calendar/commit/9cb56bd2f74c66808cffcee612c03ada1b12ea7c))
-* **teams:** resolve undefined variable error and add logging ([27997b8](https://github.com/nextcloud/calendar/commit/27997b8ce98242ef13e37a407a7ee047409234af))
+* **teams:** resolve undefined variable error and add logging ([9d1688c](https://github.com/nextcloud/calendar/commit/9d1688c87b4fdf77d66d97c49458dd8334f0a9b7))
 * thrown error on json decoding errors ([2f5c5ba](https://github.com/nextcloud/calendar/commit/2f5c5baa66c1c065e5b231bcfc82d1d27d737b5d))
 * time zone picker when using the simple editor ([dd4d83c](https://github.com/nextcloud/calendar/commit/dd4d83ca787b667db5f4c477ad7fab3654437183))
 * update calendar sharing icon ([55cb697](https://github.com/nextcloud/calendar/commit/55cb69718bf0cc76d2c105eeb6b533ab7d00009a))
 * use first day of week setting from server ([3203378](https://github.com/nextcloud/calendar/commit/3203378112f9a681061ab5bb2837197d0633b597))
+* use folder icon as fallback ([a099e7b](https://github.com/nextcloud/calendar/commit/a099e7bf7409bb4d4222cc62fc23d06861c30c00))
 
 
 ### Features
 
+* add organizer selection ([cbfbda2](https://github.com/nextcloud/calendar/commit/cbfbda2468e3f1de864a06a1d8bb4c65cbf8d11f))
+* allow inviting contact groups ([7f70db9](https://github.com/nextcloud/calendar/commit/7f70db9929144ab31afe169d3ac6d68816e74447))
+* Allow shared calendars as appointment conflict calendars ([c08f7d1](https://github.com/nextcloud/calendar/commit/c08f7d1ada4c0547c98343ded48c69f0f9c5221f))
+* **appointments:** add timezone to all emails ([d30e6a7](https://github.com/nextcloud/calendar/commit/d30e6a78288a535e5b7385564881bf15a9923cc9))
+* **CalendarList:** fix dragging to order calendars ([619f4f0](https://github.com/nextcloud/calendar/commit/619f4f0e9f93788e7c0c43c379544493cc531603))
 * **dashboard:** reload widget once every 10 minutes ([af94950](https://github.com/nextcloud/calendar/commit/af94950cbd81445e64f6b70dc7429a207175e356))
+* **DatePicker:** use native date and time picker ([7ed3e6e](https://github.com/nextcloud/calendar/commit/7ed3e6ea1960c0663d69ec2fc8a3b3076fe86b4c))
 * **deps:** Add Nextcloud 30 support ([00ba483](https://github.com/nextcloud/calendar/commit/00ba4834f000ed4df81cafb659c8926919ab6929))
+* disable autocompletion for event property field ([cc04b57](https://github.com/nextcloud/calendar/commit/cc04b577ccfb404a16bfec8fe929b045d479f4a8))
+* **editor:** allow adding attendees in simple editor ([7953d6a](https://github.com/nextcloud/calendar/commit/7953d6adf8372ac2b1a79926dc28212cb16bfb2e))
 * implement resources and rooms overview ([8b09651](https://github.com/nextcloud/calendar/commit/8b0965144982eb3f35a4379c9d35febb217858ea))
 * improve sidebar organization ([6bebd61](https://github.com/nextcloud/calendar/commit/6bebd61e442ef70e748c1f3962e128c1c53f46ec))
+* improve the description text ([8f9e504](https://github.com/nextcloud/calendar/commit/8f9e5048c693190d99bea9aadd0001f082ad7aae))
 * rebrand circles to teams in calendar sharing modal ([27f98ba](https://github.com/nextcloud/calendar/commit/27f98ba8aeca3541122cae949924d203e0758df9))
 * reduce header sizes in calendar modal ([3bd39a1](https://github.com/nextcloud/calendar/commit/3bd39a13cc2e070f82523582389004eab6edc780))
 * reduce opacitiy for past events ([3fa906b](https://github.com/nextcloud/calendar/commit/3fa906b67c54fb426b87fed8d41137c840f79daa))

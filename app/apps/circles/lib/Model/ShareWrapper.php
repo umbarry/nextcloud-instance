@@ -28,9 +28,11 @@ use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
+use OCP\Server;
 use OCP\Share\Exceptions\IllegalIDChangeException;
 use OCP\Share\IAttributes;
 use OCP\Share\IShare;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ShareWrapper
@@ -52,6 +54,7 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 	private int $status = 0;
 	private string $providerId = '';
 	private DateTime $shareTime;
+	private string $note = '';
 	private string $sharedWith = '';
 	private string $sharedBy = '';
 	private ?DateTime $expirationDate = null;
@@ -181,6 +184,16 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 
 	public function getShareTime(): DateTime {
 		return $this->shareTime;
+	}
+
+	public function setShareNote(string $note): self {
+		$this->note = $note;
+
+		return $this;
+	}
+
+	public function getShareNote(): string {
+		return $this->note;
 	}
 
 	public function setSharedWith(string $sharedWith): self {
@@ -370,7 +383,7 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 		IRootFolder $rootFolder,
 		IUserManager $userManager,
 		IURLGenerator $urlGenerator,
-		bool $nullOnMissingFileCache = false
+		bool $nullOnMissingFileCache = false,
 	): ?IShare {
 		$share = new Share($rootFolder, $userManager);
 		$share->setId($this->getId());
@@ -380,8 +393,13 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 		$share->setTarget($this->getFileTarget());
 		$share->setProviderId($this->getProviderId());
 		$share->setStatus($this->getStatus());
+		$share->setToken($this->getToken());
+		if ($this->getExpirationDate() !== null) {
+			$share->setExpirationDate($this->getExpirationDate());
+		}
 		$share->setHideDownload($this->getHideDownload());
 		$share->setAttributes($this->getAttributes());
+		$share->setNote($this->getShareNote());
 		if ($this->hasShareToken()) {
 			$password = $this->getShareToken()->getPassword();
 			if ($password !== '') {
@@ -390,10 +408,10 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 		}
 
 		$share->setShareTime($this->getShareTime())
-			  ->setSharedWith($this->getSharedWith())
-			  ->setSharedBy($this->getSharedBy())
-			  ->setShareOwner($this->getShareOwner())
-			  ->setShareType($this->getShareType());
+			->setSharedWith($this->getSharedWith())
+			->setSharedBy($this->getSharedBy())
+			->setShareOwner($this->getShareOwner())
+			->setShareType($this->getShareType());
 
 		if ($this->getChildId() > 0) {
 			$share->setTarget($this->getChildFileTarget());
@@ -434,7 +452,7 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 
 		$display = $circle->getDisplayName();
 		if ($circle->getSource() === Member::TYPE_CIRCLE) {
-			$l10n = \OCP\Server::get(IFactory::class)->get('circles');
+			$l10n = Server::get(IFactory::class)->get('circles');
 			$display = $l10n->t('%s (Team owned by %s)', [$display, $circle->getOwner()->getDisplayName()]);
 		} else {
 			$display .= ' (' . Circle::$DEF_SOURCE[$circle->getSource()] . ')';
@@ -463,33 +481,37 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 		$shareTime->setTimestamp($this->getInt('shareTime', $data));
 
 		$this->setId($this->get('id', $data))
-			 ->setShareType($this->getInt('shareType', $data))
-			 ->setParent($data['parent'] ?? 0)
-			 ->setPermissions($this->getInt('permissions', $data))
-			 ->setHideDownload($this->getBool('hideDownload', $data))
-			 ->setItemType($this->get('itemType', $data))
-			 ->setItemSource($this->getInt('itemSource', $data))
-			 ->setItemTarget($this->get('itemTarget', $data))
-			 ->setFileSource($this->getInt('fileSource', $data))
-			 ->setFileTarget($this->get('fileTarget', $data))
-			 ->setSharedWith($this->get('sharedWith', $data))
-			 ->setSharedBy($this->get('sharedBy', $data))
-			 ->setShareOwner($this->get('shareOwner', $data))
-			 ->setToken($this->get('token', $data))
-			 ->setShareTime($shareTime);
+			->setShareType($this->getInt('shareType', $data))
+			->setParent($data['parent'] ?? 0)
+			->setPermissions($this->getInt('permissions', $data))
+			->setHideDownload($this->getBool('hideDownload', $data))
+			->setItemType($this->get('itemType', $data))
+			->setItemSource($this->getInt('itemSource', $data))
+			->setItemTarget($this->get('itemTarget', $data))
+			->setFileSource($this->getInt('fileSource', $data))
+			->setFileTarget($this->get('fileTarget', $data))
+			->setSharedWith($this->get('sharedWith', $data))
+			->setSharedBy($this->get('sharedBy', $data))
+			->setShareOwner($this->get('shareOwner', $data))
+			->setToken($this->get('token', $data))
+			->setShareTime($shareTime)
+			->setShareNote($this->get('note', $data));
 
 		$this->importAttributesFromDatabase($this->get('attributes', $data));
 
 		try {
-			$this->setExpirationDate(new DateTime($this->get('expiration', $data)));
+			$expirationDate = $this->getInt('expiration', $data);
+			if ($expirationDate > 0) {
+				$this->setExpirationDate((new DateTime())->setTimestamp($expirationDate));
+			}
 		} catch (\Exception $e) {
 		}
 
 		$this->setChildId($this->getInt('childId', $data))
-			 ->setChildFileTarget($this->get('childFileTarget', $data))
-			 ->setChildPermissions($this->getInt('childPermissions', $data))
-			 ->setProviderId(ShareByCircleProvider::IDENTIFIER)
-			 ->setStatus(Ishare::STATUS_ACCEPTED);
+			->setChildFileTarget($this->get('childFileTarget', $data))
+			->setChildPermissions($this->getInt('childPermissions', $data))
+			->setProviderId(ShareByCircleProvider::IDENTIFIER)
+			->setStatus(Ishare::STATUS_ACCEPTED);
 
 		try {
 			$circle = new Circle();
@@ -529,18 +551,28 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 		$shareTime->setTimestamp($this->getInt($prefix . 'stime', $data));
 
 		$this->setId($this->get($prefix . 'id', $data))
-			 ->setShareType($this->getInt($prefix . 'share_type', $data))
-			 ->setPermissions($this->getInt($prefix . 'permissions', $data))
-			 ->setItemType($this->get($prefix . 'item_type', $data))
-			 ->setItemSource($this->getInt($prefix . 'item_source', $data))
-			 ->setItemTarget($this->get($prefix . 'item_target', $data))
-			 ->setFileSource($this->getInt($prefix . 'file_source', $data))
-			 ->setFileTarget($this->get($prefix . 'file_target', $data))
-			 ->setSharedWith($this->get($prefix . 'share_with', $data))
-			 ->setSharedBy($this->get($prefix . 'uid_initiator', $data))
-			 ->setShareOwner($this->get($prefix . 'uid_owner', $data))
-			 ->setToken($this->get($prefix . 'token', $data))
-			 ->setShareTime($shareTime);
+			->setShareType($this->getInt($prefix . 'share_type', $data))
+			->setPermissions($this->getInt($prefix . 'permissions', $data))
+			->setItemType($this->get($prefix . 'item_type', $data))
+			->setItemSource($this->getInt($prefix . 'item_source', $data))
+			->setItemTarget($this->get($prefix . 'item_target', $data))
+			->setFileSource($this->getInt($prefix . 'file_source', $data))
+			->setFileTarget($this->get($prefix . 'file_target', $data))
+			->setSharedWith($this->get($prefix . 'share_with', $data))
+			->setSharedBy($this->get($prefix . 'uid_initiator', $data))
+			->setShareOwner($this->get($prefix . 'uid_owner', $data))
+			->setToken($this->get($prefix . 'token', $data))
+			->setShareTime($shareTime)
+			->setShareNote($this->get($prefix . 'note', $data));
+
+		try {
+			$expirationDate = $this->get($prefix . 'expiration', $data);
+			if ($expirationDate !== '') {
+				$this->setExpirationDate(new DateTime($expirationDate));
+			}
+		} catch (\Exception $e) {
+			Server::get(LoggerInterface::class)->warning('could not parse expiration date', ['exception' => $e]);
+		}
 
 		$this->importAttributesFromDatabase($this->get('attributes', $data));
 
@@ -551,10 +583,10 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 		//		}
 
 		$this->setChildId($this->getInt($prefix . 'child_id', $data))
-			 ->setChildFileTarget($this->get($prefix . 'child_file_target', $data))
-			 ->setChildPermissions($this->getInt($prefix . 'child_permissions', $data))
-			 ->setProviderId(ShareByCircleProvider::IDENTIFIER)
-			 ->setStatus(Ishare::STATUS_ACCEPTED);
+			->setChildFileTarget($this->get($prefix . 'child_file_target', $data))
+			->setChildPermissions($this->getInt($prefix . 'child_permissions', $data))
+			->setProviderId(ShareByCircleProvider::IDENTIFIER)
+			->setStatus(Ishare::STATUS_ACCEPTED);
 
 		$this->getManager()->manageImportFromDatabase($this, $data, $prefix);
 
@@ -599,8 +631,10 @@ class ShareWrapper extends ManagedModel implements IDeserializable, IQueryRow, J
 			'itemTarget' => $this->getItemTarget(),
 			'fileSource' => $this->getFileSource(),
 			'fileTarget' => $this->getFileTarget(),
+			'expiration' => $this->getExpirationDate()?->getTimestamp(),
 			'status' => $this->getStatus(),
 			'shareTime' => $this->getShareTime()->getTimestamp(),
+			'note' => $this->getShareNote(),
 			'sharedWith' => $this->getSharedWith(),
 			'sharedBy' => $this->getSharedBy(),
 			'shareOwner' => $this->getShareOwner(),

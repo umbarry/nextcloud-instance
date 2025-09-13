@@ -15,6 +15,7 @@ arg_files/xmp2exif.args
 arg_files/xmp2gps.args
 arg_files/xmp2iptc.args
 arg_files/xmp2pdf.args
+build_geolocation
 config_files/acdsee.config
 config_files/age.config
 config_files/bibble.config
@@ -27,6 +28,7 @@ config_files/frameCount.config
 config_files/gps2utm.config
 config_files/guano.config
 config_files/nksc.config
+config_files/onone.config
 config_files/photoshop_paths.config
 config_files/picasa_faces.config
 config_files/pix4d.config
@@ -38,9 +40,11 @@ fmt_files/gpx.fmt
 fmt_files/gpx_wpt.fmt
 fmt_files/kml.fmt
 fmt_files/kml_track.fmt
+html/ET-256.png
 html/ExifTool.html
 html/MIE1.1-20070121.pdf
 html/Shift.html
+html/TagNames/AAC.html
 html/TagNames/AFCP.html
 html/TagNames/AIFF.html
 html/TagNames/APE.html
@@ -79,6 +83,7 @@ html/TagNames/FujiFilm.html
 html/TagNames/GE.html
 html/TagNames/GIF.html
 html/TagNames/GIMP.html
+html/TagNames/GM.html
 html/TagNames/GPS.html
 html/TagNames/GeoTiff.html
 html/TagNames/GoPro.html
@@ -132,6 +137,7 @@ html/TagNames/Olympus.html
 html/TagNames/OpenEXR.html
 html/TagNames/Opus.html
 html/TagNames/Other.html
+html/TagNames/PCAP.html
 html/TagNames/PCX.html
 html/TagNames/PDF.html
 html/TagNames/PGF.html
@@ -174,6 +180,7 @@ html/TagNames/Stim.html
 html/TagNames/Text.html
 html/TagNames/Theora.html
 html/TagNames/Torrent.html
+html/TagNames/Trailer.html
 html/TagNames/Unknown.html
 html/TagNames/VCard.html
 html/TagNames/Vorbis.html
@@ -187,6 +194,7 @@ html/TagNames/iWork.html
 html/TagNames/index.html
 html/TagNames/style.css
 html/ancient_history.html
+html/build_geolocation.txt
 html/canon_raw.html
 html/commentary.html
 html/config.html
@@ -194,15 +202,23 @@ html/data_members.html
 html/exiftool_pod.html
 html/faq.html
 html/filename.html
+html/geolocation.html
 html/geotag.html
 html/history.html
 html/htmldump.html
 html/idiosyncracies.html
 html/index.html
 html/install.html
+html/markers.svg
 html/metafiles.html
 html/mistakes.html
 html/overview.png
+html/plot.html
+html/plot1.svg
+html/plot2.svg
+html/plot3.svg
+html/plot4.svg
+html/plot5.svg
 html/standards.html
 html/struct.html
 html/style.css
@@ -214,6 +230,7 @@ lib/File/RandomAccess.pod
 lib/Image/ExifTool.pm
 lib/Image/ExifTool.pod
 lib/Image/ExifTool/7Z.pm
+lib/Image/ExifTool/AAC.pm
 lib/Image/ExifTool/AES.pm
 lib/Image/ExifTool/AFCP.pm
 lib/Image/ExifTool/AIFF.pm
@@ -290,8 +307,11 @@ lib/Image/ExifTool/FujiFilm.pm
 lib/Image/ExifTool/GE.pm
 lib/Image/ExifTool/GIF.pm
 lib/Image/ExifTool/GIMP.pm
+lib/Image/ExifTool/GM.pm
 lib/Image/ExifTool/GPS.pm
 lib/Image/ExifTool/GeoTiff.pm
+lib/Image/ExifTool/Geolocation.dat
+lib/Image/ExifTool/Geolocation.pm
 lib/Image/ExifTool/Geotag.pm
 lib/Image/ExifTool/GoPro.pm
 lib/Image/ExifTool/H264.pm
@@ -335,6 +355,7 @@ lib/Image/ExifTool/Lang/tr.pm
 lib/Image/ExifTool/Lang/zh_cn.pm
 lib/Image/ExifTool/Lang/zh_tw.pm
 lib/Image/ExifTool/Leaf.pm
+lib/Image/ExifTool/LigoGPS.pm
 lib/Image/ExifTool/Lytro.pm
 lib/Image/ExifTool/M2TS.pm
 lib/Image/ExifTool/MIE.pm
@@ -367,6 +388,7 @@ lib/Image/ExifTool/Olympus.pm
 lib/Image/ExifTool/OpenEXR.pm
 lib/Image/ExifTool/Opus.pm
 lib/Image/ExifTool/Other.pm
+lib/Image/ExifTool/PCAP.pm
 lib/Image/ExifTool/PCX.pm
 lib/Image/ExifTool/PDF.pm
 lib/Image/ExifTool/PGF.pm
@@ -385,8 +407,10 @@ lib/Image/ExifTool/PhaseOne.pm
 lib/Image/ExifTool/PhotoCD.pm
 lib/Image/ExifTool/PhotoMechanic.pm
 lib/Image/ExifTool/Photoshop.pm
+lib/Image/ExifTool/Plot.pm
 lib/Image/ExifTool/PostScript.pm
 lib/Image/ExifTool/PrintIM.pm
+lib/Image/ExifTool/Protobuf.pm
 lib/Image/ExifTool/Qualcomm.pm
 lib/Image/ExifTool/QuickTime.pm
 lib/Image/ExifTool/QuickTimeStream.pl
@@ -416,6 +440,7 @@ lib/Image/ExifTool/TagNames.pod
 lib/Image/ExifTool/Text.pm
 lib/Image/ExifTool/Theora.pm
 lib/Image/ExifTool/Torrent.pm
+lib/Image/ExifTool/Trailer.pm
 lib/Image/ExifTool/Unknown.pm
 lib/Image/ExifTool/VCard.pm
 lib/Image/ExifTool/Validate.pm
@@ -441,6 +466,8 @@ lib/Image/ExifTool/ZIP.pm
 lib/Image/ExifTool/ZISRAW.pm
 lib/Image/ExifTool/iWork.pm
 perl-Image-ExifTool.spec
+t/AAC.t
+t/AAC_2.out
 t/AFCP.t
 t/AFCP_2.out
 t/AFCP_3.out
@@ -595,6 +622,14 @@ t/GeoTiff.t
 t/GeoTiff_2.out
 t/GeoTiff_3.out
 t/GeoTiff_4.out
+t/Geolocation.t
+t/Geolocation_2.out
+t/Geolocation_3.out
+t/Geolocation_4.out
+t/Geolocation_5.out
+t/Geolocation_6.out
+t/Geolocation_7.out
+t/Geolocation_8.out
 t/Geotag.t
 t/Geotag_10.out
 t/Geotag_11.out
@@ -725,6 +760,8 @@ t/OpenEXR.t
 t/OpenEXR_2.out
 t/Opus.t
 t/Opus_2.out
+t/PCAP.t
+t/PCAP_2.out
 t/PCX.t
 t/PCX_2.out
 t/PDF.t
@@ -804,7 +841,12 @@ t/QuickTime_14.out
 t/QuickTime_15.out
 t/QuickTime_16.out
 t/QuickTime_17.out
+t/QuickTime_18.out
+t/QuickTime_19.out
 t/QuickTime_2.out
+t/QuickTime_20.out
+t/QuickTime_21.out
+t/QuickTime_22.out
 t/QuickTime_3.out
 t/QuickTime_4.out
 t/QuickTime_5.out
@@ -916,6 +958,7 @@ t/Writer_58.out
 t/Writer_59.out
 t/Writer_6.out
 t/Writer_60.out
+t/Writer_61.out
 t/Writer_7.out
 t/Writer_9.out
 t/XISF.t
@@ -979,6 +1022,7 @@ t/ZIP_7.out
 t/ZIP_8.out
 t/ZISRAW.t
 t/ZISRAW_2.out
+t/images/AAC.aac
 t/images/AFCP.jpg
 t/images/AIFF.aif
 t/images/APE.ape
@@ -1091,6 +1135,7 @@ t/images/OlympusE1.jpg
 t/images/OpenDoc.ods
 t/images/OpenEXR.exr
 t/images/Opus.opus
+t/images/PCAP.pcapng
 t/images/PCX.pcx
 t/images/PDF.pdf
 t/images/PDF2.pdf

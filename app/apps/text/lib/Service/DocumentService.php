@@ -146,7 +146,7 @@ class DocumentService {
 		try {
 			/** @var Document $document */
 			$document = $this->documentMapper->insert($document);
-			$this->cache->set('document-version-'.$document->getId(), 0);
+			$this->cache->set('document-version-' . $document->getId(), 0);
 		} catch (Exception $e) {
 			if ($e->getReason() === Exception::REASON_UNIQUE_CONSTRAINT_VIOLATION) {
 				// Document might have been created in the meantime
@@ -206,7 +206,7 @@ class DocumentService {
 	 */
 	public function addStep(Document $document, Session $session, array $steps, int $version, ?string $shareToken): array {
 		$documentId = $session->getDocumentId();
-		$readOnly = $this->isReadOnly($this->getFileForSession($session, $shareToken), $shareToken);
+		$readOnly = $this->isReadOnlyCached($session, $shareToken);
 		$stepsToInsert = [];
 		$stepsIncludeQuery = false;
 		$documentState = null;
@@ -265,8 +265,8 @@ class DocumentService {
 
 	/**
 	 * @param Document $document
-	 * @param Session  $session
-	 * @param Step[]   $steps
+	 * @param Session $session
+	 * @param Step[] $steps
 	 *
 	 * @return int
 	 *
@@ -288,7 +288,7 @@ class DocumentService {
 			$step->setTimestamp(time());
 			$step = $this->stepMapper->insert($step);
 			$newVersion = $step->getId();
-			$this->logger->debug("Adding steps to " . $document->getId() . ": bumping version from $stepsVersion to $newVersion");
+			$this->logger->debug('Adding steps to ' . $document->getId() . ": bumping version from $stepsVersion to $newVersion");
 			$this->cache->set('document-version-' . $document->getId(), $newVersion);
 			// TODO write steps to cache for quicker reading
 			return $newVersion;
@@ -564,6 +564,18 @@ class DocumentService {
 		throw new \InvalidArgumentException('No proper share data');
 	}
 
+	public function isReadOnlyCached(Session $session, ?string $shareToken = null): bool {
+		$cacheKey = 'read-only-' . $session->getId();
+		$isReadOnly = $this->cache->get($cacheKey);
+		if ($isReadOnly === null) {
+			$file = $this->getFileForSession($session, $shareToken);
+			$isReadOnly = $this->isReadOnly($file, $shareToken);
+			$this->cache->set($cacheKey, $isReadOnly, 60 * 5);
+			return $isReadOnly;
+		}
+
+		return $isReadOnly;
+	}
 
 	public function isReadOnly(File $file, ?string $token): bool {
 		$readOnly = true;
@@ -614,7 +626,7 @@ class DocumentService {
 			throw new NotFoundException();
 		}
 
-		if (($share->getPermissions() & $permission) === 0) {
+		if (($share->getPermissions() & $permission) === 0 || ($share->getNode()->getPermissions() & $permission) === 0) {
 			throw new NotFoundException();
 		}
 	}
@@ -651,7 +663,7 @@ class DocumentService {
 				ILock::TYPE_APP,
 				Application::APP_NAME
 			));
-		} catch (NoLockProviderException | PreConditionNotMetException | NotFoundException $e) {
+		} catch (NoLockProviderException|PreConditionNotMetException|NotFoundException $e) {
 		} catch (OwnerLockedException $e) {
 			return false;
 		}
@@ -670,7 +682,7 @@ class DocumentService {
 				ILock::TYPE_APP,
 				Application::APP_NAME
 			));
-		} catch (NoLockProviderException | PreConditionNotMetException | NotFoundException $e) {
+		} catch (NoLockProviderException|PreConditionNotMetException|NotFoundException $e) {
 		}
 	}
 

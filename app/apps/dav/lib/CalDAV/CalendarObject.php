@@ -13,9 +13,6 @@ use Sabre\VObject\Reader;
 
 class CalendarObject extends \Sabre\CalDAV\CalendarObject {
 
-	/** @var IL10N */
-	protected $l10n;
-
 	/**
 	 * CalendarObject constructor.
 	 *
@@ -24,16 +21,17 @@ class CalendarObject extends \Sabre\CalDAV\CalendarObject {
 	 * @param array $calendarInfo
 	 * @param array $objectData
 	 */
-	public function __construct(CalDavBackend $caldavBackend, IL10N $l10n,
+	public function __construct(
+		CalDavBackend $caldavBackend,
+		protected IL10N $l10n,
 		array $calendarInfo,
-		array $objectData) {
+		array $objectData,
+	) {
 		parent::__construct($caldavBackend, $calendarInfo, $objectData);
 
 		if ($this->isShared()) {
 			unset($this->objectData['size']);
 		}
-
-		$this->l10n = $l10n;
 	}
 
 	/**
@@ -54,7 +52,8 @@ class CalendarObject extends \Sabre\CalDAV\CalendarObject {
 		}
 
 		// shows as busy if event is declared confidential
-		if ($this->objectData['classification'] === CalDavBackend::CLASSIFICATION_CONFIDENTIAL) {
+		if ($this->objectData['classification'] === CalDavBackend::CLASSIFICATION_CONFIDENTIAL
+			&& ($this->isPublic() || !$this->canWrite())) {
 			$this->createConfidentialObject($vObject);
 		}
 
@@ -62,7 +61,7 @@ class CalendarObject extends \Sabre\CalDAV\CalendarObject {
 	}
 
 	public function getId(): int {
-		return (int) $this->objectData['id'];
+		return (int)$this->objectData['id'];
 	}
 
 	protected function isShared() {
@@ -134,6 +133,10 @@ class CalendarObject extends \Sabre\CalDAV\CalendarObject {
 			return !$this->calendarInfo['{http://owncloud.org/ns}read-only'];
 		}
 		return true;
+	}
+
+	private function isPublic(): bool {
+		return $this->calendarInfo['{http://owncloud.org/ns}public'] ?? false;
 	}
 
 	public function getCalendarId(): int {

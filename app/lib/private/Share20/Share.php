@@ -66,13 +66,13 @@ class Share implements IShare {
 	private $shareTime;
 	/** @var bool */
 	private $mailSend;
-	/** @var string */
-	private $label = '';
 	/** @var ICacheEntry|null */
 	private $nodeCacheEntry;
 	/** @var bool */
 	private $hideDownload = false;
+	private bool $reminderSent = false;
 
+	private string $label = '';
 	private bool $noExpirationDate = false;
 
 	public function __construct(
@@ -191,7 +191,7 @@ class Share implements IShare {
 		}
 
 		if ($this->fileId === null) {
-			throw new NotFoundException("Share source not found");
+			throw new NotFoundException('Share source not found');
 		} else {
 			return $this->fileId;
 		}
@@ -529,7 +529,7 @@ class Share implements IShare {
 	 *
 	 * @param int $parent
 	 * @return IShare
-	 * @deprecated The new shares do not have parents. This is just here for legacy reasons.
+	 * @deprecated 12.0.0 The new shares do not have parents. This is just here for legacy reasons.
 	 */
 	public function setParent($parent) {
 		$this->parent = $parent;
@@ -540,7 +540,7 @@ class Share implements IShare {
 	 * Get the parent of this share.
 	 *
 	 * @return int
-	 * @deprecated The new shares do not have parents. This is just here for legacy reasons.
+	 * @deprecated 12.0.0 The new shares do not have parents. This is just here for legacy reasons.
 	 */
 	public function getParent() {
 		return $this->parent;
@@ -612,5 +612,14 @@ class Share implements IShare {
 
 	public function getHideDownload(): bool {
 		return $this->hideDownload;
+	}
+
+	public function setReminderSent(bool $reminderSent): IShare {
+		$this->reminderSent = $reminderSent;
+		return $this;
+	}
+
+	public function getReminderSent(): bool {
+		return $this->reminderSent;
 	}
 }

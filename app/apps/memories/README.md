@@ -2,10 +2,10 @@
 
 # Memories: Photo Management for Nextcloud
 
-[![Discord](https://dcbadge.vercel.app/api/server/7Dr9f9vNjJ)](https://discord.gg/7Dr9f9vNjJ)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/7Dr9f9vNjJ)
 [![Website](https://img.shields.io/website?down_color=red&down_message=offline&label=website&style=for-the-badge&up_color=brightgreen&up_message=online&url=https%3A%2F%2Fmemories.gallery)](https://memories.gallery)
 [![Demo](https://img.shields.io/website?down_color=red&down_message=offline&label=demo&style=for-the-badge&up_color=brightgreen&up_message=online&url=https%3A%2F%2Fdemo.memories.gallery)](https://demo.memories.gallery/apps/memories/)
-[![Nextcloud Store](https://img.shields.io/badge/nextcloud_store-blue?style=for-the-badge)](https://apps.nextcloud.com/apps/memories)
+[![Nextcloud Store](https://img.shields.io/badge/nextcloud_store-blue?style=for-the-badge&logo=nextcloud&logoColor=white)](https://apps.nextcloud.com/apps/memories)
 
 ![GitHub](https://img.shields.io/github/license/pulsejet/memories)
 [![GitHub issues](https://img.shields.io/github/issues/pulsejet/memories)](https://github.com/pulsejet/memories/issues)
@@ -90,12 +90,6 @@ Releases are organized with these tags:
 1. **🪙 Sponsorship**: You can support the project financially at [GitHub Sponsors](https://github.com/sponsors/pulsejet).
 
 A shout out to the current and past financial backers of Memories! See the sponsors page for a full list.
-
-[<img src="https://github.com/mpodshivalin.png" width="42" />](https://github.com/mpodshivalin)
-[<img src="https://github.com/k1l1.png" width="42" />](https://github.com/k1l1)
-[<img src="https://github.com/ChickenTarm.png" width="42" />](https://github.com/ChickenTarm)
-[<img src="https://github.com/ChildLearningClub.png" width="42" />](https://github.com/ChildLearningClub)
-[<img src="https://github.com/mpanhans.png" width="42" />](https://github.com/mpanhans)
 
 ## 📝 Changelog
 

@@ -12,6 +12,9 @@ namespace OCA\SuspiciousLogin\Db;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\IDBConnection;
 
+/**
+ * @extends QBMapper<LoginAddressAggregated>
+ */
 class LoginAddressAggregatedMapper extends QBMapper {
 	public function __construct(IDBConnection $db) {
 		parent::__construct($db, 'login_ips_aggregated');
@@ -67,7 +70,9 @@ class LoginAddressAggregatedMapper extends QBMapper {
 				$qb->expr()->like('ip', $qb->createNamedParameter('_%._%._%._%')),
 				$qb->expr()->gte('last_seen', $qb->createNamedParameter($maxAge)),
 				$qb->expr()->lte('first_seen', $qb->createNamedParameter($threshold))
-			));
+			))
+			->orderBy('last_seen', 'DESC') // Use most recent data in case of limiting
+			->setMaxResults(15_000); // More data will like exhaust memory
 
 		return $this->findEntities($query);
 	}
@@ -81,7 +86,9 @@ class LoginAddressAggregatedMapper extends QBMapper {
 			->where($qb->expr()->andX(
 				$qb->expr()->like('ip', $qb->createNamedParameter('_%._%._%._%')),
 				$qb->expr()->gt('last_seen', $qb->createNamedParameter($threshold))
-			));
+			))
+			->orderBy('last_seen', 'DESC') // Use most recent data in case of limiting
+			->setMaxResults(3_000); // More data will like exhaust memory;
 
 		return $this->findEntities($query);
 	}
@@ -145,7 +152,9 @@ class LoginAddressAggregatedMapper extends QBMapper {
 				$qb->expr()->notLike('ip', $qb->createNamedParameter('_%._%._%._%')),
 				$qb->expr()->gte('last_seen', $qb->createNamedParameter($maxAge)),
 				$qb->expr()->lte('first_seen', $qb->createNamedParameter($threshold))
-			));
+			))
+			->orderBy('last_seen', 'DESC') // Use most recent data in case of limiting
+			->setMaxResults(15_000); // More data will like exhaust memory;
 
 		return $this->findEntities($query);
 	}
@@ -159,7 +168,9 @@ class LoginAddressAggregatedMapper extends QBMapper {
 			->where($qb->expr()->andX(
 				$qb->expr()->notLike('ip', $qb->createNamedParameter('_%._%._%._%')),
 				$qb->expr()->gt('last_seen', $qb->createNamedParameter($threshold))
-			));
+			))
+			->orderBy('last_seen', 'DESC') // Use most recent data in case of limiting
+			->setMaxResults(3_000); // More data will like exhaust memory
 
 		return $this->findEntities($query);
 	}

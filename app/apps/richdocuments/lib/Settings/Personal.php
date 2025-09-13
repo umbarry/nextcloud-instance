@@ -6,30 +6,23 @@
 
 namespace OCA\Richdocuments\Settings;
 
+use OCA\Richdocuments\AppConfig;
 use OCA\Richdocuments\Service\CapabilitiesService;
 use OCA\Richdocuments\Service\InitialStateService;
+use OCA\Richdocuments\TokenManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IConfig;
 use OCP\Settings\ISettings;
 
 class Personal implements ISettings {
-	/** @var IConfig Config */
-	private $config;
-
-	/** @var CapabilitiesService */
-	private $capabilitiesService;
-
-	/** @var InitialStateService */
-	private $initialState;
-
-	/** @var string */
-	private $userId;
-
-	public function __construct(IConfig $config, CapabilitiesService $capabilitiesService, InitialStateService $initialStateService, $userId) {
-		$this->config = $config;
-		$this->capabilitiesService = $capabilitiesService;
-		$this->initialState = $initialStateService;
-		$this->userId = $userId;
+	public function __construct(
+		private IConfig $config,
+		private AppConfig $appConfig,
+		private CapabilitiesService $capabilitiesService,
+		private InitialStateService $initialState,
+		private TokenManager $tokenManager,
+		private ?string $userId,
+	) {
 	}
 
 	/** @psalm-suppress InvalidNullableReturnType */
@@ -50,7 +43,10 @@ class Personal implements ISettings {
 				'documentSigningKey' => $this->config->getUserValue($this->userId, 'richdocuments', 'documentSigningKey', ''),
 				'documentSigningCa' => $this->config->getUserValue($this->userId, 'richdocuments', 'documentSigningCa', ''),
 				'hasZoteroSupport' => $this->capabilitiesService->hasZoteroSupport(),
-				'zoteroAPIKey' => $this->config->getUserValue($this->userId, 'richdocuments', 'zoteroAPIKey', '')
+				'hasSettingIframeSupport' => $this->capabilitiesService->hasSettingIframeSupport(),
+				'zoteroAPIKey' => $this->config->getUserValue($this->userId, 'richdocuments', 'zoteroAPIKey', ''),
+				'publicWopiUrl' => $this->appConfig->getCollaboraUrlPublic(),
+				'setting_iframe_url' => $this->tokenManager->getUrlSrcForMimeType('Settings'),
 			],
 			'blank'
 		);

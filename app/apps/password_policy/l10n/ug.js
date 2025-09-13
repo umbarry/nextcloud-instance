@@ -12,12 +12,11 @@ OC.L10N.register(
     "Password policy" : "پارول سىياسىتى",
     "Allows admins to configure a password policy" : "باشقۇرغۇچىلارنىڭ پارول سىياسىتىنى تەڭشىشىگە يول قويىدۇ",
     "Allow admin to define certain pre-conditions for password, e.g. enforce a minimum length" : "باشقۇرغۇچىنىڭ پارولنىڭ بەزى ئالدىنقى شەرتلىرىنى ئېنىقلىشىغا يول قويۇڭ ، مەسىلەن. ئەڭ تۆۋەن ئۇزۇنلۇقنى ئىجرا قىلىڭ",
-    "Minimum password length" : "ئەڭ تۆۋەن پارول ئۇزۇنلۇقى",
-    "User password history" : "ئىشلەتكۈچى پارول تارىخى",
     "Number of login attempts before the user account will be disabled until manual action is taken. (0 for no limit)" : "قولدا ھەرىكەت قوللانمىغۇچە ئىشلەتكۈچى ھېساباتىدىن بۇرۇن كىرىش قېتىم سانى چەكلىنىدۇ. (0 چەكسىز)",
     "Please note, this option is meant to protect attacked accounts. Disabled accounts have to be re-enabled manually by administration. Attackers that try to guess passwords of accounts will have their IP address blocked by the bruteforce protection independent from this setting." : "دىققەت قىلىڭ ، بۇ تاللاش ھۇجۇم قىلىنغان ھېساباتلارنى قوغداشنى مەقسەت قىلىدۇ. چەكلەنگەن ھېساباتلارنى باشقۇرۇش ئارقىلىق قولدا قايتا قوزغىتىش كېرەك. ھېسابات مەخپىي نومۇرىنى پەرەز قىلماقچى بولغان ھۇجۇمچىلار IP ئادرېسىنى بۇ تەڭشەكتىن مۇستەقىل ھالدا رەھىمسىزلەرچە قوغداش تەرىپىدىن توسۇۋالىدۇ.",
     "Number of days until user password expires" : "ئىشلەتكۈچى پارولى توشقانغا قەدەر كۈن سانى",
     "Warning: enabling password expiration is nowadays considered a security risk by several security agencies." : "ئاگاھلاندۇرۇش: مەخپىي نومۇرنىڭ مۇددىتى توشۇش ھازىر بىر قانچە بىخەتەرلىك ئورگانلىرىنىڭ بىخەتەرلىك خەۋىپى دەپ قارىلىدۇ.",
+    "Minimum password length" : "ئەڭ تۆۋەن پارول ئۇزۇنلۇقى",
     "Forbid common passwords" : "ئورتاق مەخپىي نومۇرنى مەنئى قىلىڭ",
     "Enforce upper and lower case characters" : "چوڭ ۋە كىچىك ھەرپلەرنى ئىشلىتىڭ",
     "Enforce numeric characters" : "رەقەملىك ھەرپلەرنى ئىجرا قىلىڭ",
@@ -31,6 +30,6 @@ OC.L10N.register(
     "Maximum login attempts have to be a non negative number" : "ئەڭ چوڭ كىرىش سىنىقى مەنپىي بولمىغان سان بولۇشى كېرەك",
     "Settings saved" : "تەڭشەكلەر ساقلاندى",
     "Error while saving settings" : "تەڭشەكلەرنى ساقلاش جەريانىدا خاتالىق",
-    "Please note, that this option is meant to protect attacked accounts. Disabled accounts have to be re-enabled manually by administration. Attackers that try to guess passwords of accounts will have their IP address blocked by the bruteforce protection independent from this setting." : "دىققەت قىلىڭ ، بۇ تاللاش ھۇجۇم قىلىنغان ھېساباتلارنى قوغداشنى مەقسەت قىلىدۇ. چەكلەنگەن ھېساباتلارنى باشقۇرۇش ئارقىلىق قولدا قايتا قوزغىتىش كېرەك. ھېسابات مەخپىي نومۇرىنى پەرەز قىلماقچى بولغان ھۇجۇمچىلار IP ئادرېسىنى بۇ تەڭشەكتىن مۇستەقىل ھالدا رەھىمسىزلەرچە قوغداش تەرىپىدىن توسۇۋالىدۇ."
+    "User password history" : "ئىشلەتكۈچى پارول تارىخى"
 },
 "nplurals=2; plural=(n != 1);");

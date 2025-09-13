@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2018 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\Notes\Service;
 
 use OCA\Notes\AppInfo\Application;
@@ -26,7 +31,7 @@ class SettingsService {
 		IConfig $config,
 		IL10N $l10n,
 		IRootFolder $root,
-		IAppManager $appManager
+		IAppManager $appManager,
 	) {
 		$this->config = $config;
 		$this->l10n = $l10n;
@@ -107,6 +112,9 @@ class SettingsService {
 			if ($value !== null && array_key_exists($name, $this->attrs)) {
 				$settings[$name] = $value = $this->attrs[$name]['validate']($value);
 			}
+			if ($name === 'notesPath' && $value !== null) {
+				continue;
+			}
 			$default = is_callable($this->attrs[$name]['default']) ? $this->attrs[$name]['default']($uid) : $this->attrs[$name]['default'];
 			if (!$writeDefaults && (!array_key_exists($name, $this->attrs)
 				|| $value === null
@@ -164,12 +172,12 @@ class SettingsService {
 	/**
 	 * @throws \OCP\PreConditionNotMetException
 	 */
-	public function get(string $uid, string $name) : string {
-		$settings = $this->getAll($uid);
+	public function get(string $uid, string $name, bool $saveInitial = false) : string {
+		$settings = $this->getAll($uid, $saveInitial);
 		if (property_exists($settings, $name)) {
 			return $settings->{$name};
 		} else {
-			throw new \OCP\PreConditionNotMetException('Setting '.$name.' not found for user '.$uid.'.');
+			throw new \OCP\PreConditionNotMetException('Setting ' . $name . ' not found for user ' . $uid . '.');
 		}
 	}
 

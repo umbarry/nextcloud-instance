@@ -10,19 +10,16 @@ namespace OCA\Files_Sharing;
 
 use OC\User\NoUserException;
 use OCP\DB\QueryBuilder\IQueryBuilder;
+use OCP\Files\Config\IUserMountCache;
 use OCP\Files\IRootFolder;
 use OCP\IDBConnection;
 
 class OrphanHelper {
-	private IDBConnection $connection;
-	private IRootFolder $rootFolder;
-
 	public function __construct(
-		IDBConnection $connection,
-		IRootFolder $rootFolder
+		private IDBConnection $connection,
+		private IRootFolder $rootFolder,
+		private IUserMountCache $userMountCache,
 	) {
-		$this->connection = $connection;
-		$this->rootFolder = $rootFolder;
 	}
 
 	public function isShareValid(string $owner, int $fileId): bool {
@@ -57,12 +54,19 @@ class OrphanHelper {
 	/**
 	 * @return \Traversable<int, array{id: int, owner: string, fileid: int, target: string}>
 	 */
-	public function getAllShares() {
+	public function getAllShares(?string $owner = null, ?string $with = null) {
 		$query = $this->connection->getQueryBuilder();
 		$query->select('id', 'file_source', 'uid_owner', 'file_target')
 			->from('share')
-			->where($query->expr()->eq('item_type', $query->createNamedParameter('file')))
-			->orWhere($query->expr()->eq('item_type', $query->createNamedParameter('folder')));
+			->where($query->expr()->in('item_type', $query->createNamedParameter(['file', 'folder'], IQueryBuilder::PARAM_STR_ARRAY)));
+
+		if ($owner !== null) {
+			$query->andWhere($query->expr()->eq('uid_owner', $query->createNamedParameter($owner)));
+		}
+		if ($with !== null) {
+			$query->andWhere($query->expr()->eq('share_with', $query->createNamedParameter($with)));
+		}
+
 		$result = $query->executeQuery();
 		while ($row = $result->fetch()) {
 			yield [
@@ -72,5 +76,27 @@ class OrphanHelper {
 				'target' => (string)$row['file_target'],
 			];
 		}
+	}
+
+	public function findOwner(int $fileId): ?string {
+		$mounts = $this->userMountCache->getMountsForFileId($fileId);
+		if (!$mounts) {
+			return null;
+		}
+		foreach ($mounts as $mount) {
+			$userHomeMountPoint = '/' . $mount->getUser()->getUID() . '/';
+			if ($mount->getMountPoint() === $userHomeMountPoint) {
+				return $mount->getUser()->getUID();
+			}
+		}
+		return null;
+	}
+
+	public function updateShareOwner(int $shareId, string $owner): void {
+		$query = $this->connection->getQueryBuilder();
+		$query->update('share')
+			->set('uid_owner', $query->createNamedParameter($owner))
+			->where($query->expr()->eq('id', $query->createNamedParameter($shareId, IQueryBuilder::PARAM_INT)));
+		$query->executeStatement();
 	}
 }

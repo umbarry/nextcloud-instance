@@ -13,9 +13,9 @@ use OCP\IDBConnection;
 const GIS_TYPE_NONE = 0;
 const GIS_TYPE_MYSQL = 1;
 const GIS_TYPE_POSTGRES = 2;
-const APPROX_PLACES = 635189;
+const APPROX_PLACES = 726000;
 
-const PLANET_URL = 'https://github.com/pulsejet/memories-assets/releases/download/geo-0.0.3/planet_coarse_boundaries.zip';
+const PLANET_URL = 'https://github.com/pulsejet/memories-assets/releases/download/geo-0.0.4/planet_coarse_boundaries.zip';
 
 class Places
 {
@@ -44,10 +44,10 @@ class Places
         }
 
         // Detect database type
-        $platform = $this->connection->getDatabasePlatform();
+        $provider = $this->connection->getDatabaseProvider();
 
         // Test MySQL-like support in databse
-        if (preg_match('/mysql|mariadb/i', $platform::class)) {
+        if (IDBConnection::PLATFORM_MYSQL === $provider) { // MySQL or MariaDB
             try {
                 $res = $this->connection->executeQuery("SELECT ST_GeomFromText('POINT(1 1)', 4326)")->fetch();
                 if (0 === \count($res)) {
@@ -61,7 +61,7 @@ class Places
         }
 
         // Test Postgres native geometry like support in database
-        if (preg_match('/postgres/i', $platform::class)) {
+        if (IDBConnection::PLATFORM_POSTGRES === $provider) {
             try {
                 $res = $this->connection->executeQuery("SELECT POINT('1,1')")->fetch();
                 if (0 === \count($res)) {
@@ -203,12 +203,11 @@ class Places
         }
 
         // Setup the database
+        // This drops and recreates memories_planet_geometry
         $this->setupDatabase($gis);
 
-        // Truncate tables
-        $p = $this->connection->getDatabasePlatform();
-        $this->connection->executeStatement($p->getTruncateTableSQL('*PREFIX*memories_planet', false));
-        $this->connection->executeStatement($p->getTruncateTableSQL('memories_planet_geometry', false));
+        // Truncate planet table
+        SQL::truncate($this->connection, 'memories_planet', false);
 
         // Create place insertion statement
         $query = $this->connection->getQueryBuilder();

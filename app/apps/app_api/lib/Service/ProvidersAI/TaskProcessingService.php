@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\AppAPI\Service\ProvidersAI;
 
 use JsonException;
@@ -24,6 +29,7 @@ use Psr\Log\LoggerInterface;
 
 class TaskProcessingService {
 	private ?ICache $cache = null;
+	private ?array $registeredProviders = null;
 
 	public function __construct(
 		ICacheFactory $cacheFactory,
@@ -42,6 +48,9 @@ class TaskProcessingService {
 	 */
 	public function getRegisteredTaskProcessingProviders(): array {
 		try {
+			if ($this->registeredProviders !== null) {
+				return $this->registeredProviders;
+			}
 			$cacheKey = '/ex_task_processing_providers';
 			$records = $this->cache?->get($cacheKey);
 			if ($records === null) {
@@ -49,7 +58,7 @@ class TaskProcessingService {
 				$this->cache?->set($cacheKey, $records);
 			}
 
-			return array_map(static function ($record) {
+			return $this->registeredProviders = array_map(static function ($record) {
 				return new TaskProcessingProvider($record);
 			}, $records);
 		} catch (Exception) {
@@ -94,6 +103,21 @@ class TaskProcessingService {
 		return true;
 	}
 
+	private function everyArrayElementHasKeys(array|null $array, array $keys): bool {
+		if (!is_array($array)) {
+			return false;
+		}
+
+		foreach ($array as $element) {
+			foreach ($keys as $key) {
+				if (!array_key_exists($key, $element)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	private function validateTaskProcessingProvider(array $provider): void {
 		if (!isset($provider['id']) || !is_string($provider['id'])) {
 			throw new Exception('"id" key must be a string');
@@ -107,10 +131,10 @@ class TaskProcessingService {
 		if (!isset($provider['expected_runtime']) || !is_int($provider['expected_runtime'])) {
 			throw new Exception('"expected_runtime" key must be an integer');
 		}
-		if (!$this->everyElementHasKeys($provider['optional_input_shape'], ['name', 'description', 'shape_type'])) {
+		if (!$this->everyArrayElementHasKeys($provider['optional_input_shape'], ['name', 'description', 'shape_type'])) {
 			throw new Exception('"optional_input_shape" should be an array and must have "name", "description" and "shape_type" keys');
 		}
-		if (!$this->everyElementHasKeys($provider['optional_output_shape'], ['name', 'description', 'shape_type'])) {
+		if (!$this->everyArrayElementHasKeys($provider['optional_output_shape'], ['name', 'description', 'shape_type'])) {
 			throw new Exception('"optional_output_shape" should be an array and must have "name", "description" and "shape_type" keys');
 		}
 		if (!$this->everyElementHasKeys($provider['input_shape_enum_values'], ['name', 'value'])) {
@@ -235,7 +259,7 @@ class TaskProcessingService {
 	/**
 	 * @psalm-suppress UndefinedClass, MissingDependency, InvalidReturnStatement, InvalidReturnType
 	 */
-	private function getAnonymousExAppProvider(
+	public function getAnonymousExAppProvider(
 		array $provider,
 	): IProvider {
 		return new class($provider) implements IProvider {
@@ -261,23 +285,25 @@ class TaskProcessingService {
 			}
 
 			public function getOptionalInputShape(): array {
-				return array_map(function ($shape) {
-					return new ShapeDescriptor(
+				return array_reduce($this->provider['optional_input_shape'], function (array $input, array $shape) {
+					$input[$shape['name']] = new ShapeDescriptor(
 						$shape['name'],
 						$shape['description'],
 						EShapeType::from($shape['shape_type']),
 					);
-				}, $this->provider['optional_input_shape']);
+					return $input;
+				}, []);
 			}
 
 			public function getOptionalOutputShape(): array {
-				return array_map(static function (array $shape) {
-					return new ShapeDescriptor(
+				return array_reduce($this->provider['optional_output_shape'], function (array $input, array $shape) {
+					$input[$shape['name']] = new ShapeDescriptor(
 						$shape['name'],
 						$shape['description'],
 						EShapeType::from($shape['shape_type']),
 					);
-				}, $this->provider['optional_output_shape']);
+					return $input;
+				}, []);
 			}
 
 			public function getInputShapeEnumValues(): array {
@@ -328,38 +354,7 @@ class TaskProcessingService {
 		return $result;
 	}
 
-	/**
-	 * @param IRegistrationContext $context
-	 *
-	 * @return void
-	 */
-	public function registerExAppTaskProcessingCustomTaskTypes(IRegistrationContext $context): void {
-		$exAppsProviders = $this->getRegisteredTaskProcessingProviders();
-		foreach ($exAppsProviders as $exAppProvider) {
-			$customTaskType = $exAppProvider->getCustomTaskType();
-			if ($customTaskType === null) {
-				continue;
-			}
-
-			/** @var class-string<ITaskType> $className */
-			$className = '\\OCA\\AppAPI\\' . $exAppProvider->getAppId() . '\\' . $exAppProvider->getName() . '\\TaskType';
-			try {
-				$taskType = $this->getAnonymousTaskType(json_decode($customTaskType, true, 512, JSON_THROW_ON_ERROR));
-			} catch (JsonException $e) {
-				$this->logger->debug('Failed to register ExApp TaskProcessing custom task type', ['exAppId' => $exAppProvider->getAppId(), 'taskType' => $exAppProvider->getName(), 'exception' => $e]);
-				continue;
-			} catch (\Throwable) {
-				continue;
-			}
-
-			$context->registerService($className, function () use ($taskType) {
-				return $taskType;
-			});
-			$context->registerTaskProcessingTaskType($className);
-		}
-	}
-
-	private function getAnonymousTaskType(
+	public function getAnonymousTaskType(
 		array $customTaskType,
 	): ITaskType {
 		return new class($customTaskType) implements ITaskType {
@@ -381,19 +376,25 @@ class TaskProcessingService {
 			}
 
 			public function getInputShape(): array {
-				return array_map(static fn (array $shape) => new ShapeDescriptor(
-					$shape['name'],
-					$shape['description'],
-					EShapeType::from($shape['type']),
-				), $this->customTaskType['input_shape']);
+				return array_reduce($this->customTaskType['input_shape'], static function (array $input, array $shape) {
+					$input[$shape['name']] = new ShapeDescriptor(
+						$shape['name'],
+						$shape['description'],
+						EShapeType::from($shape['shape_type']),
+					);
+					return $input;
+				}, []);
 			}
 
 			public function getOutputShape(): array {
-				return array_map(static fn (array $shape) => new ShapeDescriptor(
-					$shape['name'],
-					$shape['description'],
-					EShapeType::from($shape['type']),
-				), $this->customTaskType['output_shape']);
+				return array_reduce($this->customTaskType['output_shape'], static function (array $output, array $shape) {
+					$output[$shape['name']] = new ShapeDescriptor(
+						$shape['name'],
+						$shape['description'],
+						EShapeType::from($shape['shape_type']),
+					);
+					return $output;
+				}, []);
 			}
 		};
 	}

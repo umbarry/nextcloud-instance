@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\AppAPI\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -194,6 +199,9 @@ class ExAppMapper extends QBMapper {
 		foreach ($routes as $route) {
 			if (isset($route['bruteforce_protection']) && is_string($route['bruteforce_protection'])) {
 				$route['bruteforce_protection'] = json_decode($route['bruteforce_protection'], false);
+			}
+			if (!isset($route['headers_to_exclude'])) {
+				$route['headers_to_exclude'] = [];
 			}
 			$qb->insert('ex_apps_routes')
 				->values([

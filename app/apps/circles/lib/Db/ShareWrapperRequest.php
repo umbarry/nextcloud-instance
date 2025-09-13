@@ -84,10 +84,27 @@ class ShareWrapperRequest extends ShareWrapperRequestBuilder {
 			->set('uid_initiator', $qb->createNamedParameter($shareWrapper->getSharedBy()))
 			->set('accepted', $qb->createNamedParameter(IShare::STATUS_ACCEPTED))
 			->set('permissions', $qb->createNamedParameter($shareWrapper->getPermissions()))
+			->set('note', $qb->createNamedParameter($shareWrapper->getShareNote()))
 			->set('expiration', $qb->createNamedParameter($shareWrapper->getExpirationDate(), IQueryBuilder::PARAM_DATE))
 			->set('attributes', $qb->createNamedParameter($shareAttributes));
 
 		$qb->limitToId((int)$shareWrapper->getId());
+
+		$qb->execute();
+	}
+
+	/**
+	 * update permissions and attributes from child
+	 */
+	public function updateChildPermissions(ShareWrapper $shareWrapper): void {
+		$qb = $this->getShareUpdateSql();
+		$shareAttributes = $this->formatShareAttributes($shareWrapper->getAttributes());
+
+		$qb->set('permissions', $qb->createNamedParameter($shareWrapper->getPermissions()))
+			->set('attributes', $qb->createNamedParameter($shareAttributes));
+
+		$qb->limitToShareParent((int)$shareWrapper->getId());
+		$qb->gt('permissions', 0);
 
 		$qb->execute();
 	}
@@ -128,7 +145,7 @@ class ShareWrapperRequest extends ShareWrapperRequestBuilder {
 		string $circleId,
 		?FederatedUser $shareRecipient = null,
 		?FederatedUser $shareInitiator = null,
-		bool $completeDetails = false
+		bool $completeDetails = false,
 	): array {
 		$qb = $this->getShareSelectSql();
 		$qb->limitNull('parent', false);
@@ -293,7 +310,7 @@ class ShareWrapperRequest extends ShareWrapperRequestBuilder {
 	public function getSharedWith(
 		FederatedUser $federatedUser,
 		int $nodeId,
-		CircleProbe $probe
+		CircleProbe $probe,
 	): array {
 		$qb = $this->getShareSelectSql();
 		$qb->setOptions(
@@ -342,7 +359,7 @@ class ShareWrapperRequest extends ShareWrapperRequestBuilder {
 		int $limit,
 		int $offset,
 		bool $getData = false,
-		bool $completeDetails = false
+		bool $completeDetails = false,
 	): array {
 		$qb = $this->getShareSelectSql();
 		$qb->setOptions([CoreQueryBuilder::SHARE], ['getData' => $getData]);
@@ -381,7 +398,7 @@ class ShareWrapperRequest extends ShareWrapperRequestBuilder {
 		FederatedUser $federatedUser,
 		Folder $node,
 		bool $reshares,
-		bool $shallow = true
+		bool $shallow = true,
 	): array {
 		$qb = $this->getShareSelectSql();
 

@@ -29,12 +29,12 @@ use OCA\Circles\Listeners\AccountUpdated;
 use OCA\Circles\Listeners\Files\AddingMemberSendMail as ListenerFilesAddingMemberSendMail;
 use OCA\Circles\Listeners\Files\CreatingShareSendMail as ListenerFilesCreatingShareSendMail;
 use OCA\Circles\Listeners\Files\DestroyingCircle as ListenerFilesDestroyingCircle;
-use OCA\Circles\Listeners\Files\ListenerFilesLoadScripts;
 use OCA\Circles\Listeners\Files\MemberAddedSendMail as ListenerFilesMemberAddedSendMail;
 use OCA\Circles\Listeners\Files\PreparingMemberSendMail as ListenerFilesPreparingMemberSendMail;
 use OCA\Circles\Listeners\Files\PreparingShareSendMail as ListenerFilesPreparingShareSendMail;
 use OCA\Circles\Listeners\Files\RemovingMember as ListenerFilesRemovingMember;
 use OCA\Circles\Listeners\Files\ShareCreatedSendMail as ListenerFilesShareCreatedSendMail;
+use OCA\Circles\Listeners\GroupChanged;
 use OCA\Circles\Listeners\GroupCreated;
 use OCA\Circles\Listeners\GroupDeleted;
 use OCA\Circles\Listeners\GroupMemberAdded;
@@ -47,13 +47,13 @@ use OCA\Circles\Notification\Notifier;
 use OCA\Circles\Search\UnifiedSearchProvider;
 use OCA\Circles\Service\ConfigService;
 use OCA\Files\App as FilesApp;
-use OCA\Files\Event\LoadAdditionalScriptsEvent;
 use OCP\Accounts\UserUpdatedEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Files\Config\IMountProviderCollection;
+use OCP\Group\Events\GroupChangedEvent;
 use OCP\Group\Events\GroupCreatedEvent;
 use OCP\Group\Events\GroupDeletedEvent;
 use OCP\Group\Events\UserAddedEvent;
@@ -76,7 +76,7 @@ class Application extends App implements IBootstrap {
 
 	public const APP_SUBJECT = 'http://nextcloud.com/';
 	public const APP_REL = 'https://apps.nextcloud.com/apps/circles';
-	public const APP_API = "1";
+	public const APP_API = '1';
 
 	public const CLIENT_TIMEOUT = 3;
 
@@ -100,12 +100,12 @@ class Application extends App implements IBootstrap {
 
 		// Group Events
 		$context->registerEventListener(GroupCreatedEvent::class, GroupCreated::class);
+		$context->registerEventListener(GroupChangedEvent::class, GroupChanged::class);
 		$context->registerEventListener(GroupDeletedEvent::class, GroupDeleted::class);
 		$context->registerEventListener(UserAddedEvent::class, GroupMemberAdded::class);
 		$context->registerEventListener(UserRemovedEvent::class, GroupMemberRemoved::class);
 
 		// Local Events (for Files/Shares/Notifications management)
-		$context->registerEventListener(LoadAdditionalScriptsEvent::class, ListenerFilesLoadScripts::class);
 		$context->registerEventListener(PreparingCircleMemberEvent::class, ListenerFilesPreparingMemberSendMail::class);
 		$context->registerEventListener(AddingCircleMemberEvent::class, ListenerFilesAddingMemberSendMail::class);
 		$context->registerEventListener(AddingCircleMemberEvent::class, ListenerNotificationsRequestingMember::class);
@@ -134,7 +134,7 @@ class Application extends App implements IBootstrap {
 		$serverContainer = $context->getServerContainer();
 
 		$this->configService = $context->getAppContainer()
-									   ->get(ConfigService::class);
+			->get(ConfigService::class);
 
 		$context->injectFn(Closure::fromCallable([$this, 'registerMountProvider']));
 		$context->injectFn(Closure::fromCallable([$this, 'registerFilesNavigation']));

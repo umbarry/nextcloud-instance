@@ -1,4 +1,4 @@
-FROM php:8.1.2-apache
+FROM php:8.4.12-apache
 
 # Installare il modulo PDO MySQL e altre dipendenze utili
 RUN apt-get update && apt-get install -y \

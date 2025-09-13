@@ -36,12 +36,14 @@ class BookingCalendarWriter {
 
 	private TimezoneGenerator $timezoneGenerator;
 
-	public function __construct(IConfig $config,
+	public function __construct(
+		IConfig $config,
 		IManager $manager,
 		IUserManager $userManager,
 		ISecureRandom $random,
 		TimezoneGenerator $timezoneGenerator,
-		private IFactory $l10nFactory) {
+		private IFactory $l10nFactory,
+	) {
 		$this->config = $config;
 		$this->manager = $manager;
 		$this->userManager = $userManager;
@@ -54,13 +56,13 @@ class BookingCalendarWriter {
 		$hour = 60 * 60;
 		$minute = 60;
 		if ($secs % $day === 0) {
-			return 'PT' . $secs / $day . 'S';
+			return 'PT' . (int)($secs / $day) . 'S';
 		}
 		if ($secs % $hour === 0) {
-			return 'PT' . $secs / $hour . 'H';
+			return 'PT' . (int)($secs / $hour) . 'H';
 		}
 		if ($secs % $minute === 0) {
-			return 'PT' . $secs / $minute . 'M';
+			return 'PT' . (int)($secs / $minute) . 'M';
 		}
 		return 'PT' . $secs . 'S';
 	}
@@ -107,7 +109,7 @@ class BookingCalendarWriter {
 
 		$end = $start->getTimestamp() + $config->getLength();
 		$tz = $this->timezoneGenerator->generateVTimezone($timezone, $start->getTimestamp(), $end);
-		if($tz) {
+		if ($tz) {
 			$vcalendar->add($tz);
 		}
 
@@ -156,7 +158,7 @@ class BookingCalendarWriter {
 		);
 		if ($defaultReminder !== 'none') {
 			$alarm = $vcalendar->createComponent('VALARM');
-			$alarm->add($vcalendar->createProperty('TRIGGER', '-' . $this->secondsToIso8601Duration(abs((int) $defaultReminder)), ['RELATED' => 'START']));
+			$alarm->add($vcalendar->createProperty('TRIGGER', '-' . $this->secondsToIso8601Duration(abs((int)$defaultReminder)), ['RELATED' => 'START']));
 			$alarm->add($vcalendar->createProperty('ACTION', 'DISPLAY'));
 			$vcalendar->VEVENT->add($alarm);
 		}
@@ -170,9 +172,9 @@ class BookingCalendarWriter {
 		$filename = $this->random->generate(32, ISecureRandom::CHAR_ALPHANUMERIC);
 
 		try {
-			$calendar->createFromString($filename . '.ics', $vcalendar->serialize());
+			$this->createFromString($calendar, $filename . '.ics', $vcalendar->serialize());
 		} catch (CalendarException $e) {
-			throw new RuntimeException('Could not write event  for appointment config id ' . $config->getId(). ' to calendar: ' . $e->getMessage(), 0, $e);
+			throw new RuntimeException('Could not write event  for appointment config id ' . $config->getId() . ' to calendar: ' . $e->getMessage(), 0, $e);
 		}
 
 		if ($config->getPreparationDuration() !== 0) {
@@ -189,7 +191,7 @@ class BookingCalendarWriter {
 				]
 			]);
 			$tz = $this->timezoneGenerator->generateVTimezone($timezone, $prepStart->getTimestamp(), $start->getTimestamp());
-			if($tz) {
+			if ($tz) {
 				$prepCalendar->add($tz);
 			}
 
@@ -200,9 +202,9 @@ class BookingCalendarWriter {
 			$prepFileName = $this->random->generate(32, ISecureRandom::CHAR_ALPHANUMERIC);
 
 			try {
-				$calendar->createFromString($prepFileName . '.ics', $prepCalendar->serialize());
+				$this->createFromString($calendar, $prepFileName . '.ics', $prepCalendar->serialize());
 			} catch (CalendarException $e) {
-				throw new RuntimeException('Could not write event  for appointment config id ' . $config->getId(). ' to calendar: ' . $e->getMessage(), 0, $e);
+				throw new RuntimeException('Could not write event  for appointment config id ' . $config->getId() . ' to calendar: ' . $e->getMessage(), 0, $e);
 			}
 		}
 
@@ -222,7 +224,7 @@ class BookingCalendarWriter {
 			]);
 
 			$tz = $this->timezoneGenerator->generateVTimezone($timezone, $followupStart->getTimestamp(), $followUpEnd->getTimestamp());
-			if($tz) {
+			if ($tz) {
 				$followUpCalendar->add($tz);
 			}
 
@@ -233,11 +235,32 @@ class BookingCalendarWriter {
 			$followUpFilename = $this->random->generate(32, ISecureRandom::CHAR_ALPHANUMERIC);
 
 			try {
-				$calendar->createFromString($followUpFilename . '.ics', $followUpCalendar->serialize());
+				$this->createFromString($calendar, $followUpFilename . '.ics', $followUpCalendar->serialize());
 			} catch (CalendarException $e) {
-				throw new RuntimeException('Could not write event  for appointment config id ' . $config->getId(). ' to calendar: ' . $e->getMessage(), 0, $e);
+				throw new RuntimeException('Could not write event  for appointment config id ' . $config->getId() . ' to calendar: ' . $e->getMessage(), 0, $e);
 			}
 		}
 		return $vcalendar->serialize();
+	}
+
+	/**
+	 * Compatibility adapter for Nextcloud >= 32 for the ICreateFromString interface in OCP.
+	 *
+	 * @throws CalendarException
+	 */
+	private function createFromString(
+		ICreateFromString $calendar,
+		string $fileName,
+		string $ics,
+	): void {
+		// TODO: drop condition once we only support Nextcloud >= 32
+		// Need to use the new minimal method here since the original one was fixed starting
+		// from Nextcloud 32. The behavior differs a bit. The old, unpatched one and the minimal
+		// one are not sending email invitations which we want to leverage here.
+		if (method_exists($calendar, 'createFromStringMinimal')) {
+			$calendar->createFromStringMinimal($fileName . '.ics', $ics);
+		} else {
+			$calendar->createFromString($fileName . '.ics', $ics);
+		}
 	}
 }

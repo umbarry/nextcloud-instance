@@ -8,8 +8,11 @@ OC.L10N.register(
     "Keyboard shortcuts" : "விசைப்பலகை குறுக்குவழிகள்",
     "Link" : "Link",
     "Cancel" : "ரத்து செய்",
+    "Upload" : "பதிவேற்றுக",
     "Edit" : "தொகுக்க",
+    "Done" : "Done",
     "Details" : "விவரங்கள்",
+    "Choose" : "தெரிவுசெய்க ",
     "Info" : "Info",
     "Warning" : "எச்சரிக்கை"
 },

@@ -12,7 +12,9 @@ OC.L10N.register(
     "Link" : "Veza",
     "Cancel" : "Odustani",
     "to" : "do",
+    "Upload" : "Učitaj",
     "Edit" : "Izmjeni",
+    "Choose" : "Izaberite",
     "Info" : "Info",
     "Warning" : "Upozorenje"
 },

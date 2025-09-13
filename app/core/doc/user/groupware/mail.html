@@ -1,32 +1,32 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Using the Mail app &mdash; Nextcloud latest User Manual latest documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bad88653" />
       <link rel="stylesheet" type="text/css" href="../_static/dark_mode_css/general.css?v=c0a7eb24" />
       <link rel="stylesheet" type="text/css" href="../_static/dark_mode_css/dark.css?v=70edf1c7" />
 
   
-    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=91d07486"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../_static/copybutton.js?v=f281be69"></script>
-        <script src="../_static/dark_mode_js/default_light.js?v=c2e647ce"></script>
-        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a49d5d77"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/dark_mode_js/default_light.js?v=c2e647ce"></script>
+      <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
     <script src="../_static/js/theme.js"></script>
+    <script src="../_static/js/versions.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Setting out-of-office messages" href="absence.html" />
@@ -45,6 +45,10 @@
             
               <img src="../_static/logo-white.png" class="logo" alt="Logo"/>
           </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -64,6 +68,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Using the Mail app</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#managing-your-mail-account">Managing your mail account</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#switch-layout">Switch layout</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#message-display-operation-mode">Message Display / Operation Mode</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#add-a-new-mail-account">Add a new mail account</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#change-sort-order">Change sort order</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scheduled-messages">Scheduled messages</a></li>
@@ -78,7 +83,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#automatic-trash-deletion">Automatic trash deletion</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#compose-messages">Compose messages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compose-messages">Compose messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recipient-info-on-composer">Recipient info on composer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mention-contacts">Mention contacts</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#minimize-the-composer-modal">Minimize the composer modal</a></li>
 </ul>
 </li>
@@ -95,17 +102,21 @@
 <li class="toctree-l4"><a class="reference internal" href="#edit-tags">Edit tags</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#change-color-for-tags">Change color for tags</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#delete-tags">Delete tags</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ai-summary">AI summary</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#message-actions">Message actions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#unsubscribe-from-a-mailing-list">Unsubscribe from a mailing list</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#snooze">Snooze</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#smart-replies">Smart replies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mail-translation">Mail translation</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#thread-summary">Thread summary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#filtering-and-autoresponder">Filtering and autoresponder</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#autoresponders">Autoresponders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filter">Filter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-a-filter-from-a-message">Create a filter from a message</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#follow-up-reminders">Follow-up reminders</a></li>
@@ -114,6 +125,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#internal-addresses">Internal addresses</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-integration">Dashboard integration</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="absence.html">Setting out-of-office messages</a></li>
@@ -127,6 +139,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../talk/index.html">Talk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../desktop/index.html">Desktop Clients</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../userpreferences.html">Setting your preferences</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../universal_access.html">Universal access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_2fa.html">Using two-factor authentication</a></li>
@@ -175,7 +188,7 @@ Please ask your Administrator for it.</p>
 <h3>Switch layout<a class="headerlink" href="#switch-layout" title="Link to this heading"></a></h3>
 <blockquote>
 <div><div class="versionadded">
-<p><span class="versionmodified added">New in version 3.6.</span></p>
+<p><span class="versionmodified added">Added in version 3.6.</span></p>
 </div>
 </div></blockquote>
 <ol class="arabic simple">
@@ -184,6 +197,22 @@ Please ask your Administrator for it.</p>
 </ol>
 <figure class="align-default">
 <img alt="../_images/mail_layout.png" src="../_images/mail_layout.png" />
+</figure>
+</section>
+<section id="message-display-operation-mode">
+<h3>Message Display / Operation Mode<a class="headerlink" href="#message-display-operation-mode" title="Link to this heading"></a></h3>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 5.2.</span></p>
+</div>
+<p>Mail has the ability to switch between two different message view and operation modes: <em>Threaded</em> and <em>Singleton</em>.</p>
+<p>In <em>Threaded</em> mode, messages are grouped by conversation. In the mailbox message list, related messages are stacked so only the most recent message is shown, and all relates messages are shown in message display panel after the stacked message is selected. This is useful for following discussions and understanding the context of replies. In this mode, message operation like move and delete apply to the entire thread, meaning that when you move or delete a thread, all messages within that thread are affected.</p>
+<p>In <em>Singleton</em> mode, messages are displayed individually, in both the mailbox message list and message display panel and operation like move and delete apply to only the selected message. This mode is useful when you want to manage messages separately without affecting the entire conversation.</p>
+<ol class="arabic simple">
+<li><p>Visit mail settings</p></li>
+<li><p>Choose between <em>Threaded</em>, <em>Singleton</em></p></li>
+</ol>
+<figure class="align-default">
+<img alt="../_images/mail_display-mode.png" src="../_images/mail_display-mode.png" />
 </figure>
 </section>
 <section id="add-a-new-mail-account">
@@ -201,7 +230,7 @@ Please ask your Administrator for it.</p>
 <h3>Change sort order<a class="headerlink" href="#change-sort-order" title="Link to this heading"></a></h3>
 <blockquote>
 <div><div class="versionadded">
-<p><span class="versionmodified added">New in version 3.5.</span></p>
+<p><span class="versionmodified added">Added in version 3.5.</span></p>
 </div>
 </div></blockquote>
 <ol class="arabic simple">
@@ -254,7 +283,7 @@ Messages will automatically be marked as important based on which messages you i
 <h3>Move messages to Junk folder<a class="headerlink" href="#move-messages-to-junk-folder" title="Link to this heading"></a></h3>
 <blockquote>
 <div><div class="versionadded">
-<p><span class="versionmodified added">New in version 3.4.</span></p>
+<p><span class="versionmodified added">Added in version 3.4.</span></p>
 </div>
 </div></blockquote>
 <p>Mail can move a message to a different folder when it is marked as junk.</p>
@@ -273,14 +302,14 @@ Messages will automatically be marked as important based on which messages you i
 <section id="search-in-mailbox">
 <h3>Search in mailbox<a class="headerlink" href="#search-in-mailbox" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 2.1.</span></p>
+<p><span class="versionmodified added">Added in version 2.1.</span></p>
 </div>
 <p>At the top of the envelope list in any mail layout, there is a search field shortcut for searching email subjects. Starting from <code class="docutils literal notranslate"><span class="pre">version</span> <span class="pre">3.7</span></code>, this shortcut allows you to search by subject, recipient (to), or sender (from) by default.</p>
 </section>
 <section id="advance-search-in-mailbox">
 <h3>Advance search in mailbox<a class="headerlink" href="#advance-search-in-mailbox" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.4.</span></p>
+<p><span class="versionmodified added">Added in version 3.4.</span></p>
 </div>
 <p>You can access our advanced search feature through a modal located at the end of the search shortcut.</p>
 </section>
@@ -288,7 +317,7 @@ Messages will automatically be marked as important based on which messages you i
 <h3>Enable mail body search<a class="headerlink" href="#enable-mail-body-search" title="Link to this heading"></a></h3>
 <blockquote>
 <div><div class="versionadded">
-<p><span class="versionmodified added">New in version 3.5.</span></p>
+<p><span class="versionmodified added">Added in version 3.5.</span></p>
 </div>
 </div></blockquote>
 <p>Mail bodies can now be searched, this feature is opt-in because of potential performance issues.</p>
@@ -321,7 +350,7 @@ will appear in advanced search.</p>
 <section id="automatic-trash-deletion">
 <h3>Automatic trash deletion<a class="headerlink" href="#automatic-trash-deletion" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.4.</span></p>
+<p><span class="versionmodified added">Added in version 3.4.</span></p>
 </div>
 <p>The Mail app can automatically delete messages in the trash folder after a certain number of days.</p>
 <ol class="arabic simple">
@@ -345,11 +374,33 @@ will appear in advanced search.</p>
 <li><p>Click new message on the top left of your screen</p></li>
 <li><p>Start writing your message</p></li>
 </ol>
+</section>
+<section id="recipient-info-on-composer">
+<h2>Recipient info on composer<a class="headerlink" href="#recipient-info-on-composer" title="Link to this heading"></a></h2>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 4.2.</span></p>
+</div>
+<p>When you add your first recipient or contact in the “To” field, a right pane will appear displaying the saved profile details of that contact.
+Adding a second contact will collapse the list, allowing you to select and expand any contact you added to view their details.
+If you prefer to focus solely on writing in the composer, you can hide the right pane by clicking the expand icon in the top-right corner.
+To show the right pane again, simply click the minimize icon in the same location.</p>
+</section>
+<section id="mention-contacts">
+<h2>Mention contacts<a class="headerlink" href="#mention-contacts" title="Link to this heading"></a></h2>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 4.2.</span></p>
+</div>
+<p>You can mention contacts in your message by typing <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> and then selecting the contact from the list.
+By doing so the contact will be automatically added as a recipient.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only contacts with a valid email address will be suggested.</p>
+</div>
 <section id="minimize-the-composer-modal">
 <h3>Minimize the composer modal<a class="headerlink" href="#minimize-the-composer-modal" title="Link to this heading"></a></h3>
 <blockquote>
 <div><div class="versionadded">
-<p><span class="versionmodified added">New in version 3.2.</span></p>
+<p><span class="versionmodified added">Added in version 3.2.</span></p>
 </div>
 </div></blockquote>
 <p>The composer modal can be minimized while writing a new message, editing an existing draft or editing a message from the outbox. Simply click the minimize button on the top right of the modal or click anywhere outside the modal.</p>
@@ -428,7 +479,7 @@ will appear in advanced search.</p>
 <section id="create-a-task">
 <h3>Create a task<a class="headerlink" href="#create-a-task" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.2.</span></p>
+<p><span class="versionmodified added">Added in version 3.2.</span></p>
 </div>
 <p>Create an task for a certain message/thread directly via mail app</p>
 <ol class="arabic simple">
@@ -452,7 +503,7 @@ will appear in advanced search.</p>
 <section id="change-color-for-tags">
 <h3>Change color for tags<a class="headerlink" href="#change-color-for-tags" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.5.</span></p>
+<p><span class="versionmodified added">Added in version 3.5.</span></p>
 </div>
 <figure class="align-default">
 <img alt="../_images/change-tag-color.png" src="../_images/change-tag-color.png" />
@@ -462,7 +513,7 @@ will appear in advanced search.</p>
 <section id="delete-tags">
 <h3>Delete tags<a class="headerlink" href="#delete-tags" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.5.</span></p>
+<p><span class="versionmodified added">Added in version 3.5.</span></p>
 </div>
 <figure class="align-default">
 <img alt="../_images/delete-tag.png" src="../_images/delete-tag.png" />
@@ -478,20 +529,31 @@ will appear in advanced search.</p>
 <p>Please note that default tags such as Work, To do, Personal, and Later cannot be deleted, they can only be renamed.</p>
 </div>
 </section>
+<section id="ai-summary">
+<h3>AI summary<a class="headerlink" href="#ai-summary" title="Link to this heading"></a></h3>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 4.2.</span></p>
+</div>
+<p>When looking through your mailbox you will see a short AI generated summary of your emails as a preview.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please note that the feature has to be enabled by the administrator</p>
+</div>
+</section>
 </section>
 <section id="message-actions">
 <h2>Message actions<a class="headerlink" href="#message-actions" title="Link to this heading"></a></h2>
 <section id="unsubscribe-from-a-mailing-list">
 <h3>Unsubscribe from a mailing list<a class="headerlink" href="#unsubscribe-from-a-mailing-list" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.1.</span></p>
+<p><span class="versionmodified added">Added in version 3.1.</span></p>
 </div>
 <p>Some mailing lists and newsletters allow to be unsubscribed easily. If the Mail app detects messages from such a sender, it will show an <em>Unsubscribe</em> button next to the sender information. Click and confirm to unsubscribe from the list.</p>
 </section>
 <section id="snooze">
 <h3>Snooze<a class="headerlink" href="#snooze" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.4.</span></p>
+<p><span class="versionmodified added">Added in version 3.4.</span></p>
 </div>
 <p>Snoozing a message or thread moves it into a dedicated mailbox until the selected snooze date is reached and the message or thread is moved back to the original mailbox.</p>
 <ol class="arabic simple">
@@ -503,7 +565,7 @@ will appear in advanced search.</p>
 <section id="smart-replies">
 <h3>Smart replies<a class="headerlink" href="#smart-replies" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.6.</span></p>
+<p><span class="versionmodified added">Added in version 3.6.</span></p>
 </div>
 <p>When you open a message in the Mail app, it proposes AI-generated replies. By simply clicking on a suggested reply, the composer opens with the response pre-filled.</p>
 <div class="admonition note">
@@ -515,16 +577,31 @@ will appear in advanced search.</p>
 <p>Supported languages depend on the used large language model</p>
 </div>
 </section>
+<section id="mail-translation">
+<h3>Mail translation<a class="headerlink" href="#mail-translation" title="Link to this heading"></a></h3>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 4.2.</span></p>
+</div>
+<p>You are able to translate messages to your configured languages similarly to Talk.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please note that translation features have to be enabled on the server</p>
+</div>
+</section>
 </section>
 <section id="thread-summary">
 <h2>Thread summary<a class="headerlink" href="#thread-summary" title="Link to this heading"></a></h2>
 <p>The mail app supports summarizing message threads that contain 3 or more messages.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.4.</span></p>
+<p><span class="versionmodified added">Added in version 3.4.</span></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Please note that the feature has to be enabled by the administrator</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please note that this feature only works well with integration_openai. Local LLMs take too long to respond and the summary request is likely to time out and still create significant system load.</p>
 </div>
 </section>
 <section id="filtering-and-autoresponder">
@@ -533,15 +610,73 @@ will appear in advanced search.</p>
 <section id="autoresponders">
 <h3>Autoresponders<a class="headerlink" href="#autoresponders" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 3.5: </span>Autoresponder can follow system settings.</p>
+<p><span class="versionmodified added">Added in version 3.5: </span>Autoresponder can follow system settings.</p>
 </div>
 <p>The autoresponder is off by default. It can be set manually, or follow the system settings. Following system settings means that the long absence message entered on the <a class="reference internal" href="absence.html#groupware-absence"><span class="std std-ref">Absence settings section</span></a> is applied automatically.</p>
+</section>
+<section id="filter">
+<h3>Filter<a class="headerlink" href="#filter" title="Link to this heading"></a></h3>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 4.1.</span></p>
+</div>
+<p>Mail 4.1 includes a simple editor to configure filter rules.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Importing existing filters is not supported. However, all existing filters will remain active and unchanged.  We recommend backing up your current script through the Sieve script editor as a precaution.</p>
+</div>
+<section id="how-to-add-a-new-filter">
+<h4>How to Add a New Filter<a class="headerlink" href="#how-to-add-a-new-filter" title="Link to this heading"></a></h4>
+<ol class="arabic simple">
+<li><p>Open your account settings.</p></li>
+<li><p>Verify that Sieve is enabled for your account (see Sieve server settings).</p></li>
+<li><p>Click on Filters.</p></li>
+<li><p>Select New Filter to create a new rule.</p></li>
+</ol>
+</section>
+<section id="how-to-delete-a-filter">
+<h4>How to Delete a Filter<a class="headerlink" href="#how-to-delete-a-filter" title="Link to this heading"></a></h4>
+<ol class="arabic simple">
+<li><p>Open your account settings.</p></li>
+<li><p>Ensure that Sieve is enabled for your account (see Sieve server settings).</p></li>
+<li><p>Click on Filters.</p></li>
+<li><p>Hover over the filter you wish to delete, then click the trash icon.</p></li>
+</ol>
+</section>
+<section id="conditions">
+<h4>Conditions<a class="headerlink" href="#conditions" title="Link to this heading"></a></h4>
+<p>Conditions are applied to incoming emails on your mail server, targeting fields such as Subject, Sender, and Recipient. You can use the following operators to define conditions for these fields:</p>
+<ul class="simple">
+<li><p><strong>is exactly</strong>: An exact match. The field must be identical to the provided value.</p></li>
+<li><p><strong>contains</strong>: A substring match. The field matches if the provided value is contained within it. For example, “report” would match “port”.</p></li>
+<li><p><strong>matches</strong>: A pattern match using wildcards. The “*” symbol represents any number of characters (including none), while “?” represents exactly one character. For example, “<em>report</em>” would match “Business report 2024”.</p></li>
+</ul>
+</section>
+<section id="actions">
+<h4>Actions<a class="headerlink" href="#actions" title="Link to this heading"></a></h4>
+<p>Actions are triggered when the specified tests are true. The following actions are available:</p>
+<ul class="simple">
+<li><p><strong>fileinto</strong>: Moves the message into a specified folder.</p></li>
+<li><p><strong>addflag</strong>: Adds a flag to the message.</p></li>
+<li><p><strong>stop</strong>: Halts the execution of the filter script. No further filters with will be processed after this action.</p></li>
+</ul>
+</section>
+</section>
+<section id="create-a-filter-from-a-message">
+<h3>Create a filter from a message<a class="headerlink" href="#create-a-filter-from-a-message" title="Link to this heading"></a></h3>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 5.2.</span></p>
+</div>
+<p>To create a filter from a given message, open the message and then open the menu by clicking on the three dots. Next, click on “More actions” followed by “Create mail filter.”</p>
+<p>In the dialog, please select the conditions to match incoming messages and continue by clicking on “Create mail filter.”</p>
+<figure class="align-default">
+<img alt="../_images/mail_create_filter_from_message.png" src="../_images/mail_create_filter_from_message.png" />
+</figure>
 </section>
 </section>
 <section id="follow-up-reminders">
 <h2>Follow-up reminders<a class="headerlink" href="#follow-up-reminders" title="Link to this heading"></a></h2>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 4.0.</span></p>
+<p><span class="versionmodified added">Added in version 4.0.</span></p>
 </div>
 <p>The Mail app will automatically remind you when an outgoing email did not receive a response.
 Each sent email will be analyzed by an AI to check whether a reply is expected.
@@ -558,7 +693,7 @@ It is also possible to disable follow-up reminders for a sent email.</p>
 <section id="phishing-detection">
 <h3>Phishing detection<a class="headerlink" href="#phishing-detection" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 4.0.</span></p>
+<p><span class="versionmodified added">Added in version 4.0.</span></p>
 </div>
 <p>The Mail app will check for potential phishing attempts and will display a warning to the user.</p>
 <p>The checks are the following:</p>
@@ -577,7 +712,7 @@ It is also possible to disable follow-up reminders for a sent email.</p>
 <section id="internal-addresses">
 <h3>Internal addresses<a class="headerlink" href="#internal-addresses" title="Link to this heading"></a></h3>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 4.0.</span></p>
+<p><span class="versionmodified added">Added in version 4.0.</span></p>
 </div>
 <p>The Mail app allows adding internal addresses and domains, and will warn the user if the address is not in the list, when sending and upon receiving a message.</p>
 <p>To add an internal address:</p>
@@ -589,6 +724,18 @@ It is also possible to disable follow-up reminders for a sent email.</p>
 <li><p>Enter the address or domain and click Add</p></li>
 </ol>
 </section>
+</section>
+<section id="dashboard-integration">
+<h2>Dashboard integration<a class="headerlink" href="#dashboard-integration" title="Link to this heading"></a></h2>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.8.</span></p>
+</div>
+<p>The mail app offers two widgets designed for integration with Nextcloud’s dashboard:</p>
+<ul class="simple">
+<li><p>Unread mails: This widget displays unread emails.</p></li>
+<li><p>Important mails: This widget shows emails that have been flagged as important.</p></li>
+</ul>
+<p>These widgets utilize the emails from the email accounts that are set up for your account.</p>
 </section>
 </section>
 
@@ -603,7 +750,7 @@ It is also possible to disable follow-up reminders for a sent email.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024 Nextcloud GmbH.</p>
+    <p>&#169; Copyright 2025 Nextcloud GmbH.</p>
   </div>
 
    
@@ -615,29 +762,71 @@ It is also possible to disable follow-up reminders for a sent email.</p>
   </div>
   
 
+  <!-- Here go the languages -->
+  
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
-      <span class="fa fa-book"> Read the Docs</span>
-      v: latest
+      🌐
+      
+      
+      English
+      
+      <span class="fa fa-caret-down"></span>
+
+       ☁️ latest
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
-        <dt>Languages</dt>
-          <!--Here goes the Langs-->
+        <dt>🌐 Languages</dt>
+          
       </dl>
     </div>
     <div class="rst-other-versions">
       <dl>
-        <dt>Versions</dt>
+        <dt>☁️ Versions</dt>
         
-          <dd><a href="https://docs.nextcloud.com/server/28/user_manual">28</a></dd>
+          <dd style="width: 32%">
+            <a href="https://docs.nextcloud.com/server/latest/user_manual"
+               
+               style="color: var(--dark-link-color);"
+               
+            >
+              latest
+            </a>
+          </dd>
         
-          <dd><a href="https://docs.nextcloud.com/server/29/user_manual">29</a></dd>
+          <dd style="width: 32%">
+            <a href="https://docs.nextcloud.com/server/stable/user_manual"
+               
+            >
+              stable
+            </a>
+          </dd>
         
-          <dd><a href="https://docs.nextcloud.com/server/stable/user_manual">stable</a></dd>
+          <dd style="width: 32%">
+            <a href="https://docs.nextcloud.com/server/30/user_manual"
+               
+            >
+              30
+            </a>
+          </dd>
         
-          <dd><a href="https://docs.nextcloud.com/server/latest/user_manual">latest</a></dd>
+          <dd style="width: 32%">
+            <a href="https://docs.nextcloud.com/server/29/user_manual"
+               
+            >
+              29
+            </a>
+          </dd>
+        
+          <dd style="width: 32%">
+            <a href="https://docs.nextcloud.com/server/28/user_manual"
+               
+            >
+              28
+            </a>
+          </dd>
         
       </dl>
       <dl>

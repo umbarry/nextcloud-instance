@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => 'dev-stable30',
-        'version' => 'dev-stable30',
-        'reference' => 'f6745db180ea1feb629e186ff6d83f5ea2a8d557',
+        'pretty_version' => 'dev-stable31',
+        'version' => 'dev-stable31',
+        'reference' => '3e19e167b77e750aaa8c257eafee7cad87ea03ce',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => 'dev-stable30',
-            'version' => 'dev-stable30',
-            'reference' => 'f6745db180ea1feb629e186ff6d83f5ea2a8d557',
+            'pretty_version' => 'dev-stable31',
+            'version' => 'dev-stable31',
+            'reference' => '3e19e167b77e750aaa8c257eafee7cad87ea03ce',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -22,7 +22,7 @@
         'friendsofphp/php-cs-fixer' => array(
             'dev_requirement' => true,
             'replaced' => array(
-                0 => 'v3.61.1',
+                0 => 'v3.62.0',
             ),
         ),
         'nextcloud/coding-standard' => array(
@@ -35,9 +35,9 @@
             'dev_requirement' => true,
         ),
         'php-cs-fixer/shim' => array(
-            'pretty_version' => 'v3.61.1',
-            'version' => '3.61.1.0',
-            'reference' => '3ac8e446863e313b51a9466915c9b578409eef9e',
+            'pretty_version' => 'v3.62.0',
+            'version' => '3.62.0.0',
+            'reference' => '7a91d5ce45c486f5b445d95901228507a02f60ae',
             'type' => 'application',
             'install_path' => __DIR__ . '/../php-cs-fixer/shim',
             'aliases' => array(),

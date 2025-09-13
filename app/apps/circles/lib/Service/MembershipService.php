@@ -68,7 +68,7 @@ class MembershipService {
 		MemberRequest $memberRequest,
 		EventService $eventService,
 		ShareWrapperService $shareWrapperService,
-		OutputService $outputService
+		OutputService $outputService,
 	) {
 		$this->membershipRequest = $membershipRequest;
 		$this->circleRequest = $circleRequest;
@@ -91,7 +91,7 @@ class MembershipService {
 
 		try {
 			$this->circleRequest->getFederatedUserBySingleId($singleId);
-		} catch (FederatedUserNotFoundException | OwnerNotFoundException $e) {
+		} catch (FederatedUserNotFoundException|OwnerNotFoundException $e) {
 			$this->membershipRequest->removeBySingleId($singleId);
 		}
 
@@ -174,7 +174,7 @@ class MembershipService {
 		string $circleId = '',
 		array &$memberships = [],
 		array $knownIds = [],
-		array $path = []
+		array $path = [],
 	): array {
 		$circleId = ($circleId === '') ? $singleId : $circleId;
 		$path[] = $circleId;
@@ -193,7 +193,7 @@ class MembershipService {
 
 			$membership = new Membership($singleId, count($path) > 1 ? $path[1] : '', $member);
 			$membership->setInheritancePath(array_reverse($path))
-					   ->setInheritanceDepth(sizeof($path));
+				->setInheritanceDepth(sizeof($path));
 			$this->fillMemberships($membership, $memberships);
 			if (!in_array($member->getCircleId(), $knownIds)) {
 				$this->generateMemberships(
@@ -330,6 +330,9 @@ class MembershipService {
 			if (!in_array($item->getCircleId(), $circleIds)) {
 				$deprecated[] = $item;
 				$this->membershipRequest->delete($item);
+
+				// clearing the getSharedWith() cache for singleId related to the membership
+				$this->shareWrapperService->clearCache($item->getSingleId());
 			}
 		}
 
@@ -359,6 +362,9 @@ class MembershipService {
 				$this->membershipRequest->insert($membership);
 				$new[] = $membership;
 			}
+
+			// clearing the getSharedWith() cache for singleId related to the membership
+			$this->shareWrapperService->clearCache($membership->getSingleId());
 		}
 
 		return $new;

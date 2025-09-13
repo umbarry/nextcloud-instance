@@ -39,7 +39,7 @@ class WorkspacePlugin extends ServerPlugin {
 		private ICacheFactory $cacheFactory,
 		private IConfig $config,
 		private LoggerInterface $logger,
-		private ?string $userId
+		private ?string $userId,
 	) {
 	}
 
@@ -91,7 +91,7 @@ class WorkspacePlugin extends ServerPlugin {
 			if ($file instanceof File) {
 				$cache = $this->cacheFactory->createDistributed('text_workspace');
 				$cacheKey = $file->getFileInfo()->getId() . '_' . $file->getFileInfo()->getEtag();
-				if ($cachedContent = $cache->get($cacheKey)) {
+				if (($cachedContent = $cache->get($cacheKey)) !== null) {
 					return $cachedContent;
 				}
 

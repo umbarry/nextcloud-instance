@@ -12,10 +12,10 @@ use OCP\AppFramework\Http;
 /**
  * A renderer for JSON calls
  * @since 6.0.0
- * @template S of int
- * @template-covariant T of array|object|\stdClass|\JsonSerializable
+ * @template S of Http::STATUS_*
+ * @template-covariant T of null|string|int|float|bool|array|\stdClass|\JsonSerializable
  * @template H of array<string, mixed>
- * @template-extends Response<int, array<string, mixed>>
+ * @template-extends Response<Http::STATUS_*, array<string, mixed>>
  */
 class JSONResponse extends Response {
 	/**
@@ -67,7 +67,7 @@ class JSONResponse extends Response {
 	 * Sets values in the data json array
 	 * @psalm-suppress InvalidTemplateParam
 	 * @param T $data an array or object which will be transformed
-	 *                             to JSON
+	 *                to JSON
 	 * @return JSONResponse Reference to this object
 	 * @since 6.0.0 - return value was added in 7.0.0
 	 */

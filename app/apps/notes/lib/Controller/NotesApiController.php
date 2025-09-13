@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2013 Bernhard Posselt <nukeawhale@gmail.com>
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\Notes\Controller;
 
 use OCA\Notes\Service\MetaNote;
@@ -12,6 +18,8 @@ use OCA\Notes\Service\SettingsService;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\StreamResponse;
+use OCP\Files\IMimeTypeDetector;
 use OCP\IRequest;
 
 class NotesApiController extends ApiController {
@@ -19,6 +27,7 @@ class NotesApiController extends ApiController {
 	private MetaService $metaService;
 	private SettingsService $settingsService;
 	private Helper $helper;
+	private IMimeTypeDetector $mimeTypeDetector;
 
 	public function __construct(
 		string $AppName,
@@ -26,13 +35,15 @@ class NotesApiController extends ApiController {
 		NotesService $service,
 		MetaService $metaService,
 		SettingsService $settingsService,
-		Helper $helper
+		Helper $helper,
+		IMimeTypeDetector $mimeTypeDetector,
 	) {
 		parent::__construct($AppName, $request);
 		$this->service = $service;
 		$this->metaService = $metaService;
 		$this->settingsService = $settingsService;
 		$this->helper = $helper;
+		$this->mimeTypeDetector = $mimeTypeDetector;
 	}
 
 
@@ -46,7 +57,7 @@ class NotesApiController extends ApiController {
 		string $exclude = '',
 		int $pruneBefore = 0,
 		int $chunkSize = 0,
-		?string $chunkCursor = null
+		?string $chunkCursor = null,
 	) : JSONResponse {
 		return $this->helper->handleErrorResponse(function () use (
 			$category,
@@ -107,7 +118,7 @@ class NotesApiController extends ApiController {
 		string $title = '',
 		string $content = '',
 		int $modified = 0,
-		bool $favorite = false
+		bool $favorite = false,
 	) : JSONResponse {
 		return $this->helper->handleErrorResponse(function () use ($category, $title, $content, $modified, $favorite) {
 			$note = $this->service->create($this->helper->getUID(), $title, $category);
@@ -138,7 +149,7 @@ class NotesApiController extends ApiController {
 		string $category = '',
 		string $content = '',
 		int $modified = 0,
-		bool $favorite = false
+		bool $favorite = false,
 	) : JSONResponse {
 		return $this->helper->handleErrorResponse(function () use ($category, $content, $modified, $favorite) {
 			$title = $this->service->getTitleFromContent($content);
@@ -157,7 +168,7 @@ class NotesApiController extends ApiController {
 		?int $modified = null,
 		?string $title = null,
 		?string $category = null,
-		?bool $favorite = null
+		?bool $favorite = null,
 	) : JSONResponse {
 		return $this->helper->handleErrorResponse(function () use (
 			$id,
@@ -197,7 +208,7 @@ class NotesApiController extends ApiController {
 		?string $content = null,
 		?int $modified = null,
 		?string $category = null,
-		?bool $favorite = null
+		?bool $favorite = null,
 	) : JSONResponse {
 		return $this->helper->handleErrorResponse(function () use ($id, $content, $modified, $category, $favorite) {
 			if ($content === null) {
@@ -253,4 +264,52 @@ class NotesApiController extends ApiController {
 			return new JSONResponse([], Http::STATUS_BAD_REQUEST);
 		});
 	}
+
+
+
+	/**
+	 * With help from: https://github.com/nextcloud/cookbook
+	 * @NoAdminRequired
+	 * @CORS
+	 * @NoCSRFRequired
+	 * @return JSONResponse|StreamResponse
+	 */
+	public function getAttachment(int $noteid, string $path): Http\Response {
+		try {
+			$targetimage = $this->service->getAttachment(
+				$this->helper->getUID(),
+				$noteid,
+				$path
+			);
+			$fileHandle = $targetimage->fopen('rb');
+			if ($fileHandle === false) {
+				throw new \Exception('Could not open file');
+			}
+			$response = new StreamResponse($fileHandle);
+			$response->addHeader('Content-Disposition', 'attachment; filename="' . rawurldecode($targetimage->getName()) . '"');
+			$response->addHeader('Content-Type', $this->mimeTypeDetector->getSecureMimeType($targetimage->getMimeType()));
+			$response->addHeader('Cache-Control', 'public, max-age=604800');
+			return $response;
+		} catch (\Exception $e) {
+			$this->helper->logException($e);
+			return $this->helper->createErrorResponse($e, Http::STATUS_NOT_FOUND);
+		}
+	}
+
+	/**
+	 * @NoAdminRequired
+	 * @CORS
+	 * @NoCSRFRequired
+	 */
+	public function uploadFile(int $noteid): JSONResponse {
+		$file = $this->request->getUploadedFile('file');
+		return $this->helper->handleErrorResponse(function () use ($noteid, $file): array {
+			return $this->service->createImage(
+				$this->helper->getUID(),
+				$noteid,
+				$file
+			);
+		});
+	}
+
 }

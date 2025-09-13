@@ -1,7 +1,7 @@
 OC.L10N.register(
     "logreader",
     {
-    "Logging" : "Регистриране",
+    "Logging" : "Регистри",
     "Log Reader" : "Четец на журнал",
     "A log reader for Nextcloud" : "Четец на журнал за Nextcloud",
     "Log reader for Nextcloud" : "Четец на журнал за Nextcloud",
@@ -9,8 +9,8 @@ OC.L10N.register(
     "App" : "Приложение",
     "Time" : "Време",
     "Line {line}" : "Ред {line}",
-    "Download logs" : "Изтегляне на журнали",
     "Ctrl" : "Ctrl /бутон/",
+    "Download logs" : "Изтегляне на журнали",
     "Relative" : "Относително",
     "Application" : "Приложение",
     "Message" : "Съобщение",

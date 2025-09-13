@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPDX-FileCopyrightText: 2023 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -71,7 +72,7 @@ class TelegramProvider implements ISocialProvider {
 	 * @return string
 	 */
 	protected function cleanupId(string $candidate):string {
-		$candidate = basename($candidate, ".t.me");
+		$candidate = basename($candidate, '.t.me');
 		if ($candidate[0] === '@') {
 			$candidate = substr($candidate, 1);
 		}

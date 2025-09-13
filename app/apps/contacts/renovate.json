@@ -40,14 +40,40 @@
 			"description": "Request JavaScript reviews",
 			"matchManagers": ["npm"],
 			"reviewers": [
-				"hamza221"
+				"hamza221",
+				"GVodyanov"
 			]
+		},
+		{
+			"description": "Ignore Vue 3 packages",
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["@nextcloud/vite-config"],
+			"allowedVersions": "<2.0.0"
+		},
+		{
+			"description": "Ignore Vue 3 packages",
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["vue"],
+			"allowedVersions": "<3.0"
+		},
+		{
+			"description": "Ignore Vue 3 packages",
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["vue-router"],
+			"allowedVersions": "<4.0"
+		},
+		{
+			"description": "Ignore Vue 3 packages",
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["vuex"],
+			"allowedVersions": "<4.0.0"
 		},
 		{
 			"description": "Request PHP reviews",
 			"matchManagers": ["composer"],
 			"reviewers": [
-				"hamza221"
+				"hamza221",
+				"SebastianKrupinski"
 			]
 		},
 		{
@@ -55,7 +81,9 @@
 			"matchManagers": ["github-actions"],
 			"extends": ["schedule:monthly"],
 			"reviewers": [
-				"hamza221"
+				"hamza221",
+				"GVodyanov",
+				"SebastianKrupinski"
 			]
 		},
 		{
@@ -72,14 +100,28 @@
 		},
 		{
 			"description": "Only automerge packages that follow semver",
-			"matchPackageNames": ["@nextcloud/vue", "friendsofphp/php-cs-fixer"],
+			"matchPackageNames": ["@nextcloud/vue"],
 			"automerge": false,
 			"labels": [
 				"dependencies",
 				"3. to review"
 			],
 			"reviewers": [
-				"hamza221"
+				"hamza221",
+				"GVodyanov"
+			]
+		},
+		{
+			"description": "Only automerge packages that follow semver",
+			"matchPackageNames": ["friendsofphp/php-cs-fixer"],
+			"automerge": false,
+			"labels": [
+				"dependencies",
+				"3. to review"
+			],
+			"reviewers": [
+				"hamza221",
+				"SebastianKrupinski"
 			]
 		},
 		{

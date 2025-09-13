@@ -22,7 +22,7 @@ use Image::ExifTool qw(:DataAccess :Utils);
 use Image::ExifTool::Exif;
 use Image::ExifTool::ASF;   # for GetGUID()
 
-$VERSION = '1.46';
+$VERSION = '1.49';
 
 sub ProcessFPX($$);
 sub ProcessFPXR($$$);
@@ -509,6 +509,31 @@ my %fpxFileType = (
         Notes => q{
             not a real tag.  This information is extracted if available for the
             corresponding EmbeddedImage from the Contents of a VNT file
+        },
+    },
+    _eeJPG => {
+        Name => 'EmbeddedImage',
+        Notes => q{
+            Not a real tag. Extracted from stream content when the ExtractEmbedded
+            option is used
+        },
+        Groups => { 2 => 'Preview' },
+        Binary => 1,
+    },
+    _eePNG => {
+        Name => 'EmbeddedPNG',
+        Notes => q{
+            Not a real tag. Extracted from stream content when the ExtractEmbedded
+            option is used
+        },
+        Groups => { 2 => 'Preview' },
+        Binary => 1,
+    },
+    _eeLink => {
+        Name => 'LinkedFileName',
+        Notes => q{
+            Not a real tag. Extracted from stream content when the ExtractEmbedded
+            option is used
         },
     },
 );
@@ -1424,7 +1449,7 @@ sub ReadFPXValue($$$$$;$$)
                 $noPad = 1;     # values sometimes aren't padded inside vectors!!
                 my $size = $oleFormatSize{VT_VECTOR};
                 if ($valPos + $size > $dirEnd) {
-                    $et->WarnOnce('Incorrect FPX VT_VECTOR size');
+                    $et->Warn('Incorrect FPX VT_VECTOR size');
                     last;
                 }
                 $count = Get32u($dataPt, $valPos);
@@ -1432,14 +1457,14 @@ sub ReadFPXValue($$$$$;$$)
                 $valPos += 4;
             } else {
                 # can't yet handle this property flag
-                $et->WarnOnce('Unknown FPX property');
+                $et->Warn('Unknown FPX property');
                 last;
             }
         }
         unless ($format =~ /^VT_/) {
             my $size = Image::ExifTool::FormatSize($format) * $count;
             if ($valPos + $size > $dirEnd) {
-                $et->WarnOnce("Incorrect FPX $format size");
+                $et->Warn("Incorrect FPX $format size");
                 last;
             }
             @vals = ReadValue($dataPt, $valPos, $format, $count, $size);
@@ -1451,7 +1476,7 @@ sub ReadFPXValue($$$$$;$$)
         my ($item, $val, $len);
         for ($item=0; $item<$count; ++$item) {
             if ($valPos + $size > $dirEnd) {
-                $et->WarnOnce("Truncated FPX $format value");
+                $et->Warn("Truncated FPX $format value");
                 last;
             }
             # sometimes VT_VECTOR items are padded to even 4-byte boundaries, and sometimes they aren't
@@ -1503,7 +1528,7 @@ sub ReadFPXValue($$$$$;$$)
                 $len = Get32u($dataPt, $valPos);
                 $len *= 2 if $format eq 'VT_LPWSTR';    # convert to byte count
                 if ($valPos + $len + 4 > $dirEnd) {
-                    $et->WarnOnce("Truncated $format value");
+                    $et->Warn("Truncated $format value");
                     last;
                 }
                 $val = substr($$dataPt, $valPos + 4, $len);
@@ -1526,7 +1551,7 @@ sub ReadFPXValue($$$$$;$$)
             } elsif ($format eq 'VT_BLOB' or $format eq 'VT_CF') {
                 my $len = Get32u($dataPt, $valPos); # (use local $len because we always expect padding)
                 if ($valPos + $len + 4 > $dirEnd) {
-                    $et->WarnOnce("Truncated $format value");
+                    $et->Warn("Truncated $format value");
                     last;
                 }
                 $val = substr($$dataPt, $valPos + 4, $len);
@@ -1602,7 +1627,7 @@ sub ProcessContents($$$)
             while ($$dataPt =~ /\x0bTargetRole1(?:.\x80|\xff\xff.\0.\0Vn(\w+))\0\0\x01.{4}(.{24})/sg) {
                 my ($index, @coords) = unpack('Vx4V4', $2);
                 next if $index == 0xffffffff;
-                $$et{IeImg_lkup}{$index} and $et->WarnOnce('Duplicate image index');
+                $$et{IeImg_lkup}{$index} and $et->Warn('Duplicate image index');
                 $$et{IeImg_lkup}{$index} = "@coords";
                 $$et{IeImg_class}{$index} = $1 if $1;
             }
@@ -1636,7 +1661,7 @@ sub ProcessWordDocument($$$)
     my $dirLen = length $$dataPt;
     # validate the FIB signature
     unless ($dirLen > 2 and Get16u($dataPt,0) == 0xa5ec) {
-        $et->WarnOnce('Invalid FIB signature', 1);
+        $et->Warn('Invalid FIB signature', 1);
         return 0;
     }
     $et->ProcessBinaryData($dirInfo, $tagTablePtr); # process FIB
@@ -1692,16 +1717,14 @@ sub ProcessDocumentTable($)
         my $offsets = $$value{$key};
         last unless defined $offsets;
         my $doc;
-        $doc = $$extra{$key}{G3} if $$extra{$key};
-        $doc = '' unless $doc;
+        $doc = $$extra{$key}{G3} || '';
         # get DocFlags for this sub-document
         my ($docFlags, $docTable);
         for ($j=0; ; ++$j) {
             my $key = 'DocFlags' . ($j ? " ($j)" : '');
             last unless defined $$value{$key};
             my $tmp;
-            $tmp = $$extra{$key}{G3} if $$extra{$key};
-            $tmp = '' unless $tmp;
+            $tmp = $$extra{$key}{G3} || '';
             if ($tmp eq $doc) {
                 $docFlags = $$value{$key};
                 last;
@@ -1714,8 +1737,7 @@ sub ProcessDocumentTable($)
             my $key = $tag . ($j ? " ($j)" : '');
             last unless defined $$value{$key};
             my $tmp;
-            $tmp = $$extra{$key}{G3} if $$extra{$key};
-            $tmp = '' unless $tmp;
+            $tmp = $$extra{$key}{G3} || '';
             if ($tmp eq $doc) {
                 $docTable = \$$value{$key};
                 last;
@@ -2076,7 +2098,7 @@ sub ProcessFPXR($$$)
                 my $overlap = length($$obj{Stream}) - $offset;
                 my $start = $dirStart + 13;
                 if ($overlap < 0 or $dirLen - $overlap < 13) {
-                    $et->WarnOnce("Bad FPXR stream $index offset",1);
+                    $et->Warn("Bad FPXR stream $index offset",1);
                 } else {
                     # ignore any overlapping data in this segment
                     # (this seems to be the convention)
@@ -2179,6 +2201,9 @@ sub ProcessFPX($$)
     my $raf = $$dirInfo{RAF};
     my ($buff, $out, $oldIndent, $miniStreamBuff);
     my ($tag, %hier, %objIndex, %loadedDifSect);
+
+    # handle FPX format in memory from PNG cpIp chunk
+    $raf or $raf = File::RandomAccess->new($$dirInfo{DataPt});
 
     # read header
     return 0 unless $raf->Read($buff,HDR_SIZE) == HDR_SIZE;
@@ -2291,6 +2316,8 @@ sub ProcessFPX($$)
     my $miniStream;
     $endPos = length($dir);
     my $index = 0;
+    my $ee; # name of next tag to extract if unknown
+    $ee = 0 if $et->Options('ExtractEmbedded');
 
     for ($pos=0; $pos<=$endPos-128; $pos+=128, ++$index) {
 
@@ -2310,6 +2337,9 @@ sub ProcessFPX($$)
         $tag = Image::ExifTool::Decode(undef, substr($dir,$pos,$len*2), 'UCS2', 'II', 'Latin');
         $tag =~ s/\0.*//s;  # truncate at null (in case length was wrong)
 
+        if ($tag eq '0' and not defined $ee) {
+            $et->Warn('Use the ExtractEmbedded option to extract embedded information', 3);
+        }
         my $sect = Get32u(\$dir, $pos + 0x74);  # start sector number
         my $size = Get32u(\$dir, $pos + 0x78);  # stream length
 
@@ -2320,12 +2350,15 @@ sub ProcessFPX($$)
                 $et->Warn('Error loading Mini-FAT stream');
                 last;
             }
-            $miniStream = new File::RandomAccess(\$miniStreamBuff);
+            $miniStream = File::RandomAccess->new(\$miniStreamBuff);
         }
 
         my $tagInfo;
         if ($$tagTablePtr{$tag}) {
             $tagInfo = $et->GetTagInfo($tagTablePtr, $tag);
+        } elsif (defined $ee and $tag eq $ee) {
+            $tagInfo = '';  # won't know the actual tagID untile we read the stream
+            $ee = sprintf('%x', hex($ee)+1); # tag to look for next
         } else {
             # remove instance number or class ID from tag if necessary
             $tagInfo = $et->GetTagInfo($tagTablePtr, $1) if
@@ -2349,7 +2382,7 @@ sub ProcessFPX($$)
             $$sub{Parent} = $index;
         }
 
-        next unless $tagInfo or $verbose;
+        next unless defined $tagInfo or $verbose;
 
         # load the data for stream types
         my $extra = '';
@@ -2383,18 +2416,22 @@ sub ProcessFPX($$)
             $extra .= " Left=$lSib" unless $lSib == FREE_SECT;
             $extra .= " Right=$rSib" unless $rSib == FREE_SECT;
             $extra .= " Child=$chld" unless $chld == FREE_SECT;
+            $extra .= " Size=$size" if defined $size;
+            my $name;
+            $name = "Unknown_0x$tag" if not $tagInfo and $tag =~ /^[0-9a-f]{1,3}$/;
             $et->VerboseInfo($tag, $tagInfo,
                 Index  => $index,
                 Value  => $buff,
                 DataPt => \$buff,
                 Extra  => $extra,
-                Size   => $size,
+              # Size   => $size, (moved to $extra so we can see the rest of the stream if larger)
+                Name   => $name,
             );
         }
-        if ($tagInfo and $buff) {
+        if (defined $tagInfo and $buff) {
             my $num = $$et{NUM_FOUND};
-            my $subdir = $$tagInfo{SubDirectory};
-            if ($subdir) {
+            if ($tagInfo and $$tagInfo{SubDirectory}) {
+                my $subdir = $$tagInfo{SubDirectory};
                 my %dirInfo = (
                     DataPt   => \$buff,
                     DirStart => $$subdir{DirStart},
@@ -2404,7 +2441,7 @@ sub ProcessFPX($$)
                 my $subTablePtr = GetTagTable($$subdir{TagTable});
                 $et->ProcessDirectory(\%dirInfo, $subTablePtr,  $$subdir{ProcessProc});
             } elsif (defined $size and $size > length($buff)) {
-                $et->WarnOnce('Truncated object');
+                $et->Warn('Truncated object');
             } else {
                 $buff = substr($buff, 0, $size) if defined $size and $size < length($buff);
                 if ($tag =~ /^IeImg_0*(\d+)$/) {
@@ -2422,6 +2459,19 @@ sub ProcessFPX($$)
                         }
                     }
                     delete $$et{DOC_NUM};
+                } elsif (not $tagInfo) {
+                    # extract some embedded information from PNG Plus images
+                    if ($buff =~ /^(.{19,40})(\xff\xd8\xff\xe0|\x89PNG\r\n\x1a\n)/sg) {
+                        my $id = $2 eq "\xff\xd8\xff\xe0" ? '_eeJPG' : '_eePNG';
+                        $et->HandleTag($tagTablePtr, $id, substr($buff, length($1)));
+                    } elsif ($buff =~ /^\0\x80\0\0\x01\0\0\0\x0e\0/ and length($buff) > 18) {
+                        my $len = unpack('x17C', $buff);
+                        next if $len + 18 > length($buff);
+                        my $filename = $et->Decode(substr($buff,18,$len), 'UTF16', 'II');
+                        $et->HandleTag($tagTablePtr, '_eeLink', $filename);
+                    } else {
+                        next;
+                    }
                 } else {
                     $et->FoundTag($tagInfo, $buff);
                 }
@@ -2452,8 +2502,7 @@ sub ProcessFPX($$)
             for ($copy=1; ;++$copy) {
                 my $key = "$tag ($copy)";
                 last unless defined $$et{VALUE}{$key};
-                my $extra = $$et{TAG_EXTRA}{$key};
-                next if $extra and $$extra{G3}; # not Main if family 3 group is set
+                next if $$et{TAG_EXTRA}{$key}{G3}; # not Main if family 3 group is set
                 foreach $member ('PRIORITY','VALUE','FILE_ORDER','TAG_INFO','TAG_EXTRA') {
                     my $pHash = $$et{$member};
                     my $t = $$pHash{$tag};
@@ -2508,7 +2557,7 @@ JPEG images.
 
 =head1 AUTHOR
 
-Copyright 2003-2023, Phil Harvey (philharvey66 at gmail.com)
+Copyright 2003-2025, Phil Harvey (philharvey66 at gmail.com)
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

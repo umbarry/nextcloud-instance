@@ -13,6 +13,7 @@ use OCP\Http\Client\IClientService;
 use OCP\IConfig;
 use OCP\IL10N;
 use OCP\IURLGenerator;
+use OCP\SetupCheck\CheckServerResponseTrait;
 use OCP\SetupCheck\ISetupCheck;
 use OCP\SetupCheck\SetupResult;
 use Psr\Log\LoggerInterface;
@@ -44,7 +45,7 @@ class WellKnownUrls implements ISetupCheck {
 		}
 
 		$urls = [
-			['get', '/.well-known/webfinger', [200, 404], true],
+			['get', '/.well-known/webfinger', [200, 400, 404], true], // 400 indicates a handler is installed but (correctly) failed because we didn't specify a resource
 			['get', '/.well-known/nodeinfo', [200, 404], true],
 			['propfind', '/.well-known/caldav', [207], false],
 			['propfind', '/.well-known/carddav', [207], false],

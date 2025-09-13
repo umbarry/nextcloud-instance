@@ -24,7 +24,7 @@ class RemoteService {
 		$client = $this->clientService->newClient();
 		try {
 			$response = $client->put(
-				$this->appConfig->getCollaboraUrlInternal(). '/cool/extract-link-targets',
+				$this->appConfig->getCollaboraUrlInternal() . '/cool/extract-link-targets',
 				$this->getRequestOptionsForFile($file)
 			);
 		} catch (Exception $e) {
@@ -46,7 +46,7 @@ class RemoteService {
 	public function fetchTargetThumbnail(File $file, string $target): ?string {
 		$client = $this->clientService->newClient();
 		try {
-			$response = $client->put($this->appConfig->getCollaboraUrlInternal(). '/cool/get-thumbnail', $this->getRequestOptionsForFile($file, $target));
+			$response = $client->put($this->appConfig->getCollaboraUrlInternal() . '/cool/get-thumbnail', $this->getRequestOptionsForFile($file, $target));
 			return (string)$response->getBody();
 		} catch (Exception $e) {
 			$this->logger->info('Failed to fetch target thumbnail', ['exception' => $e]);
@@ -58,13 +58,8 @@ class RemoteService {
 	 * @return resource|string
 	 */
 	public function convertFileTo(File $file, string $format) {
-		$useTempFile = $file->isEncrypted() || !$file->getStorage()->isLocal();
-		if ($useTempFile) {
-			$fileName = $file->getStorage()->getLocalFile($file->getInternalPath());
-			$stream = fopen($fileName, 'r');
-		} else {
-			$stream = $file->fopen('r');
-		}
+		$fileName = $file->getStorage()->getLocalFile($file->getInternalPath());
+		$stream = fopen($fileName, 'rb');
 
 		if ($stream === false) {
 			throw new Exception('Failed to open stream');
@@ -98,16 +93,11 @@ class RemoteService {
 	}
 
 	private function getRequestOptionsForFile(File $file, ?string $target = null): array {
-		$useTempFile = $file->isEncrypted() || !$file->getStorage()->isLocal();
-		if ($useTempFile) {
-			$localFile = $file->getStorage()->getLocalFile($file->getInternalPath());
-			if (!is_string($localFile)) {
-				throw new NotFoundException('Could not get local file');
-			}
-			$stream = fopen($localFile, 'rb');
-		} else {
-			$stream = $file->fopen('rb');
+		$localFile = $file->getStorage()->getLocalFile($file->getInternalPath());
+		if (!is_string($localFile)) {
+			throw new NotFoundException('Could not get local file');
 		}
+		$stream = fopen($localFile, 'rb');
 
 		$options = RemoteOptionsService::getDefaultOptions(25);
 		$options['multipart'] = [

@@ -55,7 +55,6 @@ use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\IDBConnection;
 use OCP\IL10N;
-use OCP\ILogger;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\Security\ISecureRandom;
@@ -98,8 +97,8 @@ class ShareByCircleProvider implements IShareProvider {
 		IUserManager $userManager,
 		IRootFolder $rootFolder,
 		IL10N $l10n,
-		ILogger $logger,
-		IURLGenerator $urlGenerator
+		mixed $logger, // unused, only kept for compatibility with server
+		IURLGenerator $urlGenerator,
 	) {
 		$this->userManager = $userManager;
 		$this->rootFolder = $rootFolder;
@@ -155,7 +154,7 @@ class ShareByCircleProvider implements IShareProvider {
 		}
 
 		$nodeId = $share->getNode()
-						->getId();
+			->getId();
 
 		try {
 			$knowShareWrapper = $this->shareWrapperService->searchShare($share->getSharedWith(), $nodeId);
@@ -170,7 +169,7 @@ class ShareByCircleProvider implements IShareProvider {
 		$circleProbe = new CircleProbe();
 		$dataProbe = new DataProbe();
 		$dataProbe->add(DataProbe::OWNER)
-				  ->add(DataProbe::INITIATOR, [DataProbe::BASED_ON]);
+			->add(DataProbe::INITIATOR, [DataProbe::BASED_ON]);
 
 		$circle = $this->circleService->probeCircle($share->getSharedWith(), $circleProbe, $dataProbe);
 		$share->setToken($this->token(15));
@@ -209,9 +208,11 @@ class ShareByCircleProvider implements IShareProvider {
 			->setShareOwner($share->getShareOwner())
 			->setAttributes($share->getAttributes())
 			->setSharedBy($share->getSharedBy())
-			->setExpirationDate($share->getExpirationDate());
+			->setExpirationDate($share->getExpirationDate())
+			->setShareNote($share->getNote());
 
 		$this->shareWrapperService->update($wrappedShare);
+		$this->shareWrapperService->updateChildPermissions($wrappedShare);
 
 		return $wrappedShare->getShare($this->rootFolder, $this->userManager, $this->urlGenerator);
 	}
@@ -258,7 +259,7 @@ class ShareByCircleProvider implements IShareProvider {
 
 		$event = new FederatedEvent(FileUnshare::class);
 		$event->setCircle($circle)
-			  ->getParams()->sObj('wrappedShare', $wrappedShare);
+			->getParams()->sObj('wrappedShare', $wrappedShare);
 
 		$this->federatedEventService->newEvent($event);
 		$this->eventService->localShareDeleted($wrappedShare);
@@ -491,7 +492,7 @@ class ShareByCircleProvider implements IShareProvider {
 	 * @throws RequestBuilderException
 	 */
 	public function getSharesByPath(Node $path): array {
-		$wrappedShares = $this->shareWrapperService->getSharesByFileId($path->getId());
+		$wrappedShares = $this->shareWrapperService->getSharesByFileId($path->getId(), true);
 
 		return array_filter(
 			array_map(
@@ -531,10 +532,10 @@ class ShareByCircleProvider implements IShareProvider {
 		$federatedUser = $this->federatedUserService->getLocalFederatedUser($userId);
 		$probe = new CircleProbe();
 		$probe->includePersonalCircles()
-			  ->includeSystemCircles()
-			  ->mustBeMember()
-			  ->setItemsLimit((int)$limit)
-			  ->setItemsOffset((int)$offset);
+			->includeSystemCircles()
+			->mustBeMember()
+			->setItemsLimit((int)$limit)
+			->setItemsOffset((int)$offset);
 
 		$wrappedShares = $this->shareWrapperService->getSharedWith(
 			$federatedUser,
@@ -668,10 +669,6 @@ class ShareByCircleProvider implements IShareProvider {
 
 		$shareIds = $knownIds = $users = $remote = $mails = [];
 		foreach ($this->shareWrapperService->getSharesByFileIds($ids, true, true) as $share) {
-			if (!$share->hasCircle()) {
-				continue;
-			}
-
 			$shareIds[] = $share->getId();
 			$circle = $share->getCircle();
 			foreach ($circle->getInheritedMembers() as $member) {
@@ -743,6 +740,9 @@ class ShareByCircleProvider implements IShareProvider {
 		$users = $mails = [];
 		$remote = false;
 		foreach ($this->shareWrapperService->getSharesByFileIds($ids, true) as $share) {
+			if (!$share->hasCircle()) {
+				continue;
+			}
 			$circle = $share->getCircle();
 			foreach ($circle->getInheritedMembers() as $member) {
 				switch ($member->getUserType()) {
@@ -779,7 +779,7 @@ class ShareByCircleProvider implements IShareProvider {
 	 */
 	private function updateAccessListTokens(array $list, array $shareTokens): array {
 		$result = [];
-		foreach($list as $id => $data) {
+		foreach ($list as $id => $data) {
 			$result[$id] = [
 				'node_id' => $data['node_id'],
 				'token' => $shareTokens[$data['shareId']][$data['memberId']]

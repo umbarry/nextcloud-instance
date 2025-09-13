@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPDX-FileCopyrightText: 2020 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -18,25 +19,15 @@ use OCP\IUserSession;
 class SocialApiController extends ApiController {
 	protected $appName;
 
-	/** @var IConfig */
-	private $config;
-
-	/** @var IUserSession */
-	private $userSession;
-
-	/** @var SocialApiService */
-	private $socialApiService;
-
-	public function __construct(IRequest $request,
-		IConfig $config,
-		IUserSession $userSession,
-		SocialApiService $socialApiService) {
+	public function __construct(
+		IRequest $request,
+		private IConfig $config,
+		private IUserSession $userSession,
+		private SocialApiService $socialApiService,
+	) {
 		parent::__construct(Application::APP_ID, $request);
 
-		$this->config = $config;
 		$this->appName = Application::APP_ID;
-		$this->userSession = $userSession;
-		$this->socialApiService = $socialApiService;
 	}
 
 

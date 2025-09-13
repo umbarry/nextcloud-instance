@@ -1,2 +1,2 @@
-/*! third party licenses: js/vendor.LICENSE.txt */
-import{r as t}from"./api.chunk.mjs";import"./logger.chunk.mjs";import"./_commonjsHelpers.chunk.mjs";t();
+import{r as t}from"./api-kHrAWUTr.chunk.mjs";import"./logger-CawX0p3n.chunk.mjs";import"./_commonjsHelpers-D9DevfhH.chunk.mjs";t();
+//# sourceMappingURL=activity-api.mjs.map

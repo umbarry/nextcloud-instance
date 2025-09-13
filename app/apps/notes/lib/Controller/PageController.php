@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2016-2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-FileCopyrightText: 2013 Bernhard Posselt <nukeawhale@gmail.com>
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\Notes\Controller;
 
 use OCA\Files\Event\LoadSidebar;
@@ -39,7 +45,7 @@ class PageController extends Controller {
 		IUserSession $userSession,
 		IURLGenerator $urlGenerator,
 		IEventDispatcher $eventDispatcher,
-		IInitialState $initialState
+		IInitialState $initialState,
 	) {
 		parent::__construct($AppName, $request);
 		$this->notesService = $notesService;
@@ -57,7 +63,7 @@ class PageController extends Controller {
 	 * @suppress PhanUndeclaredClassReference, PhanTypeMismatchArgument, PhanUndeclaredClassMethod
 	 */
 	public function index() : TemplateResponse {
-		$devMode = !is_file(dirname(__FILE__).'/../../js/notes-main.js');
+		$devMode = !is_file(dirname(__FILE__) . '/../../js/notes-main.js');
 		$response = new TemplateResponse(
 			$this->appName,
 			$devMode ? 'dev-mode' : 'main',

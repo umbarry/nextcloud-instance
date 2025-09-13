@@ -7,7 +7,6 @@
 namespace OCA\Richdocuments;
 
 use Exception;
-use OCA\Files_Sharing\SharedStorage;
 use OCA\Richdocuments\Db\Direct;
 use OCA\Richdocuments\Db\Wopi;
 use OCA\Richdocuments\Db\WopiMapper;
@@ -24,7 +23,6 @@ use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Share\Exceptions\ShareNotFound;
 use OCP\Share\IManager;
-use OCP\Share\IShare;
 use OCP\Util;
 use Psr\Log\LoggerInterface;
 
@@ -51,7 +49,6 @@ class TokenManager {
 		[$fileId, , $version] = Helper::parseFileId($fileId);
 		$owneruid = null;
 		$hideDownload = false;
-		$rootFolder = $this->rootFolder;
 
 		// if the user is not logged-in do use the sharers storage
 		if ($shareToken !== null) {
@@ -66,66 +63,37 @@ class TokenManager {
 			$updatable = (bool)($share->getPermissions() & \OCP\Constants::PERMISSION_UPDATE);
 			$updatable = $updatable && $this->permissionManager->userCanEdit($owneruid);
 			$hideDownload = $share->getHideDownload();
-			$rootFolder = $this->rootFolder->getUserFolder($owneruid);
-		} elseif ($this->userId !== null) {
-			try {
-				$editoruid = $this->userId;
-				$rootFolder = $this->rootFolder->getUserFolder($editoruid);
-
-				$files = $rootFolder->getById((int)$fileId);
-				$updatable = false;
-				foreach ($files as $file) {
-					if ($file->isUpdateable()) {
-						$updatable = true;
-						break;
-					}
-				}
-
-				$updatable = $updatable && $this->permissionManager->userCanEdit($editoruid);
-
-				// disable download if at least one shared access has it disabled
-				foreach ($files as $file) {
-					$storage = $file->getStorage();
-					// using string as we have no guarantee that "files_sharing" app is loaded
-					if ($storage->instanceOfStorage(SharedStorage::class)) {
-						if (!method_exists(IShare::class, 'getAttributes')) {
-							break;
-						}
-						/** @var SharedStorage $storage */
-						$share = $storage->getShare();
-						$attributes = $share->getAttributes();
-						if ($attributes !== null && $attributes->getAttribute('permissions', 'download') === false) {
-							$hideDownload = true;
-							break;
-						}
-					}
-				}
-			} catch (Exception $e) {
-				throw $e;
-			}
+			$userFolder = $this->rootFolder->getUserFolder($owneruid);
 		} else {
-			// no active user login while generating the token
-			// this is required during WopiPutRelativeFile
-			if (is_null($editoruid)) {
-				$this->logger->warning('Generating token for SaveAs without editoruid');
-				$updatable = true;
-			} else {
-				// Make sure we use the user folder if available since fetching all files by id from the root might be expensive
-				$rootFolder = $this->rootFolder->getUserFolder($editoruid);
+			$editoruid = $this->userId ?? $editoruid;
+			$userFolder = $this->rootFolder->getUserFolder($editoruid);
 
-				$updatable = false;
-				$files = $rootFolder->getById($fileId);
+			$files = $userFolder->getById((int)$fileId);
+			$updatable = false;
+			foreach ($files as $file) {
+				if ($file->isUpdateable()) {
+					$updatable = true;
+					break;
+				}
+			}
 
-				foreach ($files as $file) {
-					if ($file->isUpdateable()) {
-						$updatable = true;
-						break;
-					}
+			$updatable = $updatable && $this->permissionManager->userCanEdit($editoruid);
+
+			// disable download if at least one shared access has it disabled
+			foreach ($files as $file) {
+				$share = $this->helper->getShareFromNode($file);
+				$attributes = $share?->getAttributes();
+				if ($attributes !== null
+					&& $attributes->getAttribute('permissions', 'download') === false
+				) {
+					$hideDownload = true;
+					break;
 				}
 			}
 		}
+
 		/** @var File $file */
-		$file = $rootFolder->getFirstNodeById($fileId);
+		$file = $userFolder->getFirstNodeById($fileId);
 
 		// Check node readability (for storage wrapper overwrites like terms of services)
 		if ($file === null || !$file->isReadable()) {
@@ -197,8 +165,11 @@ class TokenManager {
 		bool $isGuest,
 		bool $direct = false,
 		?int $sharePermissions = null,
+		?string $editoruid = null,
 	): Wopi {
-		$editoruid = $isGuest ? null : $owneruid;
+		if (empty($editoruid)) {
+			$editoruid = $isGuest ? null : $owneruid;
+		}
 
 		$rootFolder = $this->rootFolder->getUserFolder($owneruid);
 		$targetFile = $rootFolder->getFirstNodeById($targetFileId);
@@ -216,6 +187,8 @@ class TokenManager {
 			$shareUpdatable = (bool)($sharePermissions & \OCP\Constants::PERMISSION_UPDATE);
 			$updatable = $updatable && $shareUpdatable;
 		}
+
+		$updatable = $updatable && $this->permissionManager->userCanEdit($owneruid);
 
 		$serverHost = $this->urlGenerator->getAbsoluteURL('/');
 
@@ -282,6 +255,11 @@ class TokenManager {
 		$this->wopiMapper->update($wopi);
 	}
 
+	public function setShareToken(Wopi $wopi, ?string $shareToken): Wopi {
+		$wopi->setShare($shareToken);
+		return $this->wopiMapper->update($wopi);
+	}
+
 	public function setGuestName(Wopi $wopi, ?string $guestName = null): Wopi {
 		if ($wopi->getTokenType() !== Wopi::TOKEN_TYPE_GUEST && $wopi->getTokenType() !== Wopi::TOKEN_TYPE_REMOTE_GUEST) {
 			return $wopi;
@@ -294,4 +272,13 @@ class TokenManager {
 	public function getUrlSrc(File $file): string {
 		return $this->wopiParser->getUrlSrcValue($file->getMimeType());
 	}
+
+	public function getUrlSrcForMimeType(string $type): ?string {
+		try {
+			return $this->wopiParser->getUrlSrcValue($type);
+		} catch (\Throwable $e) {
+			return null;
+		}
+	}
+
 }

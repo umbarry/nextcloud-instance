@@ -24,7 +24,10 @@ class AvailabilityGenerator {
 	/** @var ITimeFactory */
 	private $timeFactory;
 
-	public function __construct(ITimeFactory $timeFactory, private LoggerInterface $logger) {
+	public function __construct(
+		ITimeFactory $timeFactory,
+		private LoggerInterface $logger,
+	) {
 		$this->timeFactory = $timeFactory;
 	}
 
@@ -54,8 +57,8 @@ class AvailabilityGenerator {
 		//      when the user opens the page at 10:17.
 		// But only do this when the time isn't already a "pretty" time
 		if ($earliestStart % $config->getIncrement() !== 0) {
-			$roundTo = (int)(round(($config->getIncrement()) / 300) * 300);
-			$earliestStart = (int)(ceil($earliestStart / $roundTo) * $roundTo);
+			$roundTo = (int)round((float)$config->getIncrement() / 300.0) * 300;
+			$earliestStart = (int)(ceil((float)$earliestStart / (float)$roundTo) * (float)$roundTo);
 		}
 
 		$latestEnd = min(

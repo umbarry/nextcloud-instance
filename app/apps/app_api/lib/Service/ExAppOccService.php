@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 namespace OCA\AppAPI\Service;
 
 use OCA\AppAPI\AppInfo\Application;
@@ -96,7 +101,7 @@ class ExAppOccService {
 		try {
 			$cacheKey = '/ex_occ_commands';
 			$records = $this->cache?->get($cacheKey);
-			if ($records === null) {
+			if (!is_array($records)) {
 				$records = $this->mapper->findAllEnabled();
 				$this->cache?->set($cacheKey, $records);
 			}

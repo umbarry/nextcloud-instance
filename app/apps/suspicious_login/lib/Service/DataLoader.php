@@ -22,8 +22,11 @@ use function array_merge;
 use function floor;
 use function log;
 use function max;
+use function random_int;
 
 class DataLoader {
+	private const MAX_SAMPLES_POSITIVES = 15_000;
+	private const MAX_SAMPLES_VALIDATE_POSITIVES = 3_000;
 
 	/** @var LoginAddressAggregatedMapper */
 	private $loginAddressMapper;
@@ -65,6 +68,14 @@ class DataLoader {
 
 		$positives = $this->addressesToDataSet($historyRaw, $strategy);
 		$validationPositives = $this->addressesToDataSet($recentRaw, $strategy);
+		if ($positives->count() > self::MAX_SAMPLES_POSITIVES) {
+			$threshold = (self::MAX_SAMPLES_POSITIVES / $positives->count()) * 100;
+			$positives = $positives->filter(fn () => random_int(0, 100) <= $threshold);
+		}
+		if ($validationPositives->count() > self::MAX_SAMPLES_VALIDATE_POSITIVES) {
+			$threshold = (self::MAX_SAMPLES_VALIDATE_POSITIVES / $validationPositives->count()) * 100;
+			$validationPositives = $validationPositives->filter(fn () => random_int(0, 100) <= $threshold);
+		}
 
 		return new CollectedData(
 			$positives,
@@ -73,7 +84,7 @@ class DataLoader {
 	}
 
 	/**
-	 * @param LoginAddressAggregated[] $loginAddresses
+	 * @param list<LoginAddressAggregated> $loginAddresses
 	 */
 	private function addressesToDataSet(array $loginAddresses, AClassificationStrategy $strategy): Labeled {
 		$deep = array_map(function (LoginAddressAggregated $addr) use ($strategy) {

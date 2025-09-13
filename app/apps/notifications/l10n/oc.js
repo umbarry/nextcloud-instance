@@ -9,10 +9,9 @@ OC.L10N.register(
     "Admin notifications" : "Notificacions admin",
     "Notifications" : "Notificacions",
     "Dismiss" : "Ignorar",
-    "seconds ago" : "fa qualques segondas",
     "in {path}" : "dins {path}",
-    "Dismiss all notifications" : "Tancar totas las notificacions",
     "No notifications" : "Cap de notificacion",
+    "Dismiss all notifications" : "Tancar totas las notificacions",
     "Never" : "Jamai",
     "1 hour" : " 1 ora",
     "3 hours" : "3 oras",
@@ -20,6 +19,7 @@ OC.L10N.register(
     "1 week" : "1 setmana",
     "Your settings have been updated." : "Paramètres actualizats.",
     "An error occurred while updating your settings." : "Una error s’es producha pendent l’actualizacion dels paramètres.",
-    "None" : "Cap"
+    "None" : "Cap",
+    "seconds ago" : "fa qualques segondas"
 },
 "nplurals=2; plural=(n > 1);");

@@ -11,6 +11,7 @@ namespace OCA\Comments\Search;
 use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
 use OCP\Files\Folder;
+use OCP\Files\InvalidPathException;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\IUser;
@@ -59,9 +60,10 @@ class LegacyProvider extends Provider {
 					$result[] = new Result($query,
 						$comment,
 						$displayName,
-						$file->getPath()
+						$file->getPath(),
+						$file->getId(),
 					);
-				} catch (NotFoundException $e) {
+				} catch (NotFoundException|InvalidPathException $e) {
 					continue;
 				}
 			}
@@ -85,7 +87,7 @@ class LegacyProvider extends Provider {
 	 * @throws NotFoundException
 	 */
 	protected function getFileForComment(Folder $userFolder, IComment $comment): Node {
-		$nodes = $userFolder->getById((int) $comment->getObjectId());
+		$nodes = $userFolder->getById((int)$comment->getObjectId());
 		if (empty($nodes)) {
 			throw new NotFoundException('File not found');
 		}

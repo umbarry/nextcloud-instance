@@ -19,7 +19,7 @@ OC.L10N.register(
     "Storages:" : "Armazenamentos:",
     "Free Space:" : "Espaço livre:",
     "Network" : "Rede",
-    "Active users" : "Utilizadores activos",
+    "Active users" : "Utilizadores ativos",
     "Last hour" : "Ultima hora",
     "Shares" : "Partilhas",
     "Users:" : "Utilizadores:",
@@ -29,7 +29,6 @@ OC.L10N.register(
     "Database" : "Base de dados",
     "Type:" : "Tipo:",
     "External monitoring tool" : "Ferramenta externa de monitorização",
-    "Copy" : "Copiar",
-    "Total users:" : "Total de utilizadores:"
+    "Copy" : "Copiar"
 },
 "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

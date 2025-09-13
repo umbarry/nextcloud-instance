@@ -10,6 +10,7 @@ namespace OC\Files;
 use Icewind\Streams\CallbackWrapper;
 use OC\Files\Mount\MoveableMount;
 use OC\Files\Storage\Storage;
+use OC\Files\Storage\Wrapper\Quota;
 use OC\Share\Share;
 use OC\User\LazyUser;
 use OC\User\Manager as UserManager;
@@ -24,10 +25,13 @@ use OCP\Files\ForbiddenException;
 use OCP\Files\InvalidCharacterInPathException;
 use OCP\Files\InvalidDirectoryException;
 use OCP\Files\InvalidPathException;
+use OCP\Files\Mount\IMountManager;
 use OCP\Files\Mount\IMountPoint;
 use OCP\Files\NotFoundException;
 use OCP\Files\ReservedWordException;
 use OCP\IUser;
+use OCP\IUserManager;
+use OCP\L10N\IFactory;
 use OCP\Lock\ILockingProvider;
 use OCP\Lock\LockedException;
 use OCP\Server;
@@ -221,7 +225,7 @@ class View {
 			$relPath = '/' . $pathParts[3];
 			$this->lockFile($relPath, ILockingProvider::LOCK_SHARED, true);
 			\OC_Hook::emit(
-				Filesystem::CLASSNAME, "umount",
+				Filesystem::CLASSNAME, 'umount',
 				[Filesystem::signal_param_path => $relPath]
 			);
 			$this->changeLock($relPath, ILockingProvider::LOCK_EXCLUSIVE, true);
@@ -229,7 +233,7 @@ class View {
 			$this->changeLock($relPath, ILockingProvider::LOCK_SHARED, true);
 			if ($result) {
 				\OC_Hook::emit(
-					Filesystem::CLASSNAME, "post_umount",
+					Filesystem::CLASSNAME, 'post_umount',
 					[Filesystem::signal_param_path => $relPath]
 				);
 			}
@@ -269,6 +273,12 @@ class View {
 	protected function renameUpdate(Storage $sourceStorage, Storage $targetStorage, string $sourceInternalPath, string $targetInternalPath): void {
 		if ($this->updaterEnabled) {
 			$targetStorage->getUpdater()->renameFromStorage($sourceStorage, $sourceInternalPath, $targetInternalPath);
+		}
+	}
+
+	protected function copyUpdate(Storage $sourceStorage, Storage $targetStorage, string $sourceInternalPath, string $targetInternalPath): void {
+		if ($this->updaterEnabled) {
+			$targetStorage->getUpdater()->copyFromStorage($sourceStorage, $sourceInternalPath, $targetInternalPath);
 		}
 	}
 
@@ -598,13 +608,13 @@ class View {
 				$this->lockFile($path, ILockingProvider::LOCK_SHARED);
 
 				$exists = $this->file_exists($path);
-				$run = true;
 				if ($this->shouldEmitHooks($path)) {
+					$run = true;
 					$this->emit_file_hooks_pre($exists, $path, $run);
-				}
-				if (!$run) {
-					$this->unlockFile($path, ILockingProvider::LOCK_SHARED);
-					return false;
+					if (!$run) {
+						$this->unlockFile($path, ILockingProvider::LOCK_SHARED);
+						return false;
+					}
 				}
 
 				try {
@@ -688,17 +698,23 @@ class View {
 	 *
 	 * @param string $source source path
 	 * @param string $target target path
+	 * @param array $options
 	 *
 	 * @return bool|mixed
 	 * @throws LockedException
 	 */
-	public function rename($source, $target) {
+	public function rename($source, $target, array $options = []) {
+		$checkSubMounts = $options['checkSubMounts'] ?? true;
+
 		$absolutePath1 = Filesystem::normalizePath($this->getAbsolutePath($source));
 		$absolutePath2 = Filesystem::normalizePath($this->getAbsolutePath($target));
 
 		if (str_starts_with($absolutePath2, $absolutePath1 . '/')) {
-			throw new ForbiddenException("Moving a folder into a child folder is forbidden", false);
+			throw new ForbiddenException('Moving a folder into a child folder is forbidden', false);
 		}
+
+		/** @var IMountManager $mountManager */
+		$mountManager = \OC::$server->get(IMountManager::class);
 
 		$targetParts = explode('/', $absolutePath2);
 		$targetUser = $targetParts[1] ?? null;
@@ -757,24 +773,28 @@ class View {
 					try {
 						$this->changeLock($target, ILockingProvider::LOCK_EXCLUSIVE, true);
 
+						if ($checkSubMounts) {
+							$movedMounts = $mountManager->findIn($this->getAbsolutePath($source));
+						} else {
+							$movedMounts = [];
+						}
+
 						if ($internalPath1 === '') {
-							if ($mount1 instanceof MoveableMount) {
-								$sourceParentMount = $this->getMount(dirname($source));
-								if ($sourceParentMount === $mount2 && $this->targetIsNotShared($targetUser, $absolutePath2)) {
-									/**
-									 * @var \OC\Files\Mount\MountPoint | \OC\Files\Mount\MoveableMount $mount1
-									 */
-									$sourceMountPoint = $mount1->getMountPoint();
-									$result = $mount1->moveMount($absolutePath2);
-									$manager->moveMount($sourceMountPoint, $mount1->getMountPoint());
-								} else {
-									$result = false;
-								}
-							} else {
-								$result = false;
-							}
+							$sourceParentMount = $this->getMount(dirname($source));
+							$movedMounts[] = $mount1;
+							$this->validateMountMove($movedMounts, $sourceParentMount, $mount2, !$this->targetIsNotShared($targetUser, $absolutePath2));
+							/**
+							 * @var \OC\Files\Mount\MountPoint | \OC\Files\Mount\MoveableMount $mount1
+							 */
+							$sourceMountPoint = $mount1->getMountPoint();
+							$result = $mount1->moveMount($absolutePath2);
+							$manager->moveMount($sourceMountPoint, $mount1->getMountPoint());
+
 							// moving a file/folder within the same mount point
 						} elseif ($storage1 === $storage2) {
+							if (count($movedMounts) > 0) {
+								$this->validateMountMove($movedMounts, $mount1, $mount2, !$this->targetIsNotShared($targetUser, $absolutePath2));
+							}
 							if ($storage1) {
 								$result = $storage1->rename($internalPath1, $internalPath2);
 							} else {
@@ -782,6 +802,9 @@ class View {
 							}
 							// moving a file/folder between storages (from $storage1 to $storage2)
 						} else {
+							if (count($movedMounts) > 0) {
+								$this->validateMountMove($movedMounts, $mount1, $mount2, !$this->targetIsNotShared($targetUser, $absolutePath2));
+							}
 							$result = $storage2->moveFromStorage($storage1, $internalPath1, $internalPath2);
 						}
 
@@ -832,6 +855,56 @@ class View {
 	}
 
 	/**
+	 * @throws ForbiddenException
+	 */
+	private function validateMountMove(array $mounts, IMountPoint $sourceMount, IMountPoint $targetMount, bool $targetIsShared): void {
+		$targetPath = $this->getRelativePath($targetMount->getMountPoint());
+		if ($targetPath) {
+			$targetPath = trim($targetPath, '/');
+		} else {
+			$targetPath = $targetMount->getMountPoint();
+		}
+
+		$l = \OC::$server->get(IFactory::class)->get('files');
+		foreach ($mounts as $mount) {
+			$sourcePath = $this->getRelativePath($mount->getMountPoint());
+			if ($sourcePath) {
+				$sourcePath = trim($sourcePath, '/');
+			} else {
+				$sourcePath = $mount->getMountPoint();
+			}
+
+			if (!$mount instanceof MoveableMount) {
+				throw new ForbiddenException($l->t('Storage %s cannot be moved', [$sourcePath]), false);
+			}
+
+			if ($targetIsShared) {
+				if ($sourceMount instanceof SharedMount) {
+					throw new ForbiddenException($l->t('Moving a share (%s) into a shared folder is not allowed', [$sourcePath]), false);
+				} else {
+					throw new ForbiddenException($l->t('Moving a storage (%s) into a shared folder is not allowed', [$sourcePath]), false);
+				}
+			}
+
+			if ($sourceMount !== $targetMount) {
+				if ($sourceMount instanceof SharedMount) {
+					if ($targetMount instanceof SharedMount) {
+						throw new ForbiddenException($l->t('Moving a share (%s) into another share (%s) is not allowed', [$sourcePath, $targetPath]), false);
+					} else {
+						throw new ForbiddenException($l->t('Moving a share (%s) into another storage (%s) is not allowed', [$sourcePath, $targetPath]), false);
+					}
+				} else {
+					if ($targetMount instanceof SharedMount) {
+						throw new ForbiddenException($l->t('Moving a storage (%s) into a share (%s) is not allowed', [$sourcePath, $targetPath]), false);
+					} else {
+						throw new ForbiddenException($l->t('Moving a storage (%s) into another storage (%s) is not allowed', [$sourcePath, $targetPath]), false);
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Copy a file/folder from the source path to target path
 	 *
 	 * @param string $source source path
@@ -864,7 +937,7 @@ class View {
 
 			try {
 				$exists = $this->file_exists($target);
-				if ($this->shouldEmitHooks()) {
+				if ($this->shouldEmitHooks($target)) {
 					\OC_Hook::emit(
 						Filesystem::CLASSNAME,
 						Filesystem::signal_copy,
@@ -897,12 +970,14 @@ class View {
 						$result = $storage2->copyFromStorage($storage1, $internalPath1, $internalPath2);
 					}
 
-					$this->writeUpdate($storage2, $internalPath2);
+					if ($result) {
+						$this->copyUpdate($storage1, $storage2, $internalPath1, $internalPath2);
+					}
 
 					$this->changeLock($target, ILockingProvider::LOCK_SHARED);
 					$lockTypePath2 = ILockingProvider::LOCK_SHARED;
 
-					if ($this->shouldEmitHooks() && $result !== false) {
+					if ($this->shouldEmitHooks($target) && $result !== false) {
 						\OC_Hook::emit(
 							Filesystem::CLASSNAME,
 							Filesystem::signal_post_copy,
@@ -1330,7 +1405,7 @@ class View {
 	 *
 	 * @param string $path
 	 * @param bool|string $includeMountPoints true to add mountpoint sizes,
-	 * 'ext' to add only ext storage mount point sizes. Defaults to true.
+	 *                                        'ext' to add only ext storage mount point sizes. Defaults to true.
 	 * @return \OC\Files\FileInfo|false False if file does not exist
 	 */
 	public function getFileInfo($path, $includeMountPoints = true) {
@@ -1364,7 +1439,7 @@ class View {
 
 			$ownerId = $storage->getOwner($internalPath);
 			$owner = null;
-			if ($ownerId !== null && $ownerId !== false) {
+			if ($ownerId !== false) {
 				// ownerId might be null if files are accessed with an access token without file system access
 				$owner = $this->getUserObjectForOwner($ownerId);
 			}
@@ -1450,7 +1525,12 @@ class View {
 			if ($sharingDisabled) {
 				$content['permissions'] = $content['permissions'] & ~\OCP\Constants::PERMISSION_SHARE;
 			}
-			$owner = $this->getUserObjectForOwner($storage->getOwner($content['path']));
+			$ownerId = $storage->getOwner($content['path']);
+			if ($ownerId !== false) {
+				$owner = $this->getUserObjectForOwner($ownerId);
+			} else {
+				$owner = null;
+			}
 			return new FileInfo($path . '/' . $content['name'], $storage, $content['path'], $content, $mount, $owner);
 		}, $contents);
 		$files = array_combine($fileNames, $fileInfos);
@@ -1498,10 +1578,27 @@ class View {
 						$entryName = substr($relativePath, 0, $pos);
 
 						// Create parent folders if the mountpoint is inside a subfolder that doesn't exist yet
-						if (!isset($files[$entryName]) && $this->mkdir($path . '/' . $entryName) !== false) {
-							$info = $this->getFileInfo($path . '/' . $entryName);
-							if ($info !== false) {
-								$files[$entryName] = $info;
+						if (!isset($files[$entryName])) {
+							try {
+								[$storage, ] = $this->resolvePath($path . '/' . $entryName);
+								// make sure we can create the mountpoint folder, even if the user has a quota of 0
+								if ($storage->instanceOfStorage(Quota::class)) {
+									$storage->enableQuota(false);
+								}
+
+								if ($this->mkdir($path . '/' . $entryName) !== false) {
+									$info = $this->getFileInfo($path . '/' . $entryName);
+									if ($info !== false) {
+										$files[$entryName] = $info;
+									}
+								}
+
+								if ($storage->instanceOfStorage(Quota::class)) {
+									$storage->enableQuota(true);
+								}
+							} catch (\Exception $e) {
+								// Creating the parent folder might not be possible, for example due to a lack of permissions.
+								$this->logger->debug('Failed to create non-existent parent', ['exception' => $e, 'path' => $path . '/' . $entryName]);
 							}
 						}
 
@@ -1527,7 +1624,12 @@ class View {
 							$rootEntry['permissions'] = $rootEntry['permissions'] & ~\OCP\Constants::PERMISSION_SHARE;
 						}
 
-						$owner = $this->getUserObjectForOwner($subStorage->getOwner(''));
+						$ownerId = $subStorage->getOwner('');
+						if ($ownerId !== false) {
+							$owner = $this->getUserObjectForOwner($ownerId);
+						} else {
+							$owner = null;
+						}
 						$files[$rootEntry->getName()] = new FileInfo($path . '/' . $rootEntry['name'], $subStorage, '', $rootEntry, $mount, $owner);
 					}
 				}
@@ -1644,7 +1746,12 @@ class View {
 					$internalPath = $result['path'];
 					$path = $mountPoint . $result['path'];
 					$result['path'] = substr($mountPoint . $result['path'], $rootLength);
-					$owner = $userManager->get($storage->getOwner($internalPath));
+					$ownerId = $storage->getOwner($internalPath);
+					if ($ownerId !== false) {
+						$owner = $userManager->get($ownerId);
+					} else {
+						$owner = null;
+					}
 					$files[] = new FileInfo($path, $storage, $internalPath, $result, $mount, $owner);
 				}
 			}
@@ -1663,7 +1770,12 @@ class View {
 							$internalPath = $result['path'];
 							$result['path'] = rtrim($relativeMountPoint . $result['path'], '/');
 							$path = rtrim($mountPoint . $internalPath, '/');
-							$owner = $userManager->get($storage->getOwner($internalPath));
+							$ownerId = $storage->getOwner($internalPath);
+							if ($ownerId !== false) {
+								$owner = $userManager->get($ownerId);
+							} else {
+								$owner = null;
+							}
 							$files[] = new FileInfo($path, $storage, $internalPath, $result, $mount, $owner);
 						}
 					}
@@ -1676,11 +1788,9 @@ class View {
 	/**
 	 * Get the owner for a file or folder
 	 *
-	 * @param string $path
-	 * @return string the user id of the owner
 	 * @throws NotFoundException
 	 */
-	public function getOwner($path) {
+	public function getOwner(string $path): string {
 		$info = $this->getFileInfo($path);
 		if (!$info) {
 			throw new NotFoundException($path . ' not found while trying to get owner');
@@ -1813,7 +1923,12 @@ class View {
 		$mount = $this->getMount($path);
 		$storage = $mount->getStorage();
 		$internalPath = $mount->getInternalPath($this->getAbsolutePath($path));
-		$owner = \OC::$server->getUserManager()->get($storage->getOwner($internalPath));
+		$ownerId = $storage->getOwner($internalPath);
+		if ($ownerId !== false) {
+			$owner = Server::get(IUserManager::class)->get($ownerId);
+		} else {
+			$owner = null;
+		}
 		return new FileInfo(
 			$this->getAbsolutePath($path),
 			$storage,
@@ -1848,7 +1963,7 @@ class View {
 
 		// Short cut for read-only validation
 		if ($readonly) {
-			$validator = \OCP\Server::get(FilenameValidator::class);
+			$validator = Server::get(FilenameValidator::class);
 			if ($validator->isForbidden($fileName)) {
 				$l = \OCP\Util::getL10N('lib');
 				throw new InvalidPathException($l->t('Filename is a reserved word'));
@@ -1910,7 +2025,7 @@ class View {
 	 *
 	 * @param string $absolutePath absolute path
 	 * @param bool $useParentMount true to return parent mount instead of whatever
-	 * is mounted directly on the given path, false otherwise
+	 *                             is mounted directly on the given path, false otherwise
 	 * @return IMountPoint mount point for which to apply locks
 	 */
 	private function getMountForLock(string $absolutePath, bool $useParentMount = false): IMountPoint {
@@ -1956,9 +2071,9 @@ class View {
 				);
 			}
 		} catch (LockedException $e) {
-			// rethrow with the a human-readable path
+			// rethrow with the human-readable path
 			throw new LockedException(
-				$this->getPathRelativeToFiles($absolutePath),
+				$path,
 				$e,
 				$e->getExistingLock()
 			);
@@ -1996,20 +2111,12 @@ class View {
 				);
 			}
 		} catch (LockedException $e) {
-			try {
-				// rethrow with the a human-readable path
-				throw new LockedException(
-					$this->getPathRelativeToFiles($absolutePath),
-					$e,
-					$e->getExistingLock()
-				);
-			} catch (\InvalidArgumentException $ex) {
-				throw new LockedException(
-					$absolutePath,
-					$ex,
-					$e->getExistingLock()
-				);
-			}
+			// rethrow with the a human-readable path
+			throw new LockedException(
+				$path,
+				$e,
+				$e->getExistingLock()
+			);
 		}
 
 		return true;
@@ -2124,7 +2231,7 @@ class View {
 	 * @param string $absolutePath absolute path which is under "files"
 	 *
 	 * @return string path relative to "files" with trimmed slashes or null
-	 * if the path was NOT relative to files
+	 *                if the path was NOT relative to files
 	 *
 	 * @throws \InvalidArgumentException if the given path was not under "files"
 	 * @since 8.1.0

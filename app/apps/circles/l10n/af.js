@@ -13,11 +13,12 @@ OC.L10N.register(
     "Open »%s«" : "Open »%s«",
     "Files" : "Lêer ",
     "Accept" : "Aanvaar",
+    "Open %s" : "Open %s",
+    "Loading…" : "Laai…",
     "No files in here" : "Geen lêers hier nie",
     "No entries found in this folder" : "Geen inskrwyings in hierdie gids gevind",
     "Name" : "Naam",
     "Size" : "Grootte",
-    "Modified" : "Gewysig",
-    "now" : "nou"
+    "Modified" : "Gewysig"
 },
 "nplurals=2; plural=(n != 1);");

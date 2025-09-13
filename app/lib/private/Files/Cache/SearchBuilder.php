@@ -12,6 +12,7 @@ use OCP\Files\Search\ISearchBinaryOperator;
 use OCP\Files\Search\ISearchComparison;
 use OCP\Files\Search\ISearchOperator;
 use OCP\Files\Search\ISearchOrder;
+use OCP\FilesMetadata\IFilesMetadataManager;
 use OCP\FilesMetadata\IMetadataQuery;
 
 /**
@@ -80,13 +81,10 @@ class SearchBuilder {
 
 	public const TAG_FAVORITE = '_$!<Favorite>!$_';
 
-	/** @var IMimeTypeLoader */
-	private $mimetypeLoader;
-
 	public function __construct(
-		IMimeTypeLoader $mimetypeLoader
+		private IMimeTypeLoader $mimetypeLoader,
+		private IFilesMetadataManager $filesMetadataManager,
 	) {
-		$this->mimetypeLoader = $mimetypeLoader;
 	}
 
 	/**
@@ -110,7 +108,7 @@ class SearchBuilder {
 	public function searchOperatorArrayToDBExprArray(
 		IQueryBuilder $builder,
 		array $operators,
-		?IMetadataQuery $metadataQuery = null
+		?IMetadataQuery $metadataQuery = null,
 	) {
 		return array_filter(array_map(function ($operator) use ($builder, $metadataQuery) {
 			return $this->searchOperatorToDBExpr($builder, $operator, $metadataQuery);
@@ -120,7 +118,7 @@ class SearchBuilder {
 	public function searchOperatorToDBExpr(
 		IQueryBuilder $builder,
 		ISearchOperator $operator,
-		?IMetadataQuery $metadataQuery = null
+		?IMetadataQuery $metadataQuery = null,
 	) {
 		$expr = $builder->expr();
 
@@ -156,7 +154,7 @@ class SearchBuilder {
 		IQueryBuilder $builder,
 		ISearchComparison $comparison,
 		array $operatorMap,
-		?IMetadataQuery $metadataQuery = null
+		?IMetadataQuery $metadataQuery = null,
 	) {
 		if ($comparison->getExtra()) {
 			[$field, $value, $type, $paramType] = $this->getExtraOperatorField($comparison, $metadataQuery);
@@ -285,12 +283,19 @@ class SearchBuilder {
 
 
 	private function getExtraOperatorField(ISearchComparison $operator, IMetadataQuery $metadataQuery): array {
-		$paramType = self::$fieldTypes[$operator->getField()];
 		$field = $operator->getField();
 		$value = $operator->getValue();
 		$type = $operator->getType();
 
-		switch($operator->getExtra()) {
+		$knownMetadata = $this->filesMetadataManager->getKnownMetadata();
+		$isIndex = $knownMetadata->isIndex($field);
+		$paramType = $knownMetadata->getType($field) === 'int' ? 'integer' : 'string';
+
+		if (!$isIndex) {
+			throw new \InvalidArgumentException('Cannot search non indexed metadata key');
+		}
+
+		switch ($operator->getExtra()) {
 			case IMetadataQuery::EXTRA:
 				$metadataQuery->joinIndex($field); // join index table if not joined yet
 				$field = $metadataQuery->getMetadataValueField($field);
